@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# fpp-plugin-BackgroundMusic uninstall script
+# fpp-pluginAdvancedStats uninstall script
 
 echo "Uninstalling Advanced Stats Plugin..."
 

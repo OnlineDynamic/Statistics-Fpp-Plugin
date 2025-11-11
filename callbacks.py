@@ -8,7 +8,7 @@ import json
 import subprocess
 
 class Logger(object):
-    def __init__(self, filename="/home/fpp/media/logs/fpp-plugin-BackgroundMusic.log"):
+    def __init__(self, filename="/home/fpp/media/logs/fpp-pluginAdvancedStats.log"):
         self.terminal = sys.stdout
         self.log = open(filename, "a")
 
@@ -16,7 +16,7 @@ class Logger(object):
         self.terminal.write(message)
         self.log.write(message)
 
-sys.stdout = Logger("/home/fpp/media/logs/fpp-plugin-BackgroundMusic.log")
+sys.stdout = Logger("/home/fpp/media/logs/fpp-pluginAdvancedStats.log")
 
 parser = argparse.ArgumentParser(description='BackgroundMusic Plugin')
 parser.add_argument('-l','--list', help='Plugin Actions',action='store_true')
