@@ -15,6 +15,45 @@ The purpose of this FPP plugin is to provide comprehensive analytics and statist
 - 📝 **Detailed Logging** - Comprehensive logging of playlist and sequence activity
 - 🔌 **GPIO Integration** - Hardware button support for physical controls
 - ⚙️ **REST API** - Full programmatic control via HTTP endpoints
+- 🔄 **MQTT Event Capture** - Real-time event tracking via FPP's MQTT broker
+
+## Event Tracking
+
+The plugin automatically tracks:
+- **GPIO Events**: All GPIO pin state changes
+- **Sequence Plays**: Start/stop of sequences with duration tracking
+- **Playlist Activity**: Playlist start/stop events
+
+### MQTT Integration
+
+The plugin uses FPP's built-in MQTT broker to capture events in real-time. 
+
+**Prerequisites:**
+1. Enable MQTT in FPP: **Content Setup** → **System Settings** → **MQTT** → Enable checkbox
+2. The plugin's MQTT listener starts automatically when FPP starts
+3. Events are captured and logged to the database instantly
+
+**MQTT Topics Monitored:**
+- `falcon/player/+/event/sequence/#` - Sequence events
+- `falcon/player/+/event/playlist/#` - Playlist events
+- `falcon/player/+/gpio/#` - GPIO state changes
+- `falcon/player/+/status` - System status
+
+**Manual Control (if needed):**
+```bash
+# Check if MQTT listener is running
+pgrep -f mqtt_listener.py
+
+# View MQTT listener logs
+tail -f /home/fpp/media/logs/fpp-plugin-AdvancedStats.log
+
+# Manually start listener (usually not needed)
+cd /home/fpp/media/plugins/fpp-plugin-AdvancedStats
+python3 mqtt_listener.py
+
+# Stop listener
+pkill -f mqtt_listener.py
+```
 
 ## Technical Requirements
 

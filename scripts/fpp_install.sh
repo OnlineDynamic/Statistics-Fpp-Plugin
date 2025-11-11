@@ -26,6 +26,10 @@ if [ ! -f "$LOG_FILE" ]; then
     echo "Created log file: $LOG_FILE"
 fi
 
+# Install Python MQTT client library
+echo "Installing Python MQTT library..."
+apt-get install -y python3-paho-mqtt > /dev/null 2>&1 || echo "Warning: Could not install python3-paho-mqtt"
+
 # Initialize database
 echo "Initializing Advanced Stats database..."
 php "${PLUGIN_DIR}/init_database.php"
@@ -34,7 +38,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Warning: Database initialization failed"
 fi
-
 
 # Set restart flag if setSetting function is available
 if command -v setSetting &> /dev/null; then
