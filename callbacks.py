@@ -23,6 +23,10 @@ class Logger(object):
     def write(self, message):
         self.terminal.write(message)
         self.log.write(message)
+    
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
 
 sys.stdout = Logger("/home/fpp/media/logs/fpp-plugin-AdvancedStats.log")
 
@@ -74,8 +78,14 @@ if args.type:
             
             if playlist_name and action and db:
                 if action in ['start', 'stop']:
-                    db.log_playlist_event(playlist_name, action, trigger_source='fpp')
-                    print(f"Logged playlist {action}: {playlist_name}")
+                    # Only log if it's NOT a standalone sequence file
+                    # Standalone sequences end with .fseq and should only be tracked in sequence_history
+                    # Real playlists don't have file extensions
+                    if not playlist_name.endswith('.fseq'):
+                        db.log_playlist_event(playlist_name, action, trigger_source='fpp')
+                        print(f"Logged playlist {action}: {playlist_name}")
+                    else:
+                        print(f"Skipped logging standalone sequence as playlist: {playlist_name}")
         
         # GPIO callback (if we add GPIO support)
         elif args.type == 'gpio' or args.gpio:

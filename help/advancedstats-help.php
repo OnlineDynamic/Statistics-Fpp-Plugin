@@ -159,9 +159,6 @@
                 <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=content.php">
                     <i class="fas fa-cog"></i> Settings
                 </a>
-                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats-about.php">
-                    <i class="fas fa-info-circle"></i> About
-                </a>
             </div>
         </div>
         

@@ -145,6 +145,7 @@
 * Import historical data from FPP logs
 * Multi-FPP instance aggregation (track multiple controllers)
 * Sync data between FPP instances
+* UI settings option to clear db data
 
 ## 🐛 Known Issues to Fix
 
@@ -154,7 +155,6 @@
 * Error handling for database corruption scenarios
 * On Main page...  "Recent Sequence History (Last 50)" - change to last 5 and implement functionality - nothing currently displays
 * On Main page...  "Recent GPIO Events (Last 50)" - change to last 5 and implement functionality - nothing currently displays
-
 
 ## 🔧 Technical Debt
 

@@ -3,6 +3,10 @@
 # Advanced Stats Plugin - Post-Start Script
 # This script runs after FPP starts
 
+# TEMPORARILY DISABLED - MQTT listener causing performance issues with fppd
+# Will investigate and fix the issue before re-enabling
+exit 0
+
 BASEDIR=$(dirname "$0")
 cd "$BASEDIR"
 cd ..

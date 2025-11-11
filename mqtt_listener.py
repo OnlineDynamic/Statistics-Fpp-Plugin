@@ -183,14 +183,21 @@ def handle_playlist_topic(topic, subtopic, payload, data):
             playlist_name = payload.strip()
             
             if playlist_name and playlist_name != '':
-                # Playlist/Sequence started
-                if db:
-                    db.log_playlist_event(
-                        playlist_name=playlist_name,
-                        event_type='start',
-                        trigger_source='mqtt'
-                    )
-                    log_message(f"Logged playlist start: {playlist_name}")
+                # Only log if it's NOT a standalone sequence file
+                # Standalone sequences end with .fseq and should only be tracked in sequence_history
+                # Real playlists don't have file extensions
+                if not playlist_name.endswith('.fseq'):
+                    # This is an actual playlist (contains multiple items)
+                    if db:
+                        db.log_playlist_event(
+                            playlist_name=playlist_name,
+                            event_type='start',
+                            trigger_source='mqtt'
+                        )
+                        log_message(f"Logged playlist start: {playlist_name}")
+                else:
+                    # This is a standalone sequence, not a playlist - it will be logged in sequence_history
+                    log_message(f"Skipped logging standalone sequence as playlist: {playlist_name}")
         
         # Also track when status changes to playing/idle
         elif subtopic == 'status':
