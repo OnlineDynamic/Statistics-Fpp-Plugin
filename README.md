@@ -1,24 +1,26 @@
 # Advanced Stats Plugin for FPP
 
-This is the home of the Advanced Stats FPP Plugin Repo
+This is the home of the Advanced Stats FPP Plugin Repository
 
-The purpose of this FPP plugin is to allow the end user to ......
-
+The purpose of this FPP plugin is to provide comprehensive analytics and statistics tracking for your Falcon Player (FPP) system.
 
 ## Requirements
 
 - **FPP Version**: 9.0 or higher
--
-
 
 ## Features
 
-- �🔌 **GPIO Integration** -
+- 📊 **Real-time Statistics** - Monitor system performance as it happens
+- 📈 **Historical Analytics** - Track trends and patterns over time
+- 📝 **Detailed Logging** - Comprehensive logging of playlist and sequence activity
+- 🔌 **GPIO Integration** - Hardware button support for physical controls
 - ⚙️ **REST API** - Full programmatic control via HTTP endpoints
 
 ## Technical Requirements
 
-### 
+### Git-based Installation
+
+The plugin supports automatic update checking when installed via git through FPP's Plugin Manager.
 
 ### Automatic Update Notifications
 
@@ -43,81 +45,73 @@ The plugin checks for updates automatically when internet is available:
 
 ### 1. Installation
 
-Plugin automatically installs via FPP plugin manager.
+Plugin automatically installs via FPP Plugin Manager:
+1. Navigate to **Content Setup** → **Plugin Manager**
+2. Search for "Advanced Stats"
+3. Click **Install**
 
 ### 2. Configuration
 
-1. Navigate to **Content Setup**
-2.
+1. Navigate to **Content Setup** → **Advanced Stats Settings**
+2. Configure your preferences
 3. Click **Save Settings**
 
 ### 3. Basic Usage
 
+1. Access the dashboard at **Status/Control** → **Advanced Stats Dashboard**
+2. View real-time statistics and analytics
+3. Monitor system performance and activity
 
 ### 4. GPIO Setup (Optional)
 
-The
+GPIO integration allows physical buttons to trigger plugin functions (if implemented).
 
 ## API Endpoints
 
-All endpoints available at: `/api/plugin/fpp-plugin-BackgroundMusic/`
+All endpoints available at: `/api/plugin/fpp-plugin-AdvancedStats/`
 
 ### Status
 
 ```bash
-GET /api/plugin/fpp-plugin-BackgroundMusic/status
+GET /api/plugin/fpp-plugin-AdvancedStats/status
 ```
 
-Returns current plugin state, FPP playlist, brightness, track progress, and configuration.
+Returns current plugin status, version, and configuration.
 
-### Control Background Music
-
-```bash
-POST /api/plugin/fpp-plugin-BackgroundMusic/start-background
-POST /api/plugin/fpp-plugin-BackgroundMusic/stop-background
-```
-
-### Trigger Show
-
-```bash
-POST /api/plugin/fpp-plugin-BackgroundMusic/start-show
-```
-
-### Set Volume
-
-```bash
-POST /api/plugin/fpp-plugin-BackgroundMusic/set-volume
-Content-Type: application/json
-{"volume": 70}
-```
-
-### Playlist Details
-
-```bash
-GET /api/plugin/fpp-plugin-BackgroundMusic/playlist-details
-```
-
-Returns track list with durations and metadata for the configured background music playlist.
-
-### Save Settings
-
-```bash
-POST /api/plugin/fpp-plugin-BackgroundMusic/save-settings
-Content-Type: application/json
+**Response:**
+```json
 {
-  "BackgroundMusicPlaylist": "Background music only",
-  "ShowPlaylist": "Main Show",
-  "BackgroundMusicVolume": 70,
-  "ShowPlaylistVolume": 100,
-  "PostShowBackgroundVolume": 70,
-  "FadeTime": 5,
-  "BlackoutTime": 2,
-  "ShuffleMusic": 1,
-  "ReturnToPreShow": 1,
-  "PostShowDelay": 5
+  "success": true,
+  "status": "active",
+  "version": "Advanced Analytics Plugin",
+  "isGitRepo": true,
+  "pluginDir": "fpp-plugin-AdvancedStats"
 }
 ```
 
+### Git Commit History
+
+```bash
+GET /api/plugin/fpp-plugin-AdvancedStats/git-commits
+```
+
+Returns the last 20 git commits for the plugin (useful for changelog display).
+
+**Response:**
+```json
+{
+  "success": true,
+  "commits": [
+    {
+      "hash": "abc123...",
+      "author": "Developer Name",
+      "date": 1762870563,
+      "message": "Commit message"
+    }
+  ],
+  "count": 20
+}
+```
 
 ## Support & Development
 
@@ -125,8 +119,8 @@ Content-Type: application/json
 
 **Resources:**
 
-- [GitHub Repository](https://github.com/OnlineDynamic/BackgroundMusicFPP-Plugin)
-- [Bug Reports & Feature Requests](https://github.com/OnlineDynamic/BackgroundMusicFPP-Plugin/issues)
+- [GitHub Repository](https://github.com/OnlineDynamic/Statistics-Fpp-Plugin)
+- [Bug Reports & Feature Requests](https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues)
 
 ## License
 
