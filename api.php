@@ -210,7 +210,7 @@ function fppAdvancedStatsStatus() {
     }
     
     // Check running playlists
-    $status = GetCurrentStatus();
+    //$status = GetCurrentStatus();
     $currentPlaylist = isset($status['current_playlist']['playlist']) ? $status['current_playlist']['playlist'] : '';
     $fppStatus = isset($status['status_name']) ? $status['status_name'] : 'unknown';
     $currentSequence = isset($status['current_sequence']) ? $status['current_sequence'] : '';
@@ -563,14 +563,14 @@ function fppAdvancedStatsSetVolume() {
     }
 }
 
-function GetCurrentStatus() {
+/* function GetCurrentStatus() {
     $ch = curl_init('http://localhost/api/fppd/status');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     $data = curl_exec($ch);
     curl_close($ch);
     return json_decode($data, true);
-}
+} */
 
 // POST /api/plugin/fpp-plugin-AdvancedStats/save-settings
 function fppAdvancedStatsSaveSettings() {
