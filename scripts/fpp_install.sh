@@ -26,6 +26,15 @@ if [ ! -f "$LOG_FILE" ]; then
     echo "Created log file: $LOG_FILE"
 fi
 
+# Initialize database
+echo "Initializing Advanced Stats database..."
+php "${PLUGIN_DIR}/init_database.php"
+if [ $? -eq 0 ]; then
+    echo "Database initialized successfully"
+else
+    echo "Warning: Database initialization failed"
+fi
+
 
 # Set restart flag if setSetting function is available
 if command -v setSetting &> /dev/null; then

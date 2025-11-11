@@ -25,6 +25,36 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetStatus');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'gpio-events',
+        'callback' => 'advancedStatsGetGPIOEvents');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'sequence-history',
+        'callback' => 'advancedStatsGetSequenceHistory');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'playlist-history',
+        'callback' => 'advancedStatsGetPlaylistHistory');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'daily-stats',
+        'callback' => 'advancedStatsGetDailyStats');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'dashboard-data',
+        'callback' => 'advancedStatsGetDashboardData');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -110,5 +140,266 @@ function advancedStatsGetStatus() {
         'isGitRepo' => $isGitRepo,
         'pluginDir' => basename($pluginDir)
     ));
+}
+
+/**
+ * Get GPIO events history
+ */
+function advancedStatsGetGPIOEvents() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $db = new SQLite3($dbPath);
+        $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+        $pin = isset($_GET['pin']) ? intval($_GET['pin']) : null;
+        
+        if ($pin !== null) {
+            $query = "SELECT * FROM gpio_events WHERE pin_number = :pin ORDER BY timestamp DESC LIMIT :limit";
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(':pin', $pin, SQLITE3_INTEGER);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        } else {
+            $query = "SELECT * FROM gpio_events ORDER BY timestamp DESC LIMIT :limit";
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        }
+        
+        $result = $stmt->execute();
+        $events = array();
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $events[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'events' => $events,
+            'count' => count($events)
+        ));
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error retrieving GPIO events: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get sequence history
+ */
+function advancedStatsGetSequenceHistory() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $db = new SQLite3($dbPath);
+        $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+        
+        $query = "SELECT * FROM sequence_history ORDER BY timestamp DESC LIMIT :limit";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        
+        $result = $stmt->execute();
+        $sequences = array();
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $sequences[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'sequences' => $sequences,
+            'count' => count($sequences)
+        ));
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error retrieving sequence history: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get playlist history
+ */
+function advancedStatsGetPlaylistHistory() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $db = new SQLite3($dbPath);
+        $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+        
+        $query = "SELECT * FROM playlist_history ORDER BY timestamp DESC LIMIT :limit";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        
+        $result = $stmt->execute();
+        $playlists = array();
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $playlists[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'playlists' => $playlists,
+            'count' => count($playlists)
+        ));
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error retrieving playlist history: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get daily statistics
+ */
+function advancedStatsGetDailyStats() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $db = new SQLite3($dbPath);
+        $days = isset($_GET['days']) ? intval($_GET['days']) : 30;
+        
+        $query = "SELECT * FROM daily_stats ORDER BY date DESC LIMIT :days";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(':days', $days, SQLITE3_INTEGER);
+        
+        $result = $stmt->execute();
+        $stats = array();
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $stats[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'stats' => $stats,
+            'count' => count($stats)
+        ));
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error retrieving daily stats: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get dashboard data (combined summary)
+ */
+function advancedStatsGetDashboardData() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $db = new SQLite3($dbPath);
+        
+        // Get today's stats
+        $today = date('Y-m-d');
+        $stmt = $db->prepare("SELECT * FROM daily_stats WHERE date = :date");
+        $stmt->bindValue(':date', $today, SQLITE3_TEXT);
+        $result = $stmt->execute();
+        $todayStats = $result->fetchArray(SQLITE3_ASSOC);
+        
+        if (!$todayStats) {
+            $todayStats = array(
+                'gpio_events_count' => 0,
+                'sequences_played' => 0,
+                'playlists_started' => 0,
+                'total_sequence_duration' => 0
+            );
+        }
+        
+        // Get total counts
+        $totalGPIO = $db->querySingle("SELECT COUNT(*) FROM gpio_events");
+        $totalSequences = $db->querySingle("SELECT COUNT(*) FROM sequence_history WHERE event_type = 'start'");
+        $totalPlaylists = $db->querySingle("SELECT COUNT(*) FROM playlist_history WHERE event_type = 'start'");
+        
+        // Get most played sequences (top 10)
+        $topSequences = array();
+        $query = "SELECT sequence_name, COUNT(*) as play_count FROM sequence_history 
+                  WHERE event_type = 'start' 
+                  GROUP BY sequence_name 
+                  ORDER BY play_count DESC 
+                  LIMIT 10";
+        $result = $db->query($query);
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $topSequences[] = $row;
+        }
+        
+        // Get most active GPIO pins
+        $topGPIO = array();
+        $query = "SELECT pin_number, COUNT(*) as event_count FROM gpio_events 
+                  GROUP BY pin_number 
+                  ORDER BY event_count DESC 
+                  LIMIT 10";
+        $result = $db->query($query);
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $topGPIO[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'today' => $todayStats,
+            'totals' => array(
+                'gpio_events' => $totalGPIO,
+                'sequences' => $totalSequences,
+                'playlists' => $totalPlaylists
+            ),
+            'top_sequences' => $topSequences,
+            'top_gpio_pins' => $topGPIO
+        ));
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error retrieving dashboard data: ' . $e->getMessage()
+        ));
+    }
 }
 ?>
