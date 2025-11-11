@@ -1,0 +1,106 @@
+{
+    "settingGroups": {
+        "BackgroundMusic": {
+            "description": "Background Music Settings",
+            "settings": [
+                "BackgroundMusicPlaylist",
+                "VolumeLevel",
+                "ShowPlaylist",
+                "FadeTime",
+                "BlackoutTime",
+                "ReturnToPreShow",
+                "ShuffleMusic"
+            ],
+            "level": 0
+        }
+    },
+    "attributes": {
+        "level": 0,
+        "gatherStats": false,
+        "restart": 0,
+        "reboot": 0,
+        "default": ""
+    },
+    "settings": {
+        "BackgroundMusicPlaylist": {
+            "name": "BackgroundMusicPlaylist",
+            "description": "Background Music Playlist",
+            "tip": "Audio playlist to play over your existing pre-show sequence",
+            "type": "select",
+            "optionsURL": "/api/playlists",
+            "optionsURLIsJSON": true,
+            "default": "",
+            "level": 0,
+            "restart": 0,
+            "reboot": 0
+        },
+        "VolumeLevel": {
+            "name": "VolumeLevel",
+            "description": "Background Music Volume",
+            "tip": "Volume level for background music (0-100%, where 100 is full volume)",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "default": 70,
+            "level": 0,
+            "restart": 0,
+            "reboot": 0
+        },
+        "ShowPlaylist": {
+            "name": "ShowPlaylist",
+            "description": "Main Show Playlist",
+            "tip": "The main show playlist to start after fade and blackout",
+            "type": "select",
+            "optionsURL": "/api/playlists",
+            "optionsURLIsJSON": true,
+            "default": "",
+            "level": 0,
+            "restart": 0,
+            "reboot": 0
+        },
+        "FadeTime": {
+            "name": "FadeTime",
+            "description": "Fade Out Time (seconds)",
+            "tip": "Time in seconds to fade out brightness before show",
+            "type": "number",
+            "min": 1,
+            "max": 60,
+            "default": 5,
+            "level": 0,
+            "restart": 0,
+            "reboot": 0
+        },
+        "BlackoutTime": {
+            "name": "BlackoutTime",
+            "description": "Blackout Duration (seconds)",
+            "tip": "Time in seconds to wait in blackout before starting show",
+            "type": "number",
+            "min": 0,
+            "max": 30,
+            "default": 2,
+            "level": 0,
+            "restart": 0,
+            "reboot": 0
+        },
+        "ReturnToPreShow": {
+            "name": "ReturnToPreShow",
+            "description": "Return to Pre-Show After Show",
+            "tip": "Automatically restart background music when show playlist ends",
+            "type": "checkbox",
+            "default": "1",
+            "level": 0,
+            "restart": 0,
+            "reboot": 0
+        },
+        "ShuffleMusic": {
+            "name": "ShuffleMusic",
+            "description": "Shuffle Music Playlist",
+            "tip": "Randomly shuffle the order of background music tracks to add variety",
+            "type": "checkbox",
+            "default": "0",
+            "level": 0,
+            "restart": 0,
+            "reboot": 0
+        }
+    }
+}
