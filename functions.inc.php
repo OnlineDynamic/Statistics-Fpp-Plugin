@@ -11,13 +11,13 @@ $pluginSettings = array();
 }
 
 // Get plugin setting by key
-function getPluginSetting($key, $default = '') {
+function advancedstats_getPluginSetting($key, $default = '') {
 global $pluginSettings;
 return isset($pluginSettings[$key]) ? $pluginSettings[$key] : $default;
 }
 
 // Get all playlists from FPP
-function getPlaylistsFromFPP() {
+function advancedstats_getPlaylistsFromFPP() {
 $ch = curl_init('http://localhost/api/playlists');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -32,7 +32,7 @@ return array();
 }
 
 // Get FPP status
-function getFPPStatus() {
+function advancedstats_getFPPStatus() {
 $ch = curl_init('http://localhost/api/fppd/status');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -42,14 +42,14 @@ return json_decode($data, true);
 }
 
 // Check if a playlist is currently running
-function isPlaylistRunning($playlistName) {
-$status = getFPPStatus();
+function advancedstats_isPlaylistRunning($playlistName) {
+$status = advancedstats_getFPPStatus();
 $currentPlaylist = isset($status['current_playlist']['playlist']) ? $status['current_playlist']['playlist'] : '';
 return ($currentPlaylist === $playlistName && $playlistName !== '');
 }
 
 // Start a playlist
-function startPlaylist($playlistName, $repeat = false) {
+function advancedstats_startPlaylist($playlistName, $repeat = false) {
 $data = array('command' => 'start', 'playlist' => $playlistName);
 if ($repeat) {
 $data['repeat'] = true;
@@ -67,7 +67,7 @@ return json_decode($response, true);
 }
 
 // Stop all playlists
-function stopAllPlaylists() {
+function advancedstats_stopAllPlaylists() {
 $data = array('command' => 'stop');
 $ch = curl_init('http://localhost/api/command');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -81,7 +81,7 @@ return json_decode($response, true);
 }
 
 // Get current brightness
-function getCurrentBrightness() {
+function advancedstats_getCurrentBrightness() {
 $brightness = getSetting('brightness');
 if ($brightness === false || $brightness === '') {
 return 100;
@@ -90,7 +90,7 @@ return intval($brightness);
 }
 
 // Set brightness
-function setFPPBrightness($level) {
+function advancedstats_setFPPBrightness($level) {
 if ($level < 0) $level = 0;
 if ($level > 100) $level = 100;
 
@@ -104,7 +104,7 @@ return json_decode($response, true);
 }
 
 // Log to plugin log file
-function logPluginMessage($message) {
+function advancedstats_logPluginMessage($message) {
 $logFile = '/home/fpp/media/logs/fpp-plugin-AdvancedStats.log';
 $timestamp = date('Y-m-d H:i:s');
 $logMessage = "[$timestamp] $message\n";
