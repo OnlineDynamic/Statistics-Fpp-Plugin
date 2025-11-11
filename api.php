@@ -55,6 +55,24 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetDashboardData');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'backup-database',
+        'callback' => 'advancedStatsBackupDatabase');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'POST',
+        'endpoint' => 'restore-database',
+        'callback' => 'advancedStatsRestoreDatabase');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'export-data',
+        'callback' => 'advancedStatsExportData');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -487,6 +505,178 @@ function advancedStatsGetDashboardData() {
             'success' => false,
             'message' => 'Error retrieving dashboard data: ' . $e->getMessage()
         ));
+    }
+}
+
+/**
+ * Backup database - download DB file
+ */
+function advancedStatsBackupDatabase() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'success' => false,
+            'message' => 'Database not found'
+        ));
+        return;
+    }
+    
+    $filename = 'advancedstats-backup-' . date('Y-m-d-His') . '.db';
+    
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Content-Length: ' . filesize($dbPath));
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Pragma: public');
+    
+    readfile($dbPath);
+    exit;
+}
+
+/**
+ * Restore database - upload and replace DB file
+ */
+function advancedStatsRestoreDatabase() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!isset($_FILES['database']) || $_FILES['database']['error'] !== UPLOAD_ERR_OK) {
+        return json(array(
+            'success' => false,
+            'message' => 'No file uploaded or upload error'
+        ));
+    }
+    
+    $uploadedFile = $_FILES['database']['tmp_name'];
+    
+    // Verify it's a valid SQLite database
+    try {
+        $db = new SQLite3($uploadedFile);
+        // Check if required tables exist
+        $tables = array('gpio_events', 'sequence_history', 'playlist_history', 'daily_stats');
+        foreach ($tables as $table) {
+            $result = $db->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='$table'");
+            if (!$result) {
+                $db->close();
+                return json(array(
+                    'success' => false,
+                    'message' => "Invalid database: missing table '$table'"
+                ));
+            }
+        }
+        $db->close();
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Invalid SQLite database file'
+        ));
+    }
+    
+    // Backup current database before replacing
+    if (file_exists($dbPath)) {
+        $backupPath = $dbPath . '.backup-' . date('YmdHis');
+        if (!copy($dbPath, $backupPath)) {
+            return json(array(
+                'success' => false,
+                'message' => 'Failed to create safety backup'
+            ));
+        }
+    }
+    
+    // Replace database
+    if (move_uploaded_file($uploadedFile, $dbPath)) {
+        chmod($dbPath, 0664);
+        return json(array(
+            'success' => true,
+            'message' => 'Database restored successfully'
+        ));
+    } else {
+        return json(array(
+            'success' => false,
+            'message' => 'Failed to restore database'
+        ));
+    }
+}
+
+/**
+ * Export data in CSV or JSON format
+ */
+function advancedStatsExportData() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+        return;
+    }
+    
+    $table = isset($_GET['table']) ? $_GET['table'] : 'sequence_history';
+    $format = isset($_GET['format']) ? $_GET['format'] : 'csv';
+    
+    $validTables = array('gpio_events', 'sequence_history', 'playlist_history', 'daily_stats');
+    if (!in_array($table, $validTables)) {
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'success' => false,
+            'message' => 'Invalid table name'
+        ));
+        return;
+    }
+    
+    try {
+        $db = new SQLite3($dbPath);
+        $result = $db->query("SELECT * FROM $table ORDER BY timestamp DESC");
+        
+        $data = array();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = $row;
+        }
+        $db->close();
+        
+        if (empty($data)) {
+            header('Content-Type: application/json');
+            echo json_encode(array(
+                'success' => false,
+                'message' => 'No data to export'
+            ));
+            return;
+        }
+        
+        $filename = "advancedstats-$table-" . date('Y-m-d-His');
+        
+        if ($format === 'json') {
+            header('Content-Type: application/json');
+            header('Content-Disposition: attachment; filename="' . $filename . '.json"');
+            echo json_encode($data, JSON_PRETTY_PRINT);
+        } else {
+            // CSV export
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+            
+            $output = fopen('php://output', 'w');
+            
+            // Write header row
+            fputcsv($output, array_keys($data[0]));
+            
+            // Write data rows
+            foreach ($data as $row) {
+                fputcsv($output, $row);
+            }
+            
+            fclose($output);
+        }
+        exit;
+    } catch (Exception $e) {
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'success' => false,
+            'message' => 'Export error: ' . $e->getMessage()
+        ));
+        return;
     }
 }
 ?>

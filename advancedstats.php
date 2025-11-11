@@ -274,9 +274,18 @@
             </div>
             <h1><i class="fas fa-chart-line"></i> Advanced Stats Dashboard</h1>
             <p style="color: #6c757d; font-size: 16px;">GPIO Input & Sequence Play History</p>
-            <button class="refresh-btn" onclick="loadAllData()">
-                <i class="fas fa-sync"></i> Refresh Data
-            </button>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+                <button class="refresh-btn" onclick="loadAllData()">
+                    <i class="fas fa-sync"></i> Refresh Data
+                </button>
+                <button class="refresh-btn" style="background-color: #17a2b8;" onclick="backupDatabase()">
+                    <i class="fas fa-download"></i> Backup Database
+                </button>
+                <button class="refresh-btn" style="background-color: #ffc107; color: #212529;" onclick="document.getElementById('restoreFileInput').click()">
+                    <i class="fas fa-upload"></i> Restore Database
+                </button>
+            </div>
+            <input type="file" id="restoreFileInput" accept=".db" style="display:none;" onchange="restoreDatabase(this.files[0])" />
             <div id="lastUpdate" style="color: #6c757d; font-size: 12px; margin-top: 10px;"></div>
         </div>
         
@@ -377,7 +386,17 @@
         
         <!-- Recent Sequence History -->
         <div class="table-section">
-            <h2><i class="fas fa-history"></i> Recent Sequence History</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2><i class="fas fa-history"></i> Recent Sequence History</h2>
+                <div>
+                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('sequence_history', 'csv')">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('sequence_history', 'json')">
+                        <i class="fas fa-file-code"></i> JSON
+                    </button>
+                </div>
+            </div>
             <div class="filter-section">
                 <label for="seqStartDate">From:</label>
                 <input type="date" id="seqStartDate" />
@@ -427,7 +446,17 @@
         
         <!-- Recent GPIO Events -->
         <div class="table-section">
-            <h2><i class="fas fa-microchip"></i> Recent GPIO Events</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2><i class="fas fa-microchip"></i> Recent GPIO Events</h2>
+                <div>
+                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('gpio_events', 'csv')">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('gpio_events', 'json')">
+                        <i class="fas fa-file-code"></i> JSON
+                    </button>
+                </div>
+            </div>
             <div class="filter-section">
                 <label for="gpioStartDate">From:</label>
                 <input type="date" id="gpioStartDate" />
@@ -768,6 +797,48 @@
             loadSequenceHistory();
             loadGPIOEvents();
             document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
+        }
+        
+        // Backup database
+        function backupDatabase() {
+            window.location.href = '/api/plugin/fpp-plugin-AdvancedStats/backup-database';
+        }
+        
+        // Restore database
+        function restoreDatabase(file) {
+            if (!file) return;
+            
+            if (!confirm('Are you sure you want to restore from this backup? This will replace your current database. A safety backup will be created automatically.')) {
+                document.getElementById('restoreFileInput').value = '';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('database', file);
+            
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/restore-database', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Database restored successfully! Reloading data...');
+                    loadAllData();
+                } else {
+                    alert('Restore failed: ' + data.message);
+                }
+                document.getElementById('restoreFileInput').value = '';
+            })
+            .catch(error => {
+                alert('Restore error: ' + error.message);
+                document.getElementById('restoreFileInput').value = '';
+            });
+        }
+        
+        // Export data
+        function exportData(table, format) {
+            window.location.href = `/api/plugin/fpp-plugin-AdvancedStats/export-data?table=${table}&format=${format}`;
         }
         
         // Auto-load on page load
