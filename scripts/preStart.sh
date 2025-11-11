@@ -1,11 +1,7 @@
 #!/bin/sh
 
-echo "Running fpp-plugin-backgroundmusic PreStart Script"
+# Advanced Stats Plugin - Pre-Start Script
+# This script runs before FPP starts
 
-
-
-BASEDIR=$(dirname $0)
-cd $BASEDIR
-cd ..
-make "SRCDIR=${SRCDIR}"
+# Nothing needed for this plugin during startup
 

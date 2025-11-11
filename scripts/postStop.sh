@@ -1,4 +1,7 @@
 #!/bin/sh
 
-#echo "Running fpp-plugin-Template PostStop Script"
+# Advanced Stats Plugin - Post-Stop Script
+# This script runs after FPP stops
+
+# Nothing needed for this plugin after shutdown
 
