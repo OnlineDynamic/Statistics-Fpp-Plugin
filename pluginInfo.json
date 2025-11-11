@@ -1,0 +1,18 @@
+{
+	"repoName": "fpp-plugin-AdvancedStats",
+	"name": "Advanced Analytics Plugin",
+	"author": "Stuart Ledingham (onlinedynamic)",
+	"description": "Enhances Falcon Player by adding advanced analytics",
+	"homeURL": "https://github.com/OnlineDynamic/Statistics-Fpp-Plugin",
+	"srcURL": "https://github.com/OnlineDynamic/Statistics-Fpp-Plugin.git",
+	"bugURL": "https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues",
+	"allowUpdates": 1,
+	"versions": [
+		{
+			"minFPPVersion": "9.0",
+			"maxFPPVersion": "0",
+			"branch": "master",
+			"sha": ""
+		}
+	]
+}
