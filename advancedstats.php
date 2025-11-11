@@ -157,6 +157,108 @@
             border-radius: 5px;
             margin: 20px 0;
         }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        
+        .pagination button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .pagination .page-info {
+            color: #495057;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        
+        .filter-section {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-section label {
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .filter-section input[type="date"],
+        .filter-section select {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .filter-section button {
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .filter-section button:hover {
+            background-color: #218838;
+        }
+        
+        .filter-section .clear-btn {
+            background-color: #6c757d;
+        }
+        
+        .filter-section .clear-btn:hover {
+            background-color: #5a6268;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
     </style>
 </head>
 <body>
@@ -275,7 +377,25 @@
         
         <!-- Recent Sequence History -->
         <div class="table-section">
-            <h2><i class="fas fa-history"></i> Recent Sequence History (Last 50)</h2>
+            <h2><i class="fas fa-history"></i> Recent Sequence History</h2>
+            <div class="filter-section">
+                <label for="seqStartDate">From:</label>
+                <input type="date" id="seqStartDate" />
+                <label for="seqEndDate">To:</label>
+                <input type="date" id="seqEndDate" />
+                <label for="seqEventType">Event Type:</label>
+                <select id="seqEventType">
+                    <option value="">All</option>
+                    <option value="start">Start Only</option>
+                    <option value="stop">Stop Only</option>
+                </select>
+                <button onclick="applySequenceFilters()">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <button class="clear-btn" onclick="clearSequenceFilters()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
             <div id="sequenceHistoryLoading" class="loading">
                 <i class="fas fa-spinner fa-spin"></i> Loading...
             </div>
@@ -284,6 +404,7 @@
                     <tr>
                         <th>Timestamp</th>
                         <th>Sequence Name</th>
+                        <th>Event Type</th>
                         <th>Playlist</th>
                         <th>Duration (sec)</th>
                     </tr>
@@ -293,11 +414,36 @@
             <div id="sequenceHistoryEmpty" class="no-data" style="display:none;">
                 No sequence history available yet.
             </div>
+            <div id="sequenceHistoryPagination" class="pagination" style="display:none;">
+                <button id="seqPrevBtn" onclick="loadSequenceHistory('prev')">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info" id="seqPageInfo">Page 1</span>
+                <button id="seqNextBtn" onclick="loadSequenceHistory('next')">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
         
         <!-- Recent GPIO Events -->
         <div class="table-section">
-            <h2><i class="fas fa-microchip"></i> Recent GPIO Events (Last 50)</h2>
+            <h2><i class="fas fa-microchip"></i> Recent GPIO Events</h2>
+            <div class="filter-section">
+                <label for="gpioStartDate">From:</label>
+                <input type="date" id="gpioStartDate" />
+                <label for="gpioEndDate">To:</label>
+                <input type="date" id="gpioEndDate" />
+                <label for="gpioPin">Pin:</label>
+                <select id="gpioPin">
+                    <option value="">All Pins</option>
+                </select>
+                <button onclick="applyGPIOFilters()">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <button class="clear-btn" onclick="clearGPIOFilters()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
             <div id="gpioEventsLoading" class="loading">
                 <i class="fas fa-spinner fa-spin"></i> Loading...
             </div>
@@ -313,6 +459,15 @@
             </table>
             <div id="gpioEventsEmpty" class="no-data" style="display:none;">
                 No GPIO events recorded yet.
+            </div>
+            <div id="gpioEventsPagination" class="pagination" style="display:none;">
+                <button id="gpioPrevBtn" onclick="loadGPIOEvents('prev')">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info" id="gpioPageInfo">Page 1</span>
+                <button id="gpioNextBtn" onclick="loadGPIOEvents('next')">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -410,31 +565,127 @@
                 });
         }
         
+        // Pagination state
+        let sequencePage = { offset: 0, limit: 50, total: 0 };
+        let gpioPage = { offset: 0, limit: 50, total: 0 };
+        
+        // Filter state
+        let sequenceFilters = {};
+        let gpioFilters = {};
+        
+        // Apply sequence filters
+        function applySequenceFilters() {
+            sequenceFilters = {};
+            const startDate = document.getElementById('seqStartDate').value;
+            const endDate = document.getElementById('seqEndDate').value;
+            const eventType = document.getElementById('seqEventType').value;
+            
+            if (startDate) sequenceFilters.start_date = startDate;
+            if (endDate) sequenceFilters.end_date = endDate;
+            if (eventType) sequenceFilters.event_type = eventType;
+            
+            sequencePage.offset = 0; // Reset to first page
+            loadSequenceHistory();
+        }
+        
+        // Clear sequence filters
+        function clearSequenceFilters() {
+            document.getElementById('seqStartDate').value = '';
+            document.getElementById('seqEndDate').value = '';
+            document.getElementById('seqEventType').value = '';
+            sequenceFilters = {};
+            sequencePage.offset = 0;
+            loadSequenceHistory();
+        }
+        
+        // Apply GPIO filters
+        function applyGPIOFilters() {
+            gpioFilters = {};
+            const startDate = document.getElementById('gpioStartDate').value;
+            const endDate = document.getElementById('gpioEndDate').value;
+            const pin = document.getElementById('gpioPin').value;
+            
+            if (startDate) gpioFilters.start_date = startDate;
+            if (endDate) gpioFilters.end_date = endDate;
+            if (pin) gpioFilters.pin = pin;
+            
+            gpioPage.offset = 0; // Reset to first page
+            loadGPIOEvents();
+        }
+        
+        // Clear GPIO filters
+        function clearGPIOFilters() {
+            document.getElementById('gpioStartDate').value = '';
+            document.getElementById('gpioEndDate').value = '';
+            document.getElementById('gpioPin').value = '';
+            gpioFilters = {};
+            gpioPage.offset = 0;
+            loadGPIOEvents();
+        }
+        
         // Load sequence history
-        function loadSequenceHistory() {
-            fetch('/api/plugin/fpp-plugin-AdvancedStats/sequence-history?limit=50')
+        function loadSequenceHistory(action) {
+            if (action === 'prev' && sequencePage.offset > 0) {
+                sequencePage.offset -= sequencePage.limit;
+            } else if (action === 'next' && sequencePage.offset + sequencePage.limit < sequencePage.total) {
+                sequencePage.offset += sequencePage.limit;
+            } else if (action === 'prev' || action === 'next') {
+                return; // Don't reload if can't move
+            }
+            
+            // Build query string with filters
+            let queryParams = `limit=${sequencePage.limit}&offset=${sequencePage.offset}`;
+            for (let key in sequenceFilters) {
+                queryParams += `&${key}=${encodeURIComponent(sequenceFilters[key])}`;
+            }
+            
+            fetch(`/api/plugin/fpp-plugin-AdvancedStats/sequence-history?${queryParams}`)
                 .then(response => response.json())
                 .then(data => {
+                    if (!data.success) {
+                        showError('Failed to load sequence history');
+                        return;
+                    }
+                    
                     const seqHistBody = document.getElementById('sequenceHistoryBody');
                     const seqHistTable = document.getElementById('sequenceHistoryTable');
                     const seqHistLoading = document.getElementById('sequenceHistoryLoading');
                     const seqHistEmpty = document.getElementById('sequenceHistoryEmpty');
+                    const seqHistPagination = document.getElementById('sequenceHistoryPagination');
                     
                     seqHistLoading.style.display = 'none';
-                    if (data.length > 0) {
+                    
+                    // Update pagination state
+                    sequencePage.total = data.total || 0;
+                    
+                    if (data.sequences && data.sequences.length > 0) {
                         seqHistTable.style.display = 'table';
                         seqHistEmpty.style.display = 'none';
-                        seqHistBody.innerHTML = data.map(seq => `
+                        seqHistBody.innerHTML = data.sequences.map(seq => `
                             <tr>
-                                <td>${formatTimestamp(seq.timestamp)}</td>
+                                <td>${formatTimestamp(seq.timestamp * 1000)}</td>
                                 <td>${seq.sequence_name}</td>
-                                <td>${seq.playlist || 'N/A'}</td>
+                                <td><span class="badge ${seq.event_type === 'start' ? 'badge-success' : 'badge-warning'}">${seq.event_type}</span></td>
+                                <td>${seq.playlist_name || 'N/A'}</td>
                                 <td>${seq.duration}</td>
                             </tr>
                         `).join('');
+                        
+                        // Show pagination if more than one page
+                        if (sequencePage.total > sequencePage.limit) {
+                            seqHistPagination.style.display = 'flex';
+                            const currentPage = Math.floor(sequencePage.offset / sequencePage.limit) + 1;
+                            const totalPages = Math.ceil(sequencePage.total / sequencePage.limit);
+                            document.getElementById('seqPageInfo').textContent = `Page ${currentPage} of ${totalPages} (${sequencePage.total} total)`;
+                            document.getElementById('seqPrevBtn').disabled = sequencePage.offset === 0;
+                            document.getElementById('seqNextBtn').disabled = sequencePage.offset + sequencePage.limit >= sequencePage.total;
+                        } else {
+                            seqHistPagination.style.display = 'none';
+                        }
                     } else {
                         seqHistTable.style.display = 'none';
                         seqHistEmpty.style.display = 'block';
+                        seqHistPagination.style.display = 'none';
                     }
                 })
                 .catch(error => {
@@ -443,29 +694,66 @@
         }
         
         // Load GPIO events
-        function loadGpioEvents() {
-            fetch('/api/plugin/fpp-plugin-AdvancedStats/gpio-events?limit=50')
+        function loadGPIOEvents(action) {
+            if (action === 'prev' && gpioPage.offset > 0) {
+                gpioPage.offset -= gpioPage.limit;
+            } else if (action === 'next' && gpioPage.offset + gpioPage.limit < gpioPage.total) {
+                gpioPage.offset += gpioPage.limit;
+            } else if (action === 'prev' || action === 'next') {
+                return; // Don't reload if can't move
+            }
+            
+            // Build query string with filters
+            let queryParams = `limit=${gpioPage.limit}&offset=${gpioPage.offset}`;
+            for (let key in gpioFilters) {
+                queryParams += `&${key}=${encodeURIComponent(gpioFilters[key])}`;
+            }
+            
+            fetch(`/api/plugin/fpp-plugin-AdvancedStats/gpio-events?${queryParams}`)
                 .then(response => response.json())
                 .then(data => {
+                    if (!data.success) {
+                        showError('Failed to load GPIO events');
+                        return;
+                    }
+                    
                     const gpioBody = document.getElementById('gpioEventsBody');
                     const gpioTable = document.getElementById('gpioEventsTable');
                     const gpioLoading = document.getElementById('gpioEventsLoading');
                     const gpioEmpty = document.getElementById('gpioEventsEmpty');
+                    const gpioPagination = document.getElementById('gpioEventsPagination');
                     
                     gpioLoading.style.display = 'none';
-                    if (data.length > 0) {
+                    
+                    // Update pagination state
+                    gpioPage.total = data.total || 0;
+                    
+                    if (data.events && data.events.length > 0) {
                         gpioTable.style.display = 'table';
                         gpioEmpty.style.display = 'none';
-                        gpioBody.innerHTML = data.map(event => `
+                        gpioBody.innerHTML = data.events.map(event => `
                             <tr>
-                                <td>${formatTimestamp(event.timestamp)}</td>
+                                <td>${formatTimestamp(event.timestamp * 1000)}</td>
                                 <td>GPIO ${event.pin_number}</td>
-                                <td>${event.state == 1 ? 'HIGH' : 'LOW'}</td>
+                                <td>${event.pin_state == 1 ? 'HIGH' : 'LOW'}</td>
                             </tr>
                         `).join('');
+                        
+                        // Show pagination if more than one page
+                        if (gpioPage.total > gpioPage.limit) {
+                            gpioPagination.style.display = 'flex';
+                            const currentPage = Math.floor(gpioPage.offset / gpioPage.limit) + 1;
+                            const totalPages = Math.ceil(gpioPage.total / gpioPage.limit);
+                            document.getElementById('gpioPageInfo').textContent = `Page ${currentPage} of ${totalPages} (${gpioPage.total} total)`;
+                            document.getElementById('gpioPrevBtn').disabled = gpioPage.offset === 0;
+                            document.getElementById('gpioNextBtn').disabled = gpioPage.offset + gpioPage.limit >= gpioPage.total;
+                        } else {
+                            gpioPagination.style.display = 'none';
+                        }
                     } else {
                         gpioTable.style.display = 'none';
                         gpioEmpty.style.display = 'block';
+                        gpioPagination.style.display = 'none';
                     }
                 })
                 .catch(error => {
@@ -478,7 +766,7 @@
             document.getElementById('errorContainer').innerHTML = '';
             loadDashboardData();
             loadSequenceHistory();
-            loadGpioEvents();
+            loadGPIOEvents();
             document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
         }
         

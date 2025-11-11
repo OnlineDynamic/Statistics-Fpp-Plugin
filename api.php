@@ -160,25 +160,46 @@ function advancedStatsGetGPIOEvents() {
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
         $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
         $pin = isset($_GET['pin']) ? intval($_GET['pin']) : null;
+        $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : null;
+        $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : null;
         
-        // Get total count
+        // Build WHERE clause for filters
+        $where = array();
+        $params = array();
+        
         if ($pin !== null) {
-            $totalCount = $db->querySingle("SELECT COUNT(*) FROM gpio_events WHERE pin_number = $pin");
-        } else {
-            $totalCount = $db->querySingle("SELECT COUNT(*) FROM gpio_events");
+            $where[] = 'pin_number = :pin';
+            $params[':pin'] = $pin;
         }
         
-        if ($pin !== null) {
-            $query = "SELECT * FROM gpio_events WHERE pin_number = :pin ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
-            $stmt = $db->prepare($query);
-            $stmt->bindValue(':pin', $pin, SQLITE3_INTEGER);
-            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
-            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
-        } else {
-            $query = "SELECT * FROM gpio_events ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
-            $stmt = $db->prepare($query);
-            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
-            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+        if ($startDate) {
+            $startTimestamp = strtotime($startDate . ' 00:00:00');
+            $where[] = 'timestamp >= :start_timestamp';
+            $params[':start_timestamp'] = $startTimestamp;
+        }
+        
+        if ($endDate) {
+            $endTimestamp = strtotime($endDate . ' 23:59:59');
+            $where[] = 'timestamp <= :end_timestamp';
+            $params[':end_timestamp'] = $endTimestamp;
+        }
+        
+        $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+        
+        // Get total count with filters
+        $countQuery = "SELECT COUNT(*) FROM gpio_events $whereClause";
+        $countStmt = $db->prepare($countQuery);
+        foreach ($params as $key => $value) {
+            $countStmt->bindValue($key, $value);
+        }
+        $totalCount = $countStmt->execute()->fetchArray(SQLITE3_NUM)[0];
+        
+        $query = "SELECT * FROM gpio_events $whereClause ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
         }
         
         $result = $stmt->execute();
@@ -223,14 +244,48 @@ function advancedStatsGetSequenceHistory() {
         $db = new SQLite3($dbPath);
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
         $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
+        $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : null;
+        $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : null;
+        $eventType = isset($_GET['event_type']) ? $_GET['event_type'] : null;
         
-        // Get total count
-        $totalCount = $db->querySingle("SELECT COUNT(*) FROM sequence_history");
+        // Build WHERE clause for filters
+        $where = array();
+        $params = array();
         
-        $query = "SELECT * FROM sequence_history ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
+        if ($startDate) {
+            $startTimestamp = strtotime($startDate . ' 00:00:00');
+            $where[] = 'timestamp >= :start_timestamp';
+            $params[':start_timestamp'] = $startTimestamp;
+        }
+        
+        if ($endDate) {
+            $endTimestamp = strtotime($endDate . ' 23:59:59');
+            $where[] = 'timestamp <= :end_timestamp';
+            $params[':end_timestamp'] = $endTimestamp;
+        }
+        
+        if ($eventType && ($eventType === 'start' || $eventType === 'stop')) {
+            $where[] = 'event_type = :event_type';
+            $params[':event_type'] = $eventType;
+        }
+        
+        $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+        
+        // Get total count with filters
+        $countQuery = "SELECT COUNT(*) FROM sequence_history $whereClause";
+        $countStmt = $db->prepare($countQuery);
+        foreach ($params as $key => $value) {
+            $countStmt->bindValue($key, $value);
+        }
+        $totalCount = $countStmt->execute()->fetchArray(SQLITE3_NUM)[0];
+        
+        $query = "SELECT * FROM sequence_history $whereClause ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
         $stmt = $db->prepare($query);
         $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
         $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
         
         $result = $stmt->execute();
         $sequences = array();
