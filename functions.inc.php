@@ -105,7 +105,7 @@ return json_decode($response, true);
 
 // Log to plugin log file
 function logPluginMessage($message) {
-$logFile = '/home/fpp/media/logs/fpp-plugin-BackgroundMusic.log';
+$logFile = '/home/fpp/media/logs/fpp-plugin-AdvancedStats.log';
 $timestamp = date('Y-m-d H:i:s');
 $logMessage = "[$timestamp] $message\n";
 file_put_contents($logFile, $logMessage, FILE_APPEND);

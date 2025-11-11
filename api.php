@@ -1,194 +1,194 @@
 <?php
 include_once("/opt/fpp/www/common.php");
-$pluginName = "fpp-plugin-BackgroundMusic";
+$pluginName = "fpp-plugin-AdvancedStats";
 $pluginConfigFile = $settings['configDirectory'] . "/plugin." . $pluginName;
 
-function getEndpointsfpppluginBackgroundMusic() {
+function getEndpointsfpppluginAdvancedStats() {
     $result = array();
 
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'version',
-        'callback' => 'fppBackgroundMusicVersion');
+        'callback' => 'fppAdvancedStatsVersion');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'status',
-        'callback' => 'fppBackgroundMusicStatus');
+        'callback' => 'fppAdvancedStatsStatus');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'start-background',
-        'callback' => 'fppBackgroundMusicStartBackground');
+        'callback' => 'fppAdvancedStatsStartBackground');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'stop-background',
-        'callback' => 'fppBackgroundMusicStopBackground');
+        'callback' => 'fppAdvancedStatsStopBackground');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'pause-background',
-        'callback' => 'fppBackgroundMusicPauseBackground');
+        'callback' => 'fppAdvancedStatsPauseBackground');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'resume-background',
-        'callback' => 'fppBackgroundMusicResumeBackground');
+        'callback' => 'fppAdvancedStatsResumeBackground');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'next-track',
-        'callback' => 'fppBackgroundMusicNextTrack');
+        'callback' => 'fppAdvancedStatsNextTrack');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'previous-track',
-        'callback' => 'fppBackgroundMusicPreviousTrack');
+        'callback' => 'fppAdvancedStatsPreviousTrack');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'jump-to-track',
-        'callback' => 'fppBackgroundMusicJumpToTrack');
+        'callback' => 'fppAdvancedStatsJumpToTrack');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'start-show',
-        'callback' => 'fppBackgroundMusicStartShow');
+        'callback' => 'fppAdvancedStatsStartShow');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'set-volume',
-        'callback' => 'fppBackgroundMusicSetVolume');
+        'callback' => 'fppAdvancedStatsSetVolume');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'save-settings',
-        'callback' => 'fppBackgroundMusicSaveSettings');
+        'callback' => 'fppAdvancedStatsSaveSettings');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'playlist-details',
-        'callback' => 'fppBackgroundMusicPlaylistDetails');
+        'callback' => 'fppAdvancedStatsPlaylistDetails');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'play-announcement',
-        'callback' => 'fppBackgroundMusicPlayAnnouncement');
+        'callback' => 'fppAdvancedStatsPlayAnnouncement');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'stop-announcement',
-        'callback' => 'fppBackgroundMusicStopAnnouncement');
+        'callback' => 'fppAdvancedStatsStopAnnouncement');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'psa-status',
-        'callback' => 'fppBackgroundMusicPSAStatus');
+        'callback' => 'fppAdvancedStatsPSAStatus');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'check-update',
-        'callback' => 'fppBackgroundMusicCheckUpdate');
+        'callback' => 'fppAdvancedStatsCheckUpdate');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'get-commit-history',
-        'callback' => 'fppBackgroundMusicGetCommitHistory');
+        'callback' => 'fppAdvancedStatsGetCommitHistory');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'reorder-playlist',
-        'callback' => 'fppBackgroundMusicReorderPlaylist');
+        'callback' => 'fppAdvancedStatsReorderPlaylist');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'tts-status',
-        'callback' => 'fppBackgroundMusicTTSStatus');
+        'callback' => 'fppAdvancedStatsTTSStatus');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'install-tts',
-        'callback' => 'fppBackgroundMusicInstallTTS');
+        'callback' => 'fppAdvancedStatsInstallTTS');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'generate-tts',
-        'callback' => 'fppBackgroundMusicGenerateTTS');
+        'callback' => 'fppAdvancedStatsGenerateTTS');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'play-tts',
-        'callback' => 'fppBackgroundMusicPlayTTS');
+        'callback' => 'fppAdvancedStatsPlayTTS');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'GET',
         'endpoint' => 'tts-voices',
-        'callback' => 'fppBackgroundMusicTTSVoices');
+        'callback' => 'fppAdvancedStatsTTSVoices');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'install-voice',
-        'callback' => 'fppBackgroundMusicInstallVoice');
+        'callback' => 'fppAdvancedStatsInstallVoice');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'set-default-voice',
-        'callback' => 'fppBackgroundMusicSetDefaultVoice');
+        'callback' => 'fppAdvancedStatsSetDefaultVoice');
     array_push($result, $ep);
     
     $ep = array(
         'method' => 'POST',
         'endpoint' => 'delete-voice',
-        'callback' => 'fppBackgroundMusicDeleteVoice');
+        'callback' => 'fppAdvancedStatsDeleteVoice');
     array_push($result, $ep);
 
     return $result;
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/version
-function fppBackgroundMusicVersion() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/version
+function fppAdvancedStatsVersion() {
     $result = array();
-    $result['version'] = 'fpp-BackgroundMusic v1.0';
+    $result['version'] = 'fpp-AdvancedStats v1.0';
     return json($result);
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/status
-function fppBackgroundMusicStatus() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/status
+function fppAdvancedStatsStatus() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     // Load plugin config with error checking
     $pluginSettings = array();
     if (file_exists($pluginConfigFile)){
         // Check if file is readable
         if (!is_readable($pluginConfigFile)) {
-            error_log("BackgroundMusic Plugin: Config file exists but is not readable: $pluginConfigFile");
+            error_log("AdvancedStats Plugin: Config file exists but is not readable: $pluginConfigFile");
             // Try to fix permissions
             @chmod($pluginConfigFile, 0644);
         }
@@ -196,11 +196,11 @@ function fppBackgroundMusicStatus() {
         // Try to parse the file
         $pluginSettings = @parse_ini_file($pluginConfigFile);
         if ($pluginSettings === false) {
-            error_log("BackgroundMusic Plugin: Failed to parse config file: $pluginConfigFile");
+            error_log("AdvancedStats Plugin: Failed to parse config file: $pluginConfigFile");
             $pluginSettings = array();
         }
     } else {
-        error_log("BackgroundMusic Plugin: Config file does not exist: $pluginConfigFile");
+        error_log("AdvancedStats Plugin: Config file does not exist: $pluginConfigFile");
     }
     
     // Get current brightness
@@ -215,23 +215,23 @@ function fppBackgroundMusicStatus() {
     $fppStatus = isset($status['status_name']) ? $status['status_name'] : 'unknown';
     $currentSequence = isset($status['current_sequence']) ? $status['current_sequence'] : '';
     
-    $backgroundMusicPlaylist = isset($pluginSettings['BackgroundMusicPlaylist']) ? $pluginSettings['BackgroundMusicPlaylist'] : '';
+    $AdvancedStatsPlaylist = isset($pluginSettings['AdvancedStatsPlaylist']) ? $pluginSettings['AdvancedStatsPlaylist'] : '';
     $showPlaylist = isset($pluginSettings['ShowPlaylist']) ? $pluginSettings['ShowPlaylist'] : '';
     $returnToPreShow = isset($pluginSettings['ReturnToPreShow']) ? $pluginSettings['ReturnToPreShow'] : '1';
     $shuffleMusic = isset($pluginSettings['ShuffleMusic']) ? $pluginSettings['ShuffleMusic'] : '0';
     $volumeLevel = isset($pluginSettings['VolumeLevel']) ? intval($pluginSettings['VolumeLevel']) : 70;
-    $backgroundMusicVolume = isset($pluginSettings['BackgroundMusicVolume']) ? intval($pluginSettings['BackgroundMusicVolume']) : $volumeLevel;
+    $AdvancedStatsVolume = isset($pluginSettings['AdvancedStatsVolume']) ? intval($pluginSettings['AdvancedStatsVolume']) : $volumeLevel;
     $showPlaylistVolume = isset($pluginSettings['ShowPlaylistVolume']) ? intval($pluginSettings['ShowPlaylistVolume']) : 100;
-    $postShowBackgroundVolume = isset($pluginSettings['PostShowBackgroundVolume']) ? intval($pluginSettings['PostShowBackgroundVolume']) : $backgroundMusicVolume;
+    $postShowBackgroundVolume = isset($pluginSettings['PostShowBackgroundVolume']) ? intval($pluginSettings['PostShowBackgroundVolume']) : $AdvancedStatsVolume;
     
     // Check if background music player is running (independent of FPP playlists)
     $pidFile = '/tmp/background_music_player.pid';
-    $backgroundMusicRunning = false;
+    $AdvancedStatsRunning = false;
     if (file_exists($pidFile)) {
         $pid = trim(file_get_contents($pidFile));
         // Check if process is actually running
         exec("ps -p $pid > /dev/null 2>&1", $output, $returnCode);
-        $backgroundMusicRunning = ($returnCode === 0);
+        $AdvancedStatsRunning = ($returnCode === 0);
     }
     
     // Get current track information if player is running
@@ -246,7 +246,7 @@ function fppBackgroundMusicStatus() {
     $streamTitle = '';
     $streamArtist = '';
     
-    if ($backgroundMusicRunning) {
+    if ($AdvancedStatsRunning) {
         $statusFile = '/tmp/bg_music_status.txt';
         if (file_exists($statusFile)) {
             // Read status file line by line to handle special characters properly
@@ -290,7 +290,7 @@ function fppBackgroundMusicStatus() {
     $brightnessPluginInstalled = file_exists('/home/fpp/media/plugins/fpp-brightness/libfpp-brightness.so');
     
     $result = array(
-        'backgroundMusicRunning' => $backgroundMusicRunning,
+        'AdvancedStatsRunning' => $AdvancedStatsRunning,
         'showRunning' => $showRunning,
         'streamSource' => $streamSource,
         'brightness' => intval($brightness),
@@ -308,9 +308,9 @@ function fppBackgroundMusicStatus() {
         'streamTitle' => $streamTitle,
         'streamArtist' => $streamArtist,
         'config' => array(
-            'backgroundMusicSource' => isset($pluginSettings['BackgroundMusicSource']) ? $pluginSettings['BackgroundMusicSource'] : 'playlist',
-            'backgroundMusicPlaylist' => $backgroundMusicPlaylist,
-            'backgroundMusicStreamURL' => isset($pluginSettings['BackgroundMusicStreamURL']) ? $pluginSettings['BackgroundMusicStreamURL'] : '',
+            'AdvancedStatsSource' => isset($pluginSettings['AdvancedStatsSource']) ? $pluginSettings['AdvancedStatsSource'] : 'playlist',
+            'AdvancedStatsPlaylist' => $AdvancedStatsPlaylist,
+            'AdvancedStatsStreamURL' => isset($pluginSettings['AdvancedStatsStreamURL']) ? $pluginSettings['AdvancedStatsStreamURL'] : '',
             'showPlaylist' => $showPlaylist,
             'fadeTime' => isset($pluginSettings['FadeTime']) ? $pluginSettings['FadeTime'] : 5,
             'blackoutTime' => isset($pluginSettings['BlackoutTime']) ? $pluginSettings['BlackoutTime'] : 2,
@@ -320,7 +320,7 @@ function fppBackgroundMusicStatus() {
             'enableCrossfade' => isset($pluginSettings['EnableCrossfade']) && $pluginSettings['EnableCrossfade'] == '1' ? true : false,
             'crossfadeDuration' => isset($pluginSettings['CrossfadeDuration']) ? floatval($pluginSettings['CrossfadeDuration']) : 3,
             'volumeLevel' => $volumeLevel,
-            'backgroundMusicVolume' => $backgroundMusicVolume,
+            'AdvancedStatsVolume' => $AdvancedStatsVolume,
             'showPlaylistVolume' => $showPlaylistVolume,
             'postShowBackgroundVolume' => $postShowBackgroundVolume,
             'PSAAnnouncementVolume' => isset($pluginSettings['PSAAnnouncementVolume']) ? $pluginSettings['PSAAnnouncementVolume'] : '90',
@@ -337,10 +337,10 @@ function fppBackgroundMusicStatus() {
     return json($result);
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/start-background
-function fppBackgroundMusicStartBackground() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/start-background
+function fppAdvancedStatsStartBackground() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     if (file_exists($pluginConfigFile)){
         $pluginSettings = parse_ini_file($pluginConfigFile);
@@ -349,16 +349,16 @@ function fppBackgroundMusicStartBackground() {
     }
     
     // Check source type
-    $source = isset($pluginSettings['BackgroundMusicSource']) ? $pluginSettings['BackgroundMusicSource'] : 'playlist';
+    $source = isset($pluginSettings['AdvancedStatsSource']) ? $pluginSettings['AdvancedStatsSource'] : 'playlist';
     
     if ($source === 'stream') {
-        $streamURL = isset($pluginSettings['BackgroundMusicStreamURL']) ? $pluginSettings['BackgroundMusicStreamURL'] : '';
+        $streamURL = isset($pluginSettings['AdvancedStatsStreamURL']) ? $pluginSettings['AdvancedStatsStreamURL'] : '';
         if (empty($streamURL)) {
             return json(array('status' => 'ERROR', 'message' => 'Stream URL not configured'));
         }
     } else {
-        $backgroundMusicPlaylist = isset($pluginSettings['BackgroundMusicPlaylist']) ? $pluginSettings['BackgroundMusicPlaylist'] : '';
-        if (empty($backgroundMusicPlaylist)) {
+        $AdvancedStatsPlaylist = isset($pluginSettings['AdvancedStatsPlaylist']) ? $pluginSettings['AdvancedStatsPlaylist'] : '';
+        if (empty($AdvancedStatsPlaylist)) {
             return json(array('status' => 'ERROR', 'message' => 'Background music playlist not configured'));
         }
     }
@@ -377,8 +377,8 @@ function fppBackgroundMusicStartBackground() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/stop-background
-function fppBackgroundMusicStopBackground() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/stop-background
+function fppAdvancedStatsStopBackground() {
     // Stop the independent background music player
     $scriptPath = dirname(__FILE__) . '/scripts/background_music_player.sh';
     $output = array();
@@ -388,11 +388,11 @@ function fppBackgroundMusicStopBackground() {
     // Also stop any FPP playlist that might be playing background music
     // Check if a background music playlist is currently playing
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     if (file_exists($pluginConfigFile)) {
         $pluginSettings = parse_ini_file($pluginConfigFile);
-        $bgMusicPlaylist = isset($pluginSettings['BackgroundMusicPlaylist']) ? $pluginSettings['BackgroundMusicPlaylist'] : '';
+        $bgMusicPlaylist = isset($pluginSettings['AdvancedStatsPlaylist']) ? $pluginSettings['AdvancedStatsPlaylist'] : '';
         
         // Get current FPP status
         $fppStatus = @file_get_contents('http://localhost/api/fppd/status');
@@ -411,8 +411,8 @@ function fppBackgroundMusicStopBackground() {
     return json(array('status' => 'OK', 'message' => 'Background music stopped'));
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/pause-background
-function fppBackgroundMusicPauseBackground() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/pause-background
+function fppAdvancedStatsPauseBackground() {
     $scriptPath = dirname(__FILE__) . '/scripts/background_music_player.sh';
     $output = array();
     $returnCode = 0;
@@ -425,8 +425,8 @@ function fppBackgroundMusicPauseBackground() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/resume-background
-function fppBackgroundMusicResumeBackground() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/resume-background
+function fppAdvancedStatsResumeBackground() {
     $scriptPath = dirname(__FILE__) . '/scripts/background_music_player.sh';
     $output = array();
     $returnCode = 0;
@@ -439,8 +439,8 @@ function fppBackgroundMusicResumeBackground() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/next-track
-function fppBackgroundMusicNextTrack() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/next-track
+function fppAdvancedStatsNextTrack() {
     $scriptPath = dirname(__FILE__) . '/scripts/background_music_player.sh';
     $output = array();
     $returnCode = 0;
@@ -453,8 +453,8 @@ function fppBackgroundMusicNextTrack() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/previous-track
-function fppBackgroundMusicPreviousTrack() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/previous-track
+function fppAdvancedStatsPreviousTrack() {
     $scriptPath = dirname(__FILE__) . '/scripts/background_music_player.sh';
     $output = array();
     $returnCode = 0;
@@ -467,8 +467,8 @@ function fppBackgroundMusicPreviousTrack() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/jump-to-track
-function fppBackgroundMusicJumpToTrack() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/jump-to-track
+function fppAdvancedStatsJumpToTrack() {
     $input = json_decode(file_get_contents('php://input'), true);
     $trackNumber = isset($input['trackNumber']) ? intval($input['trackNumber']) : 0;
     
@@ -488,10 +488,10 @@ function fppBackgroundMusicJumpToTrack() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/start-show
-function fppBackgroundMusicStartShow() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/start-show
+function fppAdvancedStatsStartShow() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     if (file_exists($pluginConfigFile)){
         $pluginSettings = parse_ini_file($pluginConfigFile);
@@ -509,7 +509,7 @@ function fppBackgroundMusicStartShow() {
     
     // Execute the fade and show transition script in background
     $scriptPath = dirname(__FILE__) . '/scripts/start_show_transition.sh';
-    $logFile = '/home/fpp/media/logs/fpp-plugin-BackgroundMusic-api.log';
+    $logFile = '/home/fpp/media/logs/fpp-plugin-AdvancedStats-api.log';
     $cmd = sprintf('/bin/bash %s %d %d %s >> %s 2>&1 &', 
         escapeshellarg($scriptPath), 
         $fadeTime, 
@@ -522,10 +522,10 @@ function fppBackgroundMusicStartShow() {
     return json(array('status' => 'OK', 'message' => 'Show transition started'));
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/set-volume
-function fppBackgroundMusicSetVolume() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/set-volume
+function fppAdvancedStatsSetVolume() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     // Get POST data
     $input = json_decode(file_get_contents('php://input'), true);
@@ -543,7 +543,7 @@ function fppBackgroundMusicSetVolume() {
     }
     
     $pluginSettings['VolumeLevel'] = $volume;
-    $pluginSettings['BackgroundMusicVolume'] = $volume;  // Update both for consistency
+    $pluginSettings['AdvancedStatsVolume'] = $volume;  // Update both for consistency
     
     // Write back to config file
     $configContent = "";
@@ -572,10 +572,10 @@ function GetCurrentStatus() {
     return json_decode($data, true);
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/save-settings
-function fppBackgroundMusicSaveSettings() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/save-settings
+function fppAdvancedStatsSaveSettings() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     // Get POST data
     $input = json_decode(file_get_contents('php://input'), true);
@@ -602,10 +602,10 @@ function fppBackgroundMusicSaveSettings() {
     }
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/playlist-details
-function fppBackgroundMusicPlaylistDetails() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/playlist-details
+function fppAdvancedStatsPlaylistDetails() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     $result = array();
     $result['status'] = 'OK';
@@ -616,7 +616,7 @@ function fppBackgroundMusicPlaylistDetails() {
     // Read plugin configuration
     if (file_exists($pluginConfigFile)) {
         $pluginSettings = parse_ini_file($pluginConfigFile);
-        $playlistName = isset($pluginSettings['BackgroundMusicPlaylist']) ? $pluginSettings['BackgroundMusicPlaylist'] : '';
+        $playlistName = isset($pluginSettings['AdvancedStatsPlaylist']) ? $pluginSettings['AdvancedStatsPlaylist'] : '';
         
         if (!empty($playlistName)) {
             $result['playlistName'] = $playlistName;
@@ -685,10 +685,10 @@ function formatDuration($seconds) {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/play-announcement
-function fppBackgroundMusicPlayAnnouncement() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/play-announcement
+function fppAdvancedStatsPlayAnnouncement() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     // Load plugin config
     if (!file_exists($pluginConfigFile)) {
@@ -740,8 +740,8 @@ function fppBackgroundMusicPlayAnnouncement() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/stop-announcement
-function fppBackgroundMusicStopAnnouncement() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/stop-announcement
+function fppAdvancedStatsStopAnnouncement() {
     $pidFile = '/tmp/announcement_player.pid';
     
     if (!file_exists($pidFile)) {
@@ -759,8 +759,8 @@ function fppBackgroundMusicStopAnnouncement() {
     return json(array('status' => 'OK', 'message' => 'Announcement stopped'));
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/psa-status
-function fppBackgroundMusicPSAStatus() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/psa-status
+function fppAdvancedStatsPSAStatus() {
     $pidFile = '/tmp/announcement_player.pid';
     $statusFile = '/tmp/announcement_status.txt';
     $playing = false;
@@ -799,7 +799,7 @@ function fppBackgroundMusicPSAStatus() {
                     
                     // Check if announcement has been running too long (stuck)
                     if ($elapsed > $maxDuration) {
-                        error_log("BackgroundMusic: PSA stuck for $elapsed seconds, killing process $pid");
+                        error_log("AdvancedStats: PSA stuck for $elapsed seconds, killing process $pid");
                         // Kill stuck process
                         exec("kill $pid 2>&1");
                         $playing = false;
@@ -834,8 +834,8 @@ function fppBackgroundMusicPSAStatus() {
     return json($result);
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/check-update
-function fppBackgroundMusicCheckUpdate() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/check-update
+function fppAdvancedStatsCheckUpdate() {
     $pluginDir = dirname(__FILE__);
     $result = array(
         'status' => 'OK',
@@ -848,7 +848,7 @@ function fppBackgroundMusicCheckUpdate() {
         'lastChecked' => time(),
         'canConnect' => false,
         'branch' => 'master',
-        'repoURL' => 'https://github.com/OnlineDynamic/BackgroundMusicFPP-Plugin'
+        'repoURL' => 'https://github.com/OnlineDynamic/Statistics-Fpp-Plugin'
     );
     
     // Determine which branch to check based on FPP version
@@ -968,10 +968,10 @@ function fppBackgroundMusicCheckUpdate() {
     return json($result);
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/reorder-playlist
-function fppBackgroundMusicReorderPlaylist() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/reorder-playlist
+function fppAdvancedStatsReorderPlaylist() {
     global $settings;
-    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-BackgroundMusic";
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin.fpp-plugin-AdvancedStats";
     
     // Get POST data
     $input = json_decode(file_get_contents('php://input'), true);
@@ -984,7 +984,7 @@ function fppBackgroundMusicReorderPlaylist() {
     // Read plugin configuration to get playlist name
     if (file_exists($pluginConfigFile)) {
         $pluginSettings = parse_ini_file($pluginConfigFile);
-        $playlistName = isset($pluginSettings['BackgroundMusicPlaylist']) ? $pluginSettings['BackgroundMusicPlaylist'] : '';
+        $playlistName = isset($pluginSettings['AdvancedStatsPlaylist']) ? $pluginSettings['AdvancedStatsPlaylist'] : '';
         
         if (empty($playlistName)) {
             return json(array('status' => 'ERROR', 'message' => 'No background music playlist configured'));
@@ -1068,8 +1068,8 @@ function fppBackgroundMusicReorderPlaylist() {
     }
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/get-commit-history
-function fppBackgroundMusicGetCommitHistory() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/get-commit-history
+function fppAdvancedStatsGetCommitHistory() {
     $pluginDir = dirname(__FILE__);
     
     // Check if this is a Git repository
@@ -1117,8 +1117,8 @@ function fppBackgroundMusicGetCommitHistory() {
     ));
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/tts-status
-function fppBackgroundMusicTTSStatus() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/tts-status
+function fppAdvancedStatsTTSStatus() {
     $pluginDir = dirname(__FILE__);
     $piperDir = $pluginDir . '/piper';
     $piperBin = $piperDir . '/piper';
@@ -1172,8 +1172,8 @@ function fppBackgroundMusicTTSStatus() {
     return json($status);
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/install-tts
-function fppBackgroundMusicInstallTTS() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/install-tts
+function fppAdvancedStatsInstallTTS() {
     $pluginDir = dirname(__FILE__);
     $installScript = $pluginDir . '/scripts/install_piper.sh';
     
@@ -1193,8 +1193,8 @@ function fppBackgroundMusicInstallTTS() {
     ));
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/generate-tts
-function fppBackgroundMusicGenerateTTS() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/generate-tts
+function fppAdvancedStatsGenerateTTS() {
     $pluginDir = dirname(__FILE__);
     $piperBin = $pluginDir . '/piper/piper';
     
@@ -1259,8 +1259,8 @@ function fppBackgroundMusicGenerateTTS() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/play-tts
-function fppBackgroundMusicPlayTTS() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/play-tts
+function fppAdvancedStatsPlayTTS() {
     $pluginDir = dirname(__FILE__);
     $piperBin = $pluginDir . '/piper/piper';
     
@@ -1300,8 +1300,8 @@ function fppBackgroundMusicPlayTTS() {
     ));
 }
 
-// GET /api/plugin/fpp-plugin-BackgroundMusic/tts-voices
-function fppBackgroundMusicTTSVoices() {
+// GET /api/plugin/fpp-plugin-AdvancedStats/tts-voices
+function fppAdvancedStatsTTSVoices() {
     $pluginDir = dirname(__FILE__);
     $piperDir = $pluginDir . '/piper';
     $voicesDir = $piperDir . '/voices';
@@ -1350,8 +1350,8 @@ function fppBackgroundMusicTTSVoices() {
     ));
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/install-voice
-function fppBackgroundMusicInstallVoice() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/install-voice
+function fppAdvancedStatsInstallVoice() {
     $pluginDir = dirname(__FILE__);
     $installScript = $pluginDir . '/scripts/install_voice.sh';
     
@@ -1389,8 +1389,8 @@ function fppBackgroundMusicInstallVoice() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/set-default-voice
-function fppBackgroundMusicSetDefaultVoice() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/set-default-voice
+function fppAdvancedStatsSetDefaultVoice() {
     $pluginDir = dirname(__FILE__);
     $piperDir = $pluginDir . '/piper';
     $voicesDir = $piperDir . '/voices';
@@ -1440,8 +1440,8 @@ function fppBackgroundMusicSetDefaultVoice() {
     }
 }
 
-// POST /api/plugin/fpp-plugin-BackgroundMusic/delete-voice
-function fppBackgroundMusicDeleteVoice() {
+// POST /api/plugin/fpp-plugin-AdvancedStats/delete-voice
+function fppAdvancedStatsDeleteVoice() {
     $pluginDir = dirname(__FILE__);
     $piperDir = $pluginDir . '/piper';
     $voicesDir = $piperDir . '/voices';
@@ -1492,3 +1492,4 @@ function fppBackgroundMusicDeleteVoice() {
 }
 
 ?>
+

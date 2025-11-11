@@ -1,92 +1,24 @@
-# BackgroundMusic Controller Plugin for FPP
+# Advanced Stats Plugin for FPP
 
-This is the home of the BackgroundMusic FPP Plugin Repo
+This is the home of the Advanced Stats FPP Plugin Repo
 
-The purpose of this FPP plugin is to allow the end user to control a background music playlist directly from the FPP UI and have music playing over the top of sequence-only playlists to create background atmosphere, great for pre-show ambiance.
+The purpose of this FPP plugin is to allow the end user to ......
 
-The plugin allows the user to start an audio-only background playlist whilst a normal FSEQ sequence is already running (normally an animation sequence on repeat).
-
-A 'Start Show' button allows the user to trigger a configured show playlist. When triggered, the plugin uses the **fpp-brightness** plugin to smoothly fade brightness (with MultiSync support for multi-controller setups), while simultaneously fading out the background music (time configurable). Once the fade completes, the background music and FSEQ playlists stop, have a blackout period (time configurable), and then return FPP to its previous brightness setting before starting the configured show playlist.
-
-## 🆕 PSA System Added!
-
-**New in this version:**
-- **PSA (Public Service Announcement) System** - 5 configurable buttons to play announcements over background music
-- **Automatic Volume Ducking** - Background music fades during announcements
-- **ALSA Software Mixing** - Concurrent audio playback support
-- **Enhanced API** - New endpoints for PSA control
-
-**Upgrading from v1.x?** The plugin automatically updates ALSA configuration. After upgrade, stop/restart background music to apply changes. See [CHANGELOG.md](CHANGELOG.md) for full details.
 
 ## Requirements
 
 - **FPP Version**: 9.0 or higher
-- **Required Plugin**: [fpp-brightness](https://github.com/FalconChristmas/fpp-brightness) - Provides brightness control with MultiSync support
+-
 
-### Installing fpp-brightness Plugin
-
-The fpp-brightness plugin must be installed on **ALL controllers** (master and remotes) for brightness transitions and MultiSync to work properly.
-
-**Installation Steps:**
-
-1. On each controller, go to **Plugin Manager** → **Install Plugins**
-2. Search for "brightness"
-3. Click "Install" on the **fpp-brightness** plugin
-4. Restart FPPd when prompted
-5. Repeat on all controllers in your setup
-
-Alternatively, install manually on each controller:
-```bash
-cd /home/fpp/media/plugins
-git clone https://github.com/FalconChristmas/fpp-brightness.git
-cd fpp-brightness
-make
-sudo systemctl restart fppd
-```
-
-**Important:** The brightness plugin enables MultiSync, meaning brightness changes will automatically synchronize across all controllers when MultiSync is enabled in FPP. Make sure to install on every controller for this to work.
 
 ## Features
 
-- 🎵 **Background Music Player** - Independent audio player that runs alongside FPP sequences
-- 🔀 **Shuffle Mode** - Randomize playlist order for variety, reshuffles on each loop
-- 🔊 **Volume Control** - Separate volume settings for background music, show, and post-show
-- 📈 **Track Progress Display** - Real-time track name, progress bar, and time remaining
-- 🎭 **Smooth Show Transitions** - Configurable fade-out with brightness control using fpp-brightness plugin
-- 🌐 **MultiSync Compatible** - Brightness fading synchronizes across all controllers automatically
-- 🔄 **Auto-Return to Pre-Show** - Optionally restart background music after show ends with configurable delay
-- 📊 **Real-Time Status** - View current FPP playlist, plugin state, and playing track
-- 🎼 **Playlist Details View** - See all tracks with durations, highlights currently playing track
-- � **PSA System** - 5 configurable announcement buttons with automatic volume ducking
-- �🔌 **GPIO Integration** - Trigger show start via physical buttons or sensors using FPP commands
+- �🔌 **GPIO Integration** -
 - ⚙️ **REST API** - Full programmatic control via HTTP endpoints
 
 ## Technical Requirements
 
-### Audio Configuration
-The plugin automatically configures ALSA for software mixing (dmix) during installation. This enables:
-- ✅ Background music and PSA announcements playing simultaneously
-- ✅ Multiple audio streams without conflicts
-- ✅ Smooth volume ducking for announcements
-- ✅ **Full FPP compatibility** - FPP's playlist media playback continues to work normally
-
-**What Gets Configured:**
-- `/etc/asound.conf` - ALSA configuration with dmix support
-- Original config backed up to `/etc/asound.conf.backup-*`
-- Uses FPP's configured audio card (AudioOutput setting)
-- Background music player uses `plug:default` device
-- PSA announcements use software mixing for concurrent playback
-
-**FPP Compatibility:**
-- ✅ Works alongside FPP's native media playback
-- ✅ Uses the same audio card FPP is configured for
-- ✅ FPP playlists with audio continue to work normally
-- ✅ Volume API remains fully functional
-- ✅ No interference with FPP sequences or effects
-
-**Note:** 
-- After plugin installation, stop and restart background music for ALSA configuration to take effect
-- If you change FPP's audio device setting, reinstall the plugin to update ALSA configuration
+### 
 
 ### Automatic Update Notifications
 
@@ -101,6 +33,7 @@ The plugin checks for updates automatically when internet is available:
 - 🔄 Update via FPP's Plugin Manager
 
 **How it works:**
+
 - Reads `pluginInfo.json` to determine which branch to check based on FPP version
 - Compares local git commit with remote repository
 - Shows notification with commit count and latest changes
@@ -114,79 +47,16 @@ Plugin automatically installs via FPP plugin manager.
 
 ### 2. Configuration
 
-1. Navigate to **Content Setup** → **Background Music Settings**
-2. Select **Background Music Playlist** (audio-only playlist)
-3. Select **Main Show Playlist** (your main show)
-4. Configure **Volume Settings** (background, show, and post-show volumes)
-5. Set fade/blackout times and post-show delay
-6. Enable **Shuffle** if desired
-7. Enable **Return to Pre-Show** if you want automatic restart after show
-8. Click **Save Settings**
+1. Navigate to **Content Setup**
+2.
+3. Click **Save Settings**
 
 ### 3. Basic Usage
 
-**Start Background Music:**
-- Go to **Status/Control** → **Background Music Controller**
-- Click "Start Background Music" button
-- Background music plays over scheduler-controlled sequences
-- See real-time track progress and playlist details
-
-**Start Main Show:**
-- Click "Start Main Show" button on controller page
-- OR configure GPIO input to trigger show (see below)
-- Background music fades out → blackout → show starts
 
 ### 4. GPIO Setup (Optional)
 
-The plugin exposes FPP commands that can be triggered via GPIO inputs, allowing physical buttons or sensors to start your show.
-
-**Setup Steps:**
-
-1. Go to **Input/Output Setup** → **GPIO Inputs**
-2. Configure a GPIO pin with:
-   - **Mode**: GPIO Input
-   - **Edge**: Rising (for button press) or Falling
-3. Under **Run Command When Triggered**, select:
-   - **Command**: "Plugin Command"
-   - **Plugin**: "fpp-plugin-BackgroundMusic"  
-   - **Command**: "Start Main Show"
-4. Save configuration and test
-
-**Available FPP Commands:**
-- `Start Main Show` - Initiates fade transition and starts main show playlist
-- `Start Background Music` - Starts background music playback
-- `Stop Background Music` - Stops background music playback
-
-**Use Cases:**
-- Push button at entrance to start show
-- PIR motion sensor to trigger when audience arrives
-- Toggle switch for manual show control
-- Integration with other automation systems
-
-## Controller Features
-
-### Real-Time Status Display
-- Background music running state
-- Currently playing track with progress bar
-- Time elapsed/remaining display
-- FPP playlist status
-- System brightness and volume levels
-- Configuration summary
-
-### Playlist Details Panel
-- View all tracks in background music playlist
-- Track numbers, names, and durations
-- Total track count and playlist duration
-- Highlights currently playing track with play icon
-- Auto-updates every 2 seconds
-
-### Volume Control
-- Real-time volume adjustment slider
-- Syncs with FPP's system volume
-- Separate volume settings for:
-  - Background Music (pre-show)
-  - Show Playlist (main show)
-  - Post-Show Background (after show returns)
+The
 
 ## API Endpoints
 
@@ -248,30 +118,13 @@ Content-Type: application/json
 }
 ```
 
-## How It Works
-
-The plugin uses an **independent audio player** (ffplay) that runs completely separate from FPP's playlist system. This allows:
-
-- ✅ Background music + FPP sequences running simultaneously
-- ✅ No playlist conflicts
-- ✅ Scheduler controls sequences
-- ✅ Plugin adds music layer
-- ✅ Clean transitions between pre-show and show
-- ✅ FPP commands for GPIO integration
-
-### Architecture Highlights
-
-- **Independent Player**: Uses ffplay process, not FPP playlists
-- **Volume Management**: Integrates with FPP's native volume API
-- **Process Control**: PID-based tracking for reliable start/stop
-- **Smooth Transitions**: Coordinated brightness fading and audio crossfade
-- **Auto-Recovery**: Optional return to pre-show after main show completes
 
 ## Support & Development
 
 **Plugin Developer:** Stuart Ledingham of Dynamic Pixels
 
 **Resources:**
+
 - [GitHub Repository](https://github.com/OnlineDynamic/BackgroundMusicFPP-Plugin)
 - [Bug Reports & Feature Requests](https://github.com/OnlineDynamic/BackgroundMusicFPP-Plugin/issues)
 

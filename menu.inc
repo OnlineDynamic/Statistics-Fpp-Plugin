@@ -16,28 +16,21 @@
 
 $menuEntries = Array(
 	Array(
-		'text' => '<i class="fas fa-music"></i> Background Music Controller',
+		'text' => '<i class="fas fa-chart-line"></i> Advanced Stats Dashboard',
 		'type' => 'status',
-		'page' => 'backgroundmusic.php',
+		'page' => 'advancedstats.php',
 		'wrap' => 1
 	),
 	Array(
-		'text' => '<i class="fas fa-cog"></i> Background Music Settings',
+		'text' => '<i class="fas fa-cog"></i> Advanced Stats Settings',
 		'type' => 'content',
 		'page' => 'content.php',
 		'wrap' => 1
 	),
-#	Array(
-#		'text' => 'DynamicPixels Controller - Config',
-#		'type' => 'output',
-#		'page' => 'DynPixconfig.php',
-#		'wrap' => 1,
-#                'controllerModel' => 'DynamicPixels-D24'
-#	),
 	Array(
-		'text' => '<i class="fas fa-question-circle"></i> BackgroundMusic - Help & About',
+		'text' => '<i class="fas fa-question-circle"></i> Advanced Stats - Help & About',
 		'type' => 'help',
-		'page' => 'help/backgroundmusic-help.php',
+		'page' => 'help/advancedstats-help.php',
 		'wrap' => 1
 	)
 );
