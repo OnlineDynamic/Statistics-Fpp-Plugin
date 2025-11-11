@@ -126,18 +126,41 @@
             font-size: 13px;
             margin: 10px 0;
         }
+        
+        .header-buttons a {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .header-buttons a:hover {
+            background-color: #5a6268;
+        }
+        
+        .header-buttons a i {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
     <div id="global" class="settings">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h1 style="margin: 0;">Advanced Stats Plugin - Help & About</h1>
-            <div>
-                <a href="/plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats.php" class="btn btn-outline-secondary" style="margin-right: 5px;">
+            <div class="header-buttons">
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats.php">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a>
-                <a href="/plugin.php?_menu=content&plugin=fpp-plugin-AdvancedStats&page=content.php" class="btn btn-outline-secondary">
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=content.php">
                     <i class="fas fa-cog"></i> Settings
+                </a>
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats-about.php">
+                    <i class="fas fa-info-circle"></i> About
                 </a>
             </div>
         </div>

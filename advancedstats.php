@@ -265,11 +265,14 @@
     <div class="stats-container">
         <div class="stats-header">
             <div class="header-buttons">
-                <a href="help/advancedstats-help.php" target="_blank">
-                    <i class="fas fa-question-circle"></i> Help
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=content.php">
+                    <i class="fas fa-cog"></i> Settings
                 </a>
-                <a href="advancedstats-about.php">
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats-about.php">
                     <i class="fas fa-info-circle"></i> About
+                </a>
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=help/advancedstats-help.php">
+                    <i class="fas fa-question-circle"></i> Help
                 </a>
             </div>
             <h1><i class="fas fa-chart-line"></i> Advanced Stats Dashboard</h1>

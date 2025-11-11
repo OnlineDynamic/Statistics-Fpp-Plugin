@@ -13,11 +13,38 @@
         .settings-header {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
         }
         
         .settings-header h1 {
             color: #007bff;
             margin-bottom: 10px;
+        }
+        
+        .header-buttons {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        
+        .header-buttons a {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .header-buttons a:hover {
+            background-color: #5a6268;
+        }
+        
+        .header-buttons a i {
+            margin-right: 5px;
         }
         
         .settings-section {
@@ -99,6 +126,17 @@
 <body>
     <div class="settings-container">
         <div class="settings-header">
+            <div class="header-buttons">
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats.php">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats-about.php">
+                    <i class="fas fa-info-circle"></i> About
+                </a>
+                <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=help/advancedstats-help.php">
+                    <i class="fas fa-question-circle"></i> Help
+                </a>
+            </div>
             <h1><i class="fas fa-cog"></i> Advanced Stats Settings</h1>
             <p style="color: #6c757d; font-size: 16px;">Configure plugin options and preferences</p>
         </div>
