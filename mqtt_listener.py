@@ -202,6 +202,10 @@ def main():
     client.on_disconnect = on_disconnect
     client.on_message = on_message
     
+    # Set username and password (FPP uses 'fpp' user credentials)
+    # FPP's local MQTT broker uses the same credentials as the FPP user
+    client.username_pw_set("fpp", "falcon")
+    
     # Connect to MQTT broker
     try:
         log_message(f"Connecting to MQTT broker at {MQTT_HOST}:{MQTT_PORT}...")
