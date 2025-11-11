@@ -158,17 +158,27 @@ function advancedStatsGetGPIOEvents() {
     try {
         $db = new SQLite3($dbPath);
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+        $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
         $pin = isset($_GET['pin']) ? intval($_GET['pin']) : null;
         
+        // Get total count
         if ($pin !== null) {
-            $query = "SELECT * FROM gpio_events WHERE pin_number = :pin ORDER BY timestamp DESC LIMIT :limit";
+            $totalCount = $db->querySingle("SELECT COUNT(*) FROM gpio_events WHERE pin_number = $pin");
+        } else {
+            $totalCount = $db->querySingle("SELECT COUNT(*) FROM gpio_events");
+        }
+        
+        if ($pin !== null) {
+            $query = "SELECT * FROM gpio_events WHERE pin_number = :pin ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
             $stmt = $db->prepare($query);
             $stmt->bindValue(':pin', $pin, SQLITE3_INTEGER);
             $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
         } else {
-            $query = "SELECT * FROM gpio_events ORDER BY timestamp DESC LIMIT :limit";
+            $query = "SELECT * FROM gpio_events ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
             $stmt = $db->prepare($query);
             $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
         }
         
         $result = $stmt->execute();
@@ -183,7 +193,10 @@ function advancedStatsGetGPIOEvents() {
         return json(array(
             'success' => true,
             'events' => $events,
-            'count' => count($events)
+            'count' => count($events),
+            'total' => $totalCount,
+            'offset' => $offset,
+            'limit' => $limit
         ));
     } catch (Exception $e) {
         return json(array(
@@ -209,10 +222,15 @@ function advancedStatsGetSequenceHistory() {
     try {
         $db = new SQLite3($dbPath);
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+        $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
         
-        $query = "SELECT * FROM sequence_history ORDER BY timestamp DESC LIMIT :limit";
+        // Get total count
+        $totalCount = $db->querySingle("SELECT COUNT(*) FROM sequence_history");
+        
+        $query = "SELECT * FROM sequence_history ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
         $stmt = $db->prepare($query);
         $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
         
         $result = $stmt->execute();
         $sequences = array();
@@ -226,7 +244,10 @@ function advancedStatsGetSequenceHistory() {
         return json(array(
             'success' => true,
             'sequences' => $sequences,
-            'count' => count($sequences)
+            'count' => count($sequences),
+            'total' => $totalCount,
+            'offset' => $offset,
+            'limit' => $limit
         ));
     } catch (Exception $e) {
         return json(array(
@@ -252,10 +273,15 @@ function advancedStatsGetPlaylistHistory() {
     try {
         $db = new SQLite3($dbPath);
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+        $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
         
-        $query = "SELECT * FROM playlist_history ORDER BY timestamp DESC LIMIT :limit";
+        // Get total count
+        $totalCount = $db->querySingle("SELECT COUNT(*) FROM playlist_history");
+        
+        $query = "SELECT * FROM playlist_history ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
         $stmt = $db->prepare($query);
         $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
         
         $result = $stmt->execute();
         $playlists = array();
@@ -269,7 +295,10 @@ function advancedStatsGetPlaylistHistory() {
         return json(array(
             'success' => true,
             'playlists' => $playlists,
-            'count' => count($playlists)
+            'count' => count($playlists),
+            'total' => $totalCount,
+            'offset' => $offset,
+            'limit' => $limit
         ));
     } catch (Exception $e) {
         return json(array(
@@ -361,7 +390,10 @@ function advancedStatsGetDashboardData() {
         
         // Get most played sequences (top 10)
         $topSequences = array();
-        $query = "SELECT sequence_name, COUNT(*) as play_count FROM sequence_history 
+        $query = "SELECT sequence_name, 
+                         COUNT(*) as play_count,
+                         SUM(CASE WHEN duration > 0 THEN duration ELSE 0 END) as total_duration
+                  FROM sequence_history 
                   WHERE event_type = 'start' 
                   GROUP BY sequence_name 
                   ORDER BY play_count DESC 

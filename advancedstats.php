@@ -13,11 +13,38 @@
         .stats-header {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
         }
         
         .stats-header h1 {
             color: #007bff;
             margin-bottom: 10px;
+        }
+        
+        .header-buttons {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        
+        .header-buttons a {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .header-buttons a:hover {
+            background-color: #5a6268;
+        }
+        
+        .header-buttons a i {
+            margin-right: 5px;
         }
         
         .refresh-btn {
@@ -135,6 +162,14 @@
 <body>
     <div class="stats-container">
         <div class="stats-header">
+            <div class="header-buttons">
+                <a href="help/advancedstats-help.php" target="_blank">
+                    <i class="fas fa-question-circle"></i> Help
+                </a>
+                <a href="advancedstats-about.php">
+                    <i class="fas fa-info-circle"></i> About
+                </a>
+            </div>
             <h1><i class="fas fa-chart-line"></i> Advanced Stats Dashboard</h1>
             <p style="color: #6c757d; font-size: 16px;">GPIO Input & Sequence Play History</p>
             <button class="refresh-btn" onclick="loadAllData()">
@@ -285,6 +320,8 @@
     <script>
         // Format seconds to readable time
         function formatDuration(seconds) {
+            if (!seconds || isNaN(seconds) || seconds === null) return '0s';
+            seconds = parseInt(seconds);
             if (seconds < 60) return seconds + 's';
             if (seconds < 3600) return Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
             return Math.floor(seconds / 3600) + 'h ' + Math.floor((seconds % 3600) / 60) + 'm';

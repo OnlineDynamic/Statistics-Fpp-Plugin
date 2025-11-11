@@ -17,13 +17,19 @@ MQTT_PORT = 1883
 MQTT_CLIENT_ID = "fpp-plugin-advancedstats"
 
 # FPP MQTT Topics
-TOPIC_SEQUENCE = "falcon/player/+/event/sequence/#"
-TOPIC_PLAYLIST = "falcon/player/+/event/playlist/#"
-TOPIC_GPIO = "falcon/player/+/gpio/#"
-TOPIC_STATUS = "falcon/player/+/status"
+# FPP publishes status under falcon/player/{hostname}/...
+# Subscribe to all subtopics to capture everything
+TOPIC_ALL = "falcon/player/+/#"
 
 # Database connection
 db = None
+
+# Cache for tracking current sequence state
+current_sequence = {
+    'name': None,
+    'duration': 0,
+    'start_time': 0
+}
 
 # Log file
 LOG_FILE = "/home/fpp/media/logs/fpp-plugin-AdvancedStats.log"
@@ -44,18 +50,9 @@ def on_connect(client, userdata, flags, rc):
     if rc == 0:
         log_message("Connected to MQTT broker successfully")
         
-        # Subscribe to all FPP event topics
-        client.subscribe(TOPIC_SEQUENCE)
-        log_message(f"Subscribed to: {TOPIC_SEQUENCE}")
-        
-        client.subscribe(TOPIC_PLAYLIST)
-        log_message(f"Subscribed to: {TOPIC_PLAYLIST}")
-        
-        client.subscribe(TOPIC_GPIO)
-        log_message(f"Subscribed to: {TOPIC_GPIO}")
-        
-        client.subscribe(TOPIC_STATUS)
-        log_message(f"Subscribed to: {TOPIC_STATUS}")
+        # Subscribe to all FPP topics
+        client.subscribe(TOPIC_ALL)
+        log_message(f"Subscribed to: {TOPIC_ALL}")
         
     else:
         log_message(f"Failed to connect to MQTT broker. Return code: {rc}")
@@ -73,7 +70,7 @@ def on_message(client, userdata, msg):
         topic = msg.topic
         payload = msg.payload.decode('utf-8')
         
-        log_message(f"MQTT Message - Topic: {topic}")
+        log_message(f"MQTT Message - Topic: {topic}, Payload: {payload[:100]}")
         
         # Try to parse JSON payload
         try:
@@ -81,104 +78,140 @@ def on_message(client, userdata, msg):
         except:
             data = {'raw': payload}
         
-        # Handle sequence events
-        if '/event/sequence/' in topic:
-            handle_sequence_event(topic, data)
+        # FPP topic structure: falcon/player/{hostname}/{subtopic}/...
+        # Example: falcon/player/Dev-Pi4/playlist/name/status
+        # Example: falcon/player/Dev-Pi4/current_sequence
         
-        # Handle playlist events
-        elif '/event/playlist/' in topic:
-            handle_playlist_event(topic, data)
+        parts = topic.split('/')
+        if len(parts) < 4:
+            return
+            
+        # parts[0] = falcon
+        # parts[1] = player  
+        # parts[2] = hostname
+        # parts[3+] = subtopic path
         
-        # Handle GPIO events
-        elif '/gpio/' in topic:
-            handle_gpio_event(topic, data)
+        subtopic = '/'.join(parts[3:])  # Everything after hostname
         
-        # Handle status updates
-        elif '/status' in topic:
-            handle_status_event(topic, data)
+        # Check most specific patterns first to avoid mis-routing
+        # Handle sequence-related topics (check before playlist since sequences are under playlist path)
+        if 'playlist/sequence' in subtopic or 'current_sequence' in subtopic:
+            handle_sequence_topic(topic, subtopic, payload, data)
+        
+        # Handle playlist-related topics
+        elif 'playlist' in subtopic:
+            handle_playlist_topic(topic, subtopic, payload, data)
+        
+        # Handle GPIO-related topics  
+        elif 'gpio' in subtopic:
+            handle_gpio_topic(topic, subtopic, payload, data)
             
     except Exception as e:
         log_message(f"Error processing MQTT message: {e}")
 
-def handle_sequence_event(topic, data):
-    """Handle sequence start/stop events"""
-    global db
+def handle_sequence_topic(topic, subtopic, payload, data):
+    """Handle sequence-related topics"""
+    global db, current_sequence
     
     try:
-        # Topic format: falcon/player/FPP/event/sequence/start or /stop
-        action = 'start' if '/start' in topic else 'stop'
+        # FPP publishes two related topics:
+        # falcon/player/{hostname}/playlist/sequence/status - sequence filename or empty
+        # falcon/player/{hostname}/playlist/sequence/secondsTotal - duration or empty
         
-        sequence_name = data.get('sequence', data.get('name', 'Unknown'))
-        playlist_name = data.get('playlist', '')
-        duration = data.get('duration', 0)
-        
-        if db and sequence_name != 'Unknown':
-            db.log_sequence_event(
-                sequence_name=sequence_name,
-                event_type=action,
-                playlist_name=playlist_name,
-                duration=duration,
-                trigger_source='mqtt'
-            )
-            log_message(f"Logged sequence {action}: {sequence_name}")
+        if 'playlist/sequence/status' in subtopic:
+            sequence_name = payload.strip()
             
-    except Exception as e:
-        log_message(f"Error handling sequence event: {e}")
-
-def handle_playlist_event(topic, data):
-    """Handle playlist start/stop events"""
-    global db
-    
-    try:
-        # Topic format: falcon/player/FPP/event/playlist/start or /stop
-        action = 'start' if '/start' in topic else 'stop'
-        
-        playlist_name = data.get('playlist', data.get('name', 'Unknown'))
-        
-        if db and playlist_name != 'Unknown':
-            db.log_playlist_event(
-                playlist_name=playlist_name,
-                event_type=action,
-                trigger_source='mqtt'
-            )
-            log_message(f"Logged playlist {action}: {playlist_name}")
-            
-    except Exception as e:
-        log_message(f"Error handling playlist event: {e}")
-
-def handle_gpio_event(topic, data):
-    """Handle GPIO state change events"""
-    global db
-    
-    try:
-        # Topic format: falcon/player/FPP/gpio/<pin_number>
-        # Extract pin number from topic
-        parts = topic.split('/')
-        if len(parts) >= 5:
-            pin_number = int(parts[-1])
-            
-            # Get state from payload
-            if isinstance(data, dict):
-                pin_state = data.get('state', data.get('value', 0))
+            if sequence_name and sequence_name != '':
+                # Sequence started - cache the name and time
+                current_sequence['name'] = sequence_name
+                current_sequence['start_time'] = int(time.time())
+                log_message(f"Sequence starting: {sequence_name}")
+                
             else:
-                pin_state = int(data.get('raw', 0))
-            
-            if db:
-                db.log_gpio_event(
-                    pin_number=pin_number,
-                    pin_state=pin_state,
-                    event_type='mqtt',
-                    description=f'MQTT GPIO event on pin {pin_number}'
-                )
-                log_message(f"Logged GPIO event: Pin {pin_number} = {pin_state}")
+                # Sequence stopped (empty payload)
+                if current_sequence['name']:
+                    actual_duration = int(time.time()) - current_sequence['start_time']
+                    
+                    if db:
+                        db.log_sequence_event(
+                            sequence_name=current_sequence['name'],
+                            event_type='stop',
+                            playlist_name='',
+                            duration=actual_duration,
+                            trigger_source='mqtt'
+                        )
+                        log_message(f"Logged sequence stop: {current_sequence['name']} (duration: {actual_duration}s)")
+                    
+                    # Reset cache
+                    current_sequence['name'] = None
+                    current_sequence['duration'] = 0
+                    current_sequence['start_time'] = 0
+        
+        elif 'playlist/sequence/secondsTotal' in subtopic:
+            # Expected duration received
+            try:
+                duration = int(payload.strip()) if payload.strip() else 0
+                current_sequence['duration'] = duration
+                
+                # If we have both name and duration, log the start event
+                if current_sequence['name'] and duration > 0:
+                    if db:
+                        db.log_sequence_event(
+                            sequence_name=current_sequence['name'],
+                            event_type='start',
+                            playlist_name='',
+                            duration=duration,
+                            trigger_source='mqtt'
+                        )
+                        log_message(f"Logged sequence start: {current_sequence['name']} (expected duration: {duration}s)")
+                
+            except ValueError:
+                pass
                 
     except Exception as e:
-        log_message(f"Error handling GPIO event: {e}")
+        log_message(f"Error handling sequence topic: {e}")
 
-def handle_status_event(topic, data):
-    """Handle FPP status updates (optional - for future use)"""
-    # Could track system status, mode changes, etc.
-    pass
+def handle_playlist_topic(topic, subtopic, payload, data):
+    """Handle playlist-related topics"""
+    global db
+    
+    try:
+        # FPP publishes: falcon/player/{hostname}/playlist/name/status with playlist/sequence name
+        # FPP publishes: falcon/player/{hostname}/status with 'idle' or 'playing'
+        
+        if 'playlist/name/status' in subtopic:
+            playlist_name = payload.strip()
+            
+            if playlist_name and playlist_name != '':
+                # Playlist/Sequence started
+                if db:
+                    db.log_playlist_event(
+                        playlist_name=playlist_name,
+                        event_type='start',
+                        trigger_source='mqtt'
+                    )
+                    log_message(f"Logged playlist start: {playlist_name}")
+        
+        # Also track when status changes to playing/idle
+        elif subtopic == 'status':
+            status = payload.strip()
+            log_message(f"FPP Status changed to: {status}")
+            # Could track this separately if needed
+                
+    except Exception as e:
+        log_message(f"Error handling playlist topic: {e}")
+
+def handle_gpio_topic(topic, subtopic, payload, data):
+    """Handle GPIO-related topics"""
+    global db
+    
+    try:
+        # FPP may publish GPIO events - need to determine actual format
+        # For now, log what we receive
+        log_message(f"GPIO topic received: {subtopic}, payload: {payload}")
+                
+    except Exception as e:
+        log_message(f"Error handling GPIO topic: {e}")
 
 def main():
     """Main entry point"""

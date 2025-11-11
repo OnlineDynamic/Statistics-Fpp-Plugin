@@ -48,3 +48,15 @@ piper/voices/*.json
 piper/default_voice.onnx
 piper/default_voice.onnx.json
 piper/status.txt
+
+# SQLite database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
