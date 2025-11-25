@@ -218,7 +218,75 @@
                         <li>If not, go to Content Setup → Plugin Manager → Install Plugins</li>
                     </ul>
                 </li>
-                <li><strong>Configure Settings:</strong>
+                <li><strong>Enable MQTT Broker (REQUIRED):</strong>
+                    <div style="background-color: #fff3cd; padding: 15px; margin: 10px 0; border-left: 4px solid #ffc107; border-radius: 4px;">
+                        <strong>⚠️ Important:</strong> This plugin requires MQTT to be enabled to collect statistics.
+                    </div>
+                    <ul>
+                        <li><strong>Step 1: Enable the MQTT Broker</strong>
+                            <ul>
+                                <li>Go to <strong>Status/Control → FPP Settings</strong></li>
+                                <li>Click on the <strong>Services</strong> tab</li>
+                                <li>Find <strong>"Enable Local MQTT Broker"</strong></li>
+                                <li>Check the box to enable it</li>
+                                <li>Click <strong>Save</strong></li>
+                            </ul>
+                        </li>
+                        <li><strong>Step 2: Configure MQTT Settings</strong>
+                            <ul>
+                                <li>Go to <strong>Status/Control → FPP Settings</strong></li>
+                                <li>Click on the <strong>MQTT</strong> tab</li>
+                                <li>Configure the following settings:</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div style="background-color: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 4px; border: 1px solid #dee2e6;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #dee2e6;">
+                                <td style="padding: 8px; font-weight: bold; width: 200px;">Setting</td>
+                                <td style="padding: 8px; font-weight: bold;">Value</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>MQTT Host:</strong></td>
+                                <td style="padding: 8px;"><code>localhost</code></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>MQTT Port:</strong></td>
+                                <td style="padding: 8px;"><code>1883</code></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>MQTT Client ID:</strong></td>
+                                <td style="padding: 8px;"><em>(Leave default or customize)</em></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>MQTT Prefix:</strong></td>
+                                <td style="padding: 8px;"><code>/</code> <em>(default)</em></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>MQTT Username:</strong></td>
+                                <td style="padding: 8px;"><code>fpp</code></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>MQTT Password:</strong></td>
+                                <td style="padding: 8px;"><code>falcon</code></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;"><strong>MQTT Frequency:</strong></td>
+                                <td style="padding: 8px;"><code>0</code> <em>(disabled - not needed for this plugin)</em></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <ul>
+                        <li><strong>Step 3: Save and Restart</strong>
+                            <ul>
+                                <li>Click <strong>Save</strong> at the bottom of the MQTT settings page</li>
+                                <li>Restart FPPD or reboot your system for changes to take effect</li>
+                                <li>Verify the MQTT broker is running: Go to Status/Control and ensure no MQTT warnings appear on the plugin dashboard</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Configure Plugin Settings:</strong>
                     <ul>
                         <li>Go to Content Setup → Advanced Stats Settings</li>
                         <li>Configure your preferences and options</li>
@@ -233,11 +301,21 @@
                 </li>
             </ol>
             
+            <h2>MQTT Topic Structure</h2>
+            <p>The plugin listens to the following MQTT topics to collect statistics:</p>
+            <ul>
+                <li><code>falcon/player/+/playlist/name/status</code> - Playlist start/stop events</li>
+                <li><code>falcon/player/+/playlist/sequence/status</code> - Sequence within playlist</li>
+                <li><code>falcon/player/+/playlist/media/status</code> - Media file playback</li>
+                <li><code>falcon/player/+/status</code> - Overall FPP status</li>
+            </ul>
+            
             <h2>Tips for Best Results</h2>
             <ul>
                 <li><strong>Regular Monitoring:</strong> Check your stats regularly to identify trends</li>
                 <li><strong>Data Analysis:</strong> Use the historical data to optimize your shows</li>
                 <li><strong>API Integration:</strong> Leverage the REST API for custom reporting</li>
+                <li><strong>Keep MQTT Running:</strong> Statistics are only collected when MQTT is active</li>
             </ul>
         </div>
         
