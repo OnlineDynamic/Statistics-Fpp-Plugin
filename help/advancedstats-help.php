@@ -317,6 +317,52 @@
                 <li><strong>API Integration:</strong> Leverage the REST API for custom reporting</li>
                 <li><strong>Keep MQTT Running:</strong> Statistics are only collected when MQTT is active</li>
             </ul>
+            
+            <h2>Data Management</h2>
+            <p>The plugin includes several tools to help you manage your statistics database:</p>
+            
+            <h3>Backup & Restore</h3>
+            <ul>
+                <li><strong>Backup Database:</strong> Download a complete copy of your statistics database
+                    <ul>
+                        <li>Click the "Backup Database" button on the main dashboard</li>
+                        <li>The database file will be downloaded to your computer</li>
+                        <li>Store backups in a safe location</li>
+                    </ul>
+                </li>
+                <li><strong>Restore Database:</strong> Replace your current database with a backup
+                    <ul>
+                        <li>Click the "Restore Database" button on the main dashboard</li>
+                        <li>Select a backup file from your computer</li>
+                        <li>A safety backup is automatically created before restoring</li>
+                        <li>The page will reload with data from the restored backup</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>Archive Old Data</h3>
+            <p>Over time, your database can grow large. The archive feature helps keep it manageable:</p>
+            <ul>
+                <li><strong>Manual Archive:</strong> Click the "Archive Old Data" button on the dashboard
+                    <ul>
+                        <li>You'll be prompted to enter how many days of data to keep</li>
+                        <li>The system will show you what will be deleted before proceeding</li>
+                        <li>A preview allows you to confirm before any data is removed</li>
+                        <li>Data older than the specified period will be permanently deleted</li>
+                    </ul>
+                </li>
+                <li><strong>Automatic Archive:</strong> Configure in Settings (Content Setup → Advanced Stats Settings)
+                    <ul>
+                        <li>Enable "Auto-Archive Old Data"</li>
+                        <li>Set your retention period (30, 60, 90, 180, or 365 days)</li>
+                        <li>Old data will be automatically cleaned up on a regular schedule</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <div style="background-color: #f8d7da; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545; border-radius: 4px;">
+                <strong>⚠️ Warning:</strong> Archived data is permanently deleted and cannot be recovered. Always create a backup before archiving if you might need the historical data later.
+            </div>
         </div>
         
         <!-- API Tab -->

@@ -73,6 +73,12 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsExportData');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'POST',
+        'endpoint' => 'archive-old-data',
+        'callback' => 'advancedStatsArchiveOldData');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -677,6 +683,142 @@ function advancedStatsExportData() {
             'message' => 'Export error: ' . $e->getMessage()
         ));
         return;
+    }
+}
+
+/**
+ * Archive or delete old data based on retention policy
+ * POST /api/plugin/fpp-plugin-AdvancedStats/archive-old-data
+ * Body: { "retention_days": 90, "dry_run": false }
+ */
+function advancedStatsArchiveOldData() {
+    global $pluginName;
+    
+    // Ensure plugin name is set
+    if (empty($pluginName)) {
+        $pluginName = "fpp-plugin-AdvancedStats";
+    }
+    
+    $db_path = '/home/fpp/media/config/plugin.' . $pluginName . '.db';
+    
+    try {
+        // Get POST data
+        $input = json_decode(file_get_contents('php://input'), true);
+        $retention_days = isset($input['retention_days']) ? intval($input['retention_days']) : 90;
+        $dry_run = isset($input['dry_run']) ? (bool)$input['dry_run'] : false;
+        
+        // Validate retention days
+        if ($retention_days < 1) {
+            return json(array(
+                'success' => false,
+                'message' => 'Retention days must be at least 1'
+            ));
+        }
+        
+        // Calculate cutoff timestamp
+        $cutoff_timestamp = time() - ($retention_days * 24 * 60 * 60);
+        
+        // Check if database file exists
+        if (!file_exists($db_path)) {
+            return json(array(
+                'success' => false,
+                'message' => 'Database file not found: ' . $db_path
+            ));
+        }
+        
+        // Connect to database
+        try {
+            $db = new SQLite3($db_path);
+        } catch (Exception $e) {
+            return json(array(
+                'success' => false,
+                'message' => 'Failed to open database: ' . $e->getMessage()
+            ));
+        }
+        
+        if (!$db) {
+            return json(array(
+                'success' => false,
+                'message' => 'Failed to open database connection'
+            ));
+        }
+        
+        $tables_to_clean = array(
+            'sequence_history',
+            'playlist_history',
+            'gpio_events',
+            'daily_stats'
+        );
+        
+        $results = array();
+        
+        foreach ($tables_to_clean as $table) {
+            // daily_stats uses 'date' column (TEXT format YYYY-MM-DD), others use 'timestamp' (INTEGER)
+            if ($table === 'daily_stats') {
+                $cutoff_date = date('Y-m-d', $cutoff_timestamp);
+                $count_query = "SELECT COUNT(*) as count FROM `$table` WHERE date < '$cutoff_date'";
+            } else {
+                $count_query = "SELECT COUNT(*) as count FROM `$table` WHERE timestamp < $cutoff_timestamp";
+            }
+            
+            $result = @$db->query($count_query);
+            
+            if ($result === false) {
+                // Skip tables that don't exist or have errors
+                $results[$table] = array(
+                    'records_to_delete' => 0,
+                    'deleted' => false
+                );
+                continue;
+            }
+            
+            $row = $result->fetchArray(SQLITE3_ASSOC);
+            $count = $row ? intval($row['count']) : 0;
+            
+            if (!$dry_run && $count > 0) {
+                // Delete old records
+                if ($table === 'daily_stats') {
+                    $delete_query = "DELETE FROM `$table` WHERE date < '$cutoff_date'";
+                } else {
+                    $delete_query = "DELETE FROM `$table` WHERE timestamp < $cutoff_timestamp";
+                }
+                
+                if ($db->exec($delete_query) === false) {
+                    $db->close();
+                    return json(array(
+                        'success' => false,
+                        'message' => "Failed to delete from table '$table': " . $db->lastErrorMsg()
+                    ));
+                }
+                
+                // Vacuum to reclaim space (only once at the end)
+                if ($table === 'daily_stats') {
+                    $db->exec('VACUUM');
+                }
+            }
+            
+            $results[$table] = array(
+                'records_to_delete' => $count,
+                'deleted' => !$dry_run && $count > 0
+            );
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'dry_run' => $dry_run,
+            'retention_days' => $retention_days,
+            'cutoff_date' => date('Y-m-d H:i:s', $cutoff_timestamp),
+            'results' => $results,
+            'message' => $dry_run ? 'Dry run completed - no data deleted' : 'Old data archived/deleted successfully'
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Archive error: ' . $e->getMessage()
+        ));
     }
 }
 ?>

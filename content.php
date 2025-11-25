@@ -138,13 +138,6 @@
             <p style="color: #6c757d; font-size: 16px;">Configure plugin options and preferences</p>
         </div>
         
-        <div class="placeholder-message">
-            <i class="fas fa-tools"></i>
-            <h2 style="color: #856404; margin: 10px 0;">Settings Page Template</h2>
-            <p style="color: #856404; margin: 0;">
-                This is a template settings page. Replace this content with your actual plugin configuration options.
-            </p>
-        </div>
         
         <!-- Example settings form - replace with actual settings -->
         <form id="settingsForm" onsubmit="return saveSettings(event);">
@@ -170,6 +163,44 @@
                     <label for="dataRetention">Data Retention (days)</label>
                     <input type="number" id="dataRetention" name="dataRetention" value="30" min="1" max="365">
                     <small>How long to keep historical statistics (1-365 days)</small>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3><i class="fas fa-database"></i> Data Retention & Archive</h3>
+                
+                <div class="form-group">
+                    <label for="enableAutoArchive">Enable Automatic Archiving</label>
+                    <select id="enableAutoArchive" name="enableAutoArchive">
+                        <option value="1">Enabled</option>
+                        <option value="0">Disabled</option>
+                    </select>
+                    <small>Automatically delete old records based on retention policy</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="retentionDays">Data Retention Period</label>
+                    <select id="retentionDays" name="retentionDays">
+                        <option value="30">30 days</option>
+                        <option value="60">60 days</option>
+                        <option value="90" selected>90 days</option>
+                        <option value="180">180 days (6 months)</option>
+                        <option value="365">365 days (1 year)</option>
+                    </select>
+                    <small>Records older than this will be automatically deleted</small>
+                </div>
+                
+                <div class="form-group" style="background-color: #fff3cd; padding: 15px; border-radius: 4px; border-left: 4px solid #ffc107;">
+                    <strong>⚠️ Warning:</strong> When auto-archive is enabled, old data will be permanently deleted.
+                    Always create a backup before archiving if you might need the historical data later.
+                </div>
+                
+                <div class="form-group" style="text-align: center; margin-top: 20px;">
+                    <button type="button" class="btn" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="showArchiveDialog()">
+                        <i class="fas fa-archive"></i> Archive Old Data Now
+                    </button>
+                    <br>
+                    <small style="color: #6c757d; margin-top: 5px; display: block;">Manually delete old records with preview before deletion</small>
                 </div>
             </div>
             
@@ -263,6 +294,101 @@
             
             alert('Settings page is a template. Implement actual save functionality.');
             return false;
+        }
+        
+        // Archive old data
+        function showArchiveDialog() {
+            const retentionDays = prompt('Enter the number of days to keep (data older than this will be deleted):', '90');
+            
+            if (retentionDays === null) return; // Cancelled
+            
+            const days = parseInt(retentionDays);
+            if (isNaN(days) || days < 1) {
+                alert('Please enter a valid number of days (must be 1 or greater).');
+                return;
+            }
+            
+            // First, do a dry run to show what will be deleted
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/archive-old-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    retention_days: days,
+                    dry_run: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Error checking data: ' + data.message);
+                    return;
+                }
+                
+                const cutoffDate = new Date(data.cutoff_date).toLocaleString();
+                
+                // Calculate totals from results
+                let totalRecords = 0;
+                const sequenceRecords = data.results.sequence_history.records_to_delete;
+                const playlistRecords = data.results.playlist_history.records_to_delete;
+                const gpioRecords = data.results.gpio_events.records_to_delete;
+                const statsRecords = data.results.daily_stats.records_to_delete;
+                totalRecords = sequenceRecords + playlistRecords + gpioRecords + statsRecords;
+                
+                let message = `This will delete data older than ${cutoffDate} (${days} days ago):\n\n`;
+                message += `• Sequence History: ${sequenceRecords} records\n`;
+                message += `• Playlist History: ${playlistRecords} records\n`;
+                message += `• GPIO Events: ${gpioRecords} records\n`;
+                message += `• Daily Stats: ${statsRecords} records\n`;
+                message += `\nTotal: ${totalRecords} records will be permanently deleted.\n\n`;
+                message += 'This action cannot be undone! Continue?';
+                
+                if (totalRecords === 0) {
+                    alert('No data found older than ' + days + ' days. Nothing to archive.');
+                    return;
+                }
+                
+                if (!confirm(message)) {
+                    return;
+                }
+                
+                // User confirmed, now do the actual deletion
+                archiveOldData(days);
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        }
+        
+        function archiveOldData(days) {
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/archive-old-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    retention_days: days,
+                    dry_run: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const sequenceRecords = data.results.sequence_history.records_to_delete;
+                    const playlistRecords = data.results.playlist_history.records_to_delete;
+                    const gpioRecords = data.results.gpio_events.records_to_delete;
+                    const statsRecords = data.results.daily_stats.records_to_delete;
+                    const totalRecords = sequenceRecords + playlistRecords + gpioRecords + statsRecords;
+                    
+                    alert(`Successfully archived old data!\n\nDeleted:\n• Sequence History: ${sequenceRecords}\n• Playlist History: ${playlistRecords}\n• GPIO Events: ${gpioRecords}\n• Daily Stats: ${statsRecords}\n\nTotal: ${totalRecords} records`);
+                } else {
+                    alert('Archive failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Archive error: ' + error.message);
+            });
         }
     </script>
 </body>

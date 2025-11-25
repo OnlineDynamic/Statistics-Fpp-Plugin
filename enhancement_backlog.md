@@ -54,9 +54,9 @@
 
 ## 📋 High Priority Enhancements
 
-* Add link buttons to settings and help pages on main page - in top right (similar to background music player plugin approach)
+* ✅ Add link buttons to settings and help pages on main page - in top right (similar to background music player plugin approach)
 * For GPIO triggers capture the human readable function the trigger is doing (held in GPIO input settings as 'Description')
-* Add ability to backup and restore DB of event history
+* ✅ Add ability to backup and restore DB of event history
 * Add graphs to show events over time - with period filters (daily, weekly, monthly, yearly)
 * Add ability to drill into a tabular breakdown of numbers - to show event details
 * Add pagination to sequence/playlist/GPIO history tables (currently limited to 10 rows)
