@@ -199,6 +199,22 @@ $mqttRunning = isMQTTRunning();
             color: #ffc107;
         }
         
+        .rank-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
+        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #808080); }
+        .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+        .rank-other { background-color: #6c757d; }
+        
         .warning-banner strong {
             display: block;
             font-size: 16px;
@@ -441,6 +457,27 @@ $mqttRunning = isMQTTRunning();
             </div>
         </div>
         
+        <!-- Top Playlists Table -->
+        <div class="table-section">
+            <h2><i class="fas fa-list-alt"></i> Top 10 Most Played Playlists</h2>
+            <div id="topPlaylistsLoading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+            <table id="topPlaylistsTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Playlist Name</th>
+                        <th>Play Count</th>
+                    </tr>
+                </thead>
+                <tbody id="topPlaylistsBody"></tbody>
+            </table>
+            <div id="topPlaylistsEmpty" class="no-data" style="display:none;">
+                No playlist data available yet. Playlists will appear here once they start running.
+            </div>
+        </div>
+        
         <!-- Top GPIO Pins Table -->
         <div class="table-section">
             <h2><i class="fas fa-bolt"></i> Top 10 Most Active GPIO Pins</h2>
@@ -460,6 +497,25 @@ $mqttRunning = isMQTTRunning();
             <div id="topGpioEmpty" class="no-data" style="display:none;">
                 No GPIO data available yet. GPIO events will appear here once detected.
             </div>
+        </div>
+        
+        <!-- Sequence Interruptions Alert -->
+        <div id="interruptionsAlert" class="table-section" style="display:none; background-color: #fff3cd; border-color: #ffc107;">
+            <h2 style="color: #856404;"><i class="fas fa-exclamation-triangle"></i> Possible Sequence Interruptions Detected</h2>
+            <p style="color: #856404; margin-bottom: 15px;">
+                The following sequences may have been interrupted or failed to complete properly:
+            </p>
+            <table id="interruptionsTable">
+                <thead>
+                    <tr>
+                        <th>Start Time</th>
+                        <th>Sequence Name</th>
+                        <th>Playlist</th>
+                        <th>Issue</th>
+                    </tr>
+                </thead>
+                <tbody id="interruptionsBody"></tbody>
+            </table>
         </div>
         
         <!-- Recent Sequence History -->
@@ -632,17 +688,47 @@ $mqttRunning = isMQTTRunning();
                     if (data.top_sequences.length > 0) {
                         topSeqTable.style.display = 'table';
                         topSeqEmpty.style.display = 'none';
-                        topSeqBody.innerHTML = data.top_sequences.map((seq, idx) => `
+                        topSeqBody.innerHTML = data.top_sequences.map((seq, idx) => {
+                            const rank = idx + 1;
+                            const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+                            const trophy = rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : '';
+                            return `
                             <tr>
-                                <td>${idx + 1}</td>
-                                <td>${seq.sequence_name}</td>
-                                <td>${seq.play_count}</td>
+                                <td><span class="rank-badge ${rankClass}">${rank}</span> ${trophy}</td>
+                                <td><strong>${seq.sequence_name}</strong></td>
+                                <td><strong>${seq.play_count}</strong> plays</td>
                                 <td>${formatDuration(seq.total_duration)}</td>
                             </tr>
-                        `).join('');
+                        `}).join('');
                     } else {
                         topSeqTable.style.display = 'none';
                         topSeqEmpty.style.display = 'block';
+                    }
+                    
+                    // Update top playlists table
+                    const topPlayBody = document.getElementById('topPlaylistsBody');
+                    const topPlayTable = document.getElementById('topPlaylistsTable');
+                    const topPlayLoading = document.getElementById('topPlaylistsLoading');
+                    const topPlayEmpty = document.getElementById('topPlaylistsEmpty');
+                    
+                    topPlayLoading.style.display = 'none';
+                    if (data.top_playlists && data.top_playlists.length > 0) {
+                        topPlayTable.style.display = 'table';
+                        topPlayEmpty.style.display = 'none';
+                        topPlayBody.innerHTML = data.top_playlists.map((playlist, idx) => {
+                            const rank = idx + 1;
+                            const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+                            const trophy = rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : '';
+                            return `
+                            <tr>
+                                <td><span class="rank-badge ${rankClass}">${rank}</span> ${trophy}</td>
+                                <td><strong>${playlist.playlist_name}</strong></td>
+                                <td><strong>${playlist.play_count}</strong> plays</td>
+                            </tr>
+                        `}).join('');
+                    } else {
+                        topPlayTable.style.display = 'none';
+                        topPlayEmpty.style.display = 'block';
                     }
                     
                     // Update top GPIO pins table
@@ -768,15 +854,22 @@ $mqttRunning = isMQTTRunning();
                     if (data.sequences && data.sequences.length > 0) {
                         seqHistTable.style.display = 'table';
                         seqHistEmpty.style.display = 'none';
-                        seqHistBody.innerHTML = data.sequences.map(seq => `
+                        seqHistBody.innerHTML = data.sequences.map(seq => {
+                            // For start events, duration is sequence metadata (not playback time)
+                            // For stop events, duration is actual playback time
+                            const displayDuration = seq.event_type === 'start' ? 
+                                '<span style="color: #6c757d;">--</span>' : 
+                                formatDuration(seq.duration);
+                            
+                            return `
                             <tr>
                                 <td>${formatTimestamp(seq.timestamp * 1000)}</td>
                                 <td>${seq.sequence_name}</td>
                                 <td><span class="badge ${seq.event_type === 'start' ? 'badge-success' : 'badge-warning'}">${seq.event_type}</span></td>
-                                <td>${seq.playlist_name || 'N/A'}</td>
-                                <td>${seq.duration}</td>
+                                <td>${seq.playlist_name || '<span style="color: #6c757d;">N/A</span>'}</td>
+                                <td>${displayDuration}</td>
                             </tr>
-                        `).join('');
+                        `}).join('');
                         
                         // Show pagination if more than one page
                         if (sequencePage.total > sequencePage.limit) {
@@ -874,7 +967,44 @@ $mqttRunning = isMQTTRunning();
             loadDashboardData();
             loadSequenceHistory();
             loadGPIOEvents();
+            loadInterruptions();
             document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
+        }
+        
+        // Load sequence interruptions
+        function loadInterruptions() {
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/sequence-interruptions?limit=20')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success || data.count === 0) {
+                        document.getElementById('interruptionsAlert').style.display = 'none';
+                        return;
+                    }
+                    
+                    const alertBox = document.getElementById('interruptionsAlert');
+                    const tbody = document.getElementById('interruptionsBody');
+                    
+                    tbody.innerHTML = data.interruptions.map(item => {
+                        const issue = item.duration === 0 || item.duration === null ? 
+                            'No duration recorded' : 
+                            'No stop event detected';
+                        const playlistName = item.playlist_name || 'N/A';
+                        
+                        return `
+                            <tr>
+                                <td>${item.start_time}</td>
+                                <td><strong>${item.sequence_name}</strong></td>
+                                <td>${playlistName}</td>
+                                <td><span style="color: #dc3545;">${issue}</span></td>
+                            </tr>
+                        `;
+                    }).join('');
+                    
+                    alertBox.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Failed to load interruptions:', error);
+                });
         }
         
         // Backup database

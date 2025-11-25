@@ -79,6 +79,12 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsArchiveOldData');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'sequence-interruptions',
+        'callback' => 'advancedStatsGetSequenceInterruptions');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -473,13 +479,27 @@ function advancedStatsGetDashboardData() {
                          COUNT(*) as play_count,
                          SUM(CASE WHEN duration > 0 THEN duration ELSE 0 END) as total_duration
                   FROM sequence_history 
-                  WHERE event_type = 'start' 
+                  WHERE event_type = 'stop' 
                   GROUP BY sequence_name 
                   ORDER BY play_count DESC 
                   LIMIT 10";
         $result = $db->query($query);
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $topSequences[] = $row;
+        }
+        
+        // Get most played playlists (top 10)
+        $topPlaylists = array();
+        $query = "SELECT playlist_name, 
+                         COUNT(*) as play_count
+                  FROM playlist_history 
+                  WHERE event_type = 'start' AND playlist_name IS NOT NULL AND playlist_name != ''
+                  GROUP BY playlist_name 
+                  ORDER BY play_count DESC 
+                  LIMIT 10";
+        $result = $db->query($query);
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $topPlaylists[] = $row;
         }
         
         // Get most active GPIO pins
@@ -504,6 +524,7 @@ function advancedStatsGetDashboardData() {
                 'playlists' => $totalPlaylists
             ),
             'top_sequences' => $topSequences,
+            'top_playlists' => $topPlaylists,
             'top_gpio_pins' => $topGPIO
         ));
     } catch (Exception $e) {
@@ -818,6 +839,85 @@ function advancedStatsArchiveOldData() {
         return json(array(
             'success' => false,
             'message' => 'Archive error: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * GET /api/plugin/fpp-plugin-AdvancedStats/sequence-interruptions
+ * Detect sequences that may have been interrupted (stopped without proper completion)
+ * Query params: limit (optional, default 50)
+ */
+function advancedStatsGetSequenceInterruptions() {
+    global $pluginName;
+    
+    // Ensure plugin name is set
+    if (empty($pluginName)) {
+        $pluginName = "fpp-plugin-AdvancedStats";
+    }
+    
+    $db_path = '/home/fpp/media/config/plugin.' . $pluginName . '.db';
+    
+    if (!file_exists($db_path)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not found'
+        ));
+    }
+    
+    $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
+    
+    try {
+        $db = new SQLite3($db_path);
+        
+        // Find sequences where we have a start but no corresponding stop within reasonable time
+        // Or where duration is 0 (indicating incomplete tracking)
+        $query = "
+            SELECT 
+                s1.id,
+                s1.timestamp,
+                s1.sequence_name,
+                s1.playlist_name,
+                s1.duration,
+                datetime(s1.timestamp, 'unixepoch', 'localtime') as start_time
+            FROM sequence_history s1
+            WHERE s1.event_type = 'start'
+            AND (
+                s1.duration = 0 
+                OR s1.duration IS NULL
+                OR NOT EXISTS (
+                    SELECT 1 FROM sequence_history s2 
+                    WHERE s2.sequence_name = s1.sequence_name 
+                    AND s2.event_type = 'stop'
+                    AND s2.timestamp > s1.timestamp
+                    AND s2.timestamp < s1.timestamp + 600
+                )
+            )
+            ORDER BY s1.timestamp DESC
+            LIMIT :limit
+        ";
+        
+        $stmt = $db->prepare($query);
+        $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        $result = $stmt->execute();
+        
+        $interruptions = array();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $interruptions[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'interruptions' => $interruptions,
+            'count' => count($interruptions)
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error detecting interruptions: ' . $e->getMessage()
         ));
     }
 }

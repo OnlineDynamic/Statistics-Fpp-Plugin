@@ -60,16 +60,17 @@ if args.type:
             media_type = data.get('type', '')
             sequence_name = data.get('Sequence', data.get('sequence', ''))
             action = data.get('Action', data.get('action', ''))
+            playlist_name = data.get('playlist', data.get('Playlist', ''))
             
             if sequence_name and action and db:
                 if action == 'start':
-                    db.log_sequence_event(sequence_name, 'start', trigger_source='fpp')
-                    print(f"Logged sequence start: {sequence_name}")
+                    db.log_sequence_event(sequence_name, 'start', playlist_name=playlist_name, trigger_source='fpp')
+                    print(f"Logged sequence start: {sequence_name}" + (f" (playlist: {playlist_name})" if playlist_name else ""))
                 elif action == 'stop':
                     # Try to get duration if available
                     duration = data.get('duration', 0)
-                    db.log_sequence_event(sequence_name, 'stop', duration=duration, trigger_source='fpp')
-                    print(f"Logged sequence stop: {sequence_name}")
+                    db.log_sequence_event(sequence_name, 'stop', playlist_name=playlist_name, duration=duration, trigger_source='fpp')
+                    print(f"Logged sequence stop: {sequence_name}" + (f" (playlist: {playlist_name})" if playlist_name else ""))
         
         # Playlist callback
         elif args.type == 'playlist':
