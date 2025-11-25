@@ -480,7 +480,7 @@ $mqttRunning = isMQTTRunning();
         
         <!-- Top GPIO Pins Table -->
         <div class="table-section">
-            <h2><i class="fas fa-bolt"></i> Top 10 Most Active GPIO Pins</h2>
+            <h2><i class="fas fa-bolt"></i> Top 10 Most Active GPIO Events</h2>
             <div id="topGpioLoading" class="loading">
                 <i class="fas fa-spinner fa-spin"></i> Loading...
             </div>
@@ -489,6 +489,7 @@ $mqttRunning = isMQTTRunning();
                     <tr>
                         <th>Rank</th>
                         <th>Pin Number</th>
+                        <th>Description</th>
                         <th>Event Count</th>
                     </tr>
                 </thead>
@@ -615,6 +616,8 @@ $mqttRunning = isMQTTRunning();
                     <tr>
                         <th>Timestamp</th>
                         <th>Pin Number</th>
+                        <th>Description</th>
+                        <th>Event Type</th>
                         <th>State</th>
                     </tr>
                 </thead>
@@ -741,13 +744,16 @@ $mqttRunning = isMQTTRunning();
                     if (data.top_gpio_pins.length > 0) {
                         topGpioTable.style.display = 'table';
                         topGpioEmpty.style.display = 'none';
-                        topGpioBody.innerHTML = data.top_gpio_pins.map((pin, idx) => `
+                        topGpioBody.innerHTML = data.top_gpio_pins.map((pin, idx) => {
+                            const description = pin.description || '<span style="color: #6c757d;">N/A</span>';
+                            return `
                             <tr>
                                 <td>${idx + 1}</td>
-                                <td>${pin.pin_number}</td>
-                                <td>${pin.event_count}</td>
+                                <td><code>${pin.pin_number}</code></td>
+                                <td><strong>${description}</strong></td>
+                                <td><strong>${pin.event_count}</strong> events</td>
                             </tr>
-                        `).join('');
+                        `}).join('');
                     } else {
                         topGpioTable.style.display = 'none';
                         topGpioEmpty.style.display = 'block';
@@ -931,13 +937,19 @@ $mqttRunning = isMQTTRunning();
                     if (data.events && data.events.length > 0) {
                         gpioTable.style.display = 'table';
                         gpioEmpty.style.display = 'none';
-                        gpioBody.innerHTML = data.events.map(event => `
+                        gpioBody.innerHTML = data.events.map(event => {
+                            const description = event.description || '<span style="color: #6c757d;">N/A</span>';
+                            const eventType = event.event_type || 'event';
+                            const stateColor = event.pin_state == 1 ? '#28a745' : '#dc3545';
+                            return `
                             <tr>
                                 <td>${formatTimestamp(event.timestamp * 1000)}</td>
-                                <td>GPIO ${event.pin_number}</td>
-                                <td>${event.pin_state == 1 ? 'HIGH' : 'LOW'}</td>
+                                <td><code>${event.pin_number}</code></td>
+                                <td><strong>${description}</strong></td>
+                                <td><span style="color: #007bff;">${eventType}</span></td>
+                                <td><strong style="color: ${stateColor};">${event.pin_state == 1 ? 'HIGH' : 'LOW'}</strong></td>
                             </tr>
-                        `).join('');
+                        `}).join('');
                         
                         // Show pagination if more than one page
                         if (gpioPage.total > gpioPage.limit) {

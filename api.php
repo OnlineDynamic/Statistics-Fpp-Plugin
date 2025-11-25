@@ -504,7 +504,7 @@ function advancedStatsGetDashboardData() {
         
         // Get most active GPIO pins
         $topGPIO = array();
-        $query = "SELECT pin_number, COUNT(*) as event_count FROM gpio_events 
+        $query = "SELECT pin_number, description, COUNT(*) as event_count FROM gpio_events 
                   GROUP BY pin_number 
                   ORDER BY event_count DESC 
                   LIMIT 10";

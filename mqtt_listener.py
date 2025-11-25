@@ -16,6 +16,9 @@ MQTT_HOST = "localhost"
 MQTT_PORT = 1883
 MQTT_CLIENT_ID = "fpp-plugin-advancedstats"
 
+# FPP Configuration Paths
+GPIO_CONFIG_FILE = "/home/fpp/media/config/gpio.json"
+
 # FPP MQTT Topics
 # FPP publishes status under falcon/player/{hostname}/...
 # Subscribe to all subtopics to capture everything
@@ -23,6 +26,9 @@ TOPIC_ALL = "falcon/player/+/#"
 
 # Database connection
 db = None
+
+# GPIO pin descriptions cache
+gpio_descriptions = {}
 
 # Cache for tracking current sequence state
 current_sequence = {
@@ -33,6 +39,28 @@ current_sequence = {
 
 # Log file
 LOG_FILE = "/home/fpp/media/logs/fpp-plugin-AdvancedStats.log"
+
+def load_gpio_descriptions():
+    """Load GPIO pin descriptions from FPP config"""
+    global gpio_descriptions
+    
+    try:
+        if os.path.exists(GPIO_CONFIG_FILE):
+            with open(GPIO_CONFIG_FILE, 'r') as f:
+                gpio_config = json.load(f)
+                
+            for gpio_pin in gpio_config:
+                if 'pin' in gpio_pin and 'desc' in gpio_pin:
+                    pin_name = gpio_pin['pin']
+                    description = gpio_pin['desc']
+                    gpio_descriptions[pin_name] = description
+                    
+            log_message(f"Loaded descriptions for {len(gpio_descriptions)} GPIO pins")
+        else:
+            log_message(f"GPIO config file not found: {GPIO_CONFIG_FILE}")
+            
+    except Exception as e:
+        log_message(f"Error loading GPIO descriptions: {e}")
 
 def log_message(message):
     """Write message to log file and console"""
@@ -209,13 +237,54 @@ def handle_playlist_topic(topic, subtopic, payload, data):
         log_message(f"Error handling playlist topic: {e}")
 
 def handle_gpio_topic(topic, subtopic, payload, data):
-    """Handle GPIO-related topics"""
-    global db
+    """Handle GPIO-related topics
+    
+    Topic format: falcon/player/{hostname}/gpio/{pin_name}/{event_type}
+    Where event_type is: event, rising, or falling
+    Payload: "1" for high/rising, "0" for low/falling
+    
+    Note: FPP publishes 3 messages per GPIO change:
+    - 'event' (generic, with current state)
+    - 'rising' or 'falling' (specific edge)
+    We only capture rising/falling to avoid duplicates.
+    """
+    global db, gpio_descriptions
     
     try:
-        # FPP may publish GPIO events - need to determine actual format
-        # For now, log what we receive
-        log_message(f"GPIO topic received: {subtopic}, payload: {payload}")
+        # Parse topic: falcon/player/{hostname}/gpio/{pin_name}/{event_type}
+        # Example: falcon/player/FPP/gpio/GPIO17/rising
+        parts = topic.split('/')
+        
+        if len(parts) < 6:
+            log_message(f"GPIO topic format unexpected: {topic}")
+            return
+        
+        pin_name = parts[4]  # e.g., "GPIO17", "P8-07", "1-0038-0"
+        event_type = parts[5]  # "event", "rising", or "falling"
+        
+        # Skip generic 'event' messages to avoid duplicates
+        # Only capture rising/falling which are the actual edge triggers
+        if event_type == 'event':
+            return
+        
+        # Payload is "1" or "0"
+        pin_state = 1 if payload.strip() == "1" else 0
+        
+        # Get description from cache
+        description = gpio_descriptions.get(pin_name, '')
+        
+        # Log the event to database
+        if db:
+            db.log_gpio_event(
+                pin_number=pin_name,  # Store pin name as-is (GPIO17, P8-07, etc.)
+                pin_state=pin_state,
+                event_type=event_type,
+                description=description
+            )
+            desc_display = f" ({description})" if description else ""
+            log_message(f"GPIO Event: {pin_name}{desc_display} {event_type} (state={pin_state})")
+        else:
+            log_message(f"GPIO event received but database not available: {pin_name} {event_type}")
                 
     except Exception as e:
         log_message(f"Error handling GPIO topic: {e}")
@@ -235,6 +304,9 @@ def main():
     except Exception as e:
         log_message(f"ERROR: Failed to initialize database: {e}")
         sys.exit(1)
+    
+    # Load GPIO descriptions from config
+    load_gpio_descriptions()
     
     # Create MQTT client
     client = mqtt.Client(client_id=MQTT_CLIENT_ID, clean_session=True)
