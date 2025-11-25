@@ -4,8 +4,8 @@ function isMQTTEnabled() {
     $settings_file = '/home/fpp/media/settings';
     if (file_exists($settings_file)) {
         $settings = file_get_contents($settings_file);
-        // Check if MQTTBroker is set to 1 (enabled)
-        if (preg_match('/MQTTBroker\s*=\s*"?1"?/i', $settings)) {
+        // Check if Service_MQTT_localbroker is set to 1 (enabled)
+        if (preg_match('/Service_MQTT_localbroker\s*=\s*"?1"?/i', $settings)) {
             return true;
         }
     }
