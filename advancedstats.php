@@ -585,6 +585,18 @@ $mqttRunning = isMQTTRunning();
                 <div class="stat-value" id="totalPlaylistCount">--</div>
                 <div class="stat-label">All playlists started</div>
             </div>
+            
+            <div class="stat-card">
+                <h3><i class="fas fa-terminal"></i> Total Commands</h3>
+                <div class="stat-value" id="totalCommandCount">--</div>
+                <div class="stat-label">Commands executed</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3><i class="fas fa-layer-group"></i> Command Presets</h3>
+                <div class="stat-value" id="totalPresetCount">--</div>
+                <div class="stat-label">Presets executed</div>
+            </div>
         </div>
         
         <!-- Top Sequences Table -->
@@ -669,6 +681,49 @@ $mqttRunning = isMQTTRunning();
                 </thead>
                 <tbody id="interruptionsBody"></tbody>
             </table>
+        </div>
+        
+        <!-- Top Commands Table -->
+        <div class="table-section">
+            <h2><i class="fas fa-terminal"></i> Top 10 Most Used Commands</h2>
+            <div id="topCommandsLoading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+            <table id="topCommandsTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Command</th>
+                        <th>Execution Count</th>
+                    </tr>
+                </thead>
+                <tbody id="topCommandsBody"></tbody>
+            </table>
+            <div id="topCommandsEmpty" class="no-data" style="display:none;">
+                No command data available yet. Commands will appear here once they are executed.
+            </div>
+        </div>
+        
+        <!-- Top Command Presets Table -->
+        <div class="table-section">
+            <h2><i class="fas fa-layer-group"></i> Top 10 Most Used Command Presets</h2>
+            <div id="topPresetsLoading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+            <table id="topPresetsTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Preset Name</th>
+                        <th>Execution Count</th>
+                        <th>Avg Commands/Exec</th>
+                    </tr>
+                </thead>
+                <tbody id="topPresetsBody"></tbody>
+            </table>
+            <div id="topPresetsEmpty" class="no-data" style="display:none;">
+                No preset data available yet. Presets will appear here once they are executed.
+            </div>
         </div>
         
         <!-- Time-Series Graphs -->
@@ -849,6 +904,109 @@ $mqttRunning = isMQTTRunning();
                 </button>
             </div>
         </div>
+        
+        <!-- Command History Section -->
+        <div class="table-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2><i class="fas fa-terminal"></i> Recent Command Executions</h2>
+                <div>
+                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('command_history', 'csv')">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('command_history', 'json')">
+                        <i class="fas fa-file-code"></i> JSON
+                    </button>
+                </div>
+            </div>
+            <div class="filter-section">
+                <label for="cmdSearch">Search:</label>
+                <input type="text" id="cmdSearch" placeholder="Command name, args, or trigger..." onkeypress="if(event.key==='Enter') loadCommandHistory('search')" />
+                <button class="refresh-btn" onclick="loadCommandHistory('search')">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button class="refresh-btn" onclick="document.getElementById('cmdSearch').value=''; loadCommandHistory('search');">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+            <div id="commandHistoryLoading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+            <table id="commandHistoryTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Command</th>
+                        <th>Arguments</th>
+                        <th>MultiSync</th>
+                        <th>Trigger</th>
+                    </tr>
+                </thead>
+                <tbody id="commandHistoryBody"></tbody>
+            </table>
+            <div id="commandHistoryEmpty" class="no-data" style="display:none;">
+                No commands recorded yet.
+            </div>
+            <div id="commandHistoryPagination" class="pagination" style="display:none;">
+                <button id="cmdHistPrev" onclick="loadCommandHistory('prev')">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info" id="cmdHistPageInfo">Page 1</span>
+                <button id="cmdHistNext" onclick="loadCommandHistory('next')">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Command Preset History Section -->
+        <div class="table-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2><i class="fas fa-layer-group"></i> Recent Command Preset Executions</h2>
+                <div>
+                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('command_preset_history', 'csv')">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('command_preset_history', 'json')">
+                        <i class="fas fa-file-code"></i> JSON
+                    </button>
+                </div>
+            </div>
+            <div class="filter-section">
+                <label for="presetSearch">Search:</label>
+                <input type="text" id="presetSearch" placeholder="Preset name or trigger..." onkeypress="if(event.key==='Enter') loadPresetHistory('search')" />
+                <button class="refresh-btn" onclick="loadPresetHistory('search')">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button class="refresh-btn" onclick="document.getElementById('presetSearch').value=''; loadPresetHistory('search');">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+            <div id="presetHistoryLoading" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+            <table id="presetHistoryTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Preset Name</th>
+                        <th>Command Count</th>
+                        <th>Trigger</th>
+                    </tr>
+                </thead>
+                <tbody id="presetHistoryBody"></tbody>
+            </table>
+            <div id="presetHistoryEmpty" class="no-data" style="display:none;">
+                No presets recorded yet.
+            </div>
+            <div id="presetHistoryPagination" class="pagination" style="display:none;">
+                <button id="presetHistPrev" onclick="loadPresetHistory('prev')">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info" id="presetHistPageInfo">Page 1</span>
+                <button id="presetHistNext" onclick="loadPresetHistory('next')">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -893,6 +1051,8 @@ $mqttRunning = isMQTTRunning();
                     document.getElementById('totalGpioCount').textContent = data.totals.gpio_events;
                     document.getElementById('totalSequenceCount').textContent = data.totals.sequences;
                     document.getElementById('totalPlaylistCount').textContent = data.totals.playlists;
+                    document.getElementById('totalCommandCount').textContent = data.totals.commands || 0;
+                    document.getElementById('totalPresetCount').textContent = data.totals.presets || 0;
                     
                     // Update top sequences table
                     const topSeqBody = document.getElementById('topSequencesBody');
@@ -971,6 +1131,58 @@ $mqttRunning = isMQTTRunning();
                         topGpioTable.style.display = 'none';
                         topGpioEmpty.style.display = 'block';
                     }
+                    
+                    // Update top commands table
+                    const topCmdBody = document.getElementById('topCommandsBody');
+                    const topCmdTable = document.getElementById('topCommandsTable');
+                    const topCmdLoading = document.getElementById('topCommandsLoading');
+                    const topCmdEmpty = document.getElementById('topCommandsEmpty');
+                    
+                    topCmdLoading.style.display = 'none';
+                    if (data.top_commands && data.top_commands.length > 0) {
+                        topCmdTable.style.display = 'table';
+                        topCmdEmpty.style.display = 'none';
+                        topCmdBody.innerHTML = data.top_commands.map((cmd, idx) => {
+                            const rank = idx + 1;
+                            const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+                            const trophy = rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : '';
+                            return `
+                            <tr>
+                                <td><span class="rank-badge ${rankClass}">${rank}</span> ${trophy}</td>
+                                <td><code>${cmd.command}</code></td>
+                                <td><strong>${cmd.use_count}</strong> times</td>
+                            </tr>
+                        `}).join('');
+                    } else {
+                        topCmdTable.style.display = 'none';
+                        topCmdEmpty.style.display = 'block';
+                    }
+                    
+                    // Update top presets table
+                    const topPresetBody = document.getElementById('topPresetsBody');
+                    const topPresetTable = document.getElementById('topPresetsTable');
+                    const topPresetLoading = document.getElementById('topPresetsLoading');
+                    const topPresetEmpty = document.getElementById('topPresetsEmpty');
+                    
+                    topPresetLoading.style.display = 'none';
+                    if (data.top_presets && data.top_presets.length > 0) {
+                        topPresetTable.style.display = 'table';
+                        topPresetEmpty.style.display = 'none';
+                        topPresetBody.innerHTML = data.top_presets.map((preset, idx) => {
+                            const rank = idx + 1;
+                            const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+                            const trophy = rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : '';
+                            return `
+                            <tr>
+                                <td><span class="rank-badge ${rankClass}">${rank}</span> ${trophy}</td>
+                                <td><strong>${preset.preset_name}</strong></td>
+                                <td><strong>${preset.use_count}</strong> times</td>
+                            </tr>
+                        `}).join('');
+                    } else {
+                        topPresetTable.style.display = 'none';
+                        topPresetEmpty.style.display = 'block';
+                    }
                 })
                 .catch(error => {
                     showError('Failed to load dashboard data: ' + error.message);
@@ -1039,6 +1251,192 @@ $mqttRunning = isMQTTRunning();
             gpioFilters = {};
             gpioPage.offset = 0;
             loadGPIOEvents();
+        }
+        
+        // Pagination and filter state for commands and presets
+        let commandPage = { offset: 0, limit: 15, total: 0 };
+        let presetPage = { offset: 0, limit: 15, total: 0 };
+        let commandFilters = {};
+        let presetFilters = {};
+        
+        // Apply command filters
+        function applyCommandFilters() {
+            commandFilters = {};
+            const searchText = document.getElementById('cmdSearch').value;
+            if (searchText) commandFilters.search = searchText;
+            commandPage.offset = 0;
+            loadCommandHistory();
+        }
+        
+        // Clear command filters
+        function clearCommandFilters() {
+            document.getElementById('cmdSearch').value = '';
+            commandFilters = {};
+            commandPage.offset = 0;
+            loadCommandHistory();
+        }
+        
+        // Apply preset filters
+        function applyPresetFilters() {
+            presetFilters = {};
+            const searchText = document.getElementById('presetSearch').value;
+            if (searchText) presetFilters.search = searchText;
+            presetPage.offset = 0;
+            loadPresetHistory();
+        }
+        
+        // Clear preset filters
+        function clearPresetFilters() {
+            document.getElementById('presetSearch').value = '';
+            presetFilters = {};
+            presetPage.offset = 0;
+            loadPresetHistory();
+        }
+        
+        // Load command history
+        function loadCommandHistory(action) {
+            if (action === 'prev' && commandPage.offset > 0) {
+                commandPage.offset -= commandPage.limit;
+            } else if (action === 'next' && commandPage.offset + commandPage.limit < commandPage.total) {
+                commandPage.offset += commandPage.limit;
+            } else if (action === 'prev' || action === 'next') {
+                return;
+            }
+            
+            let queryParams = `limit=${commandPage.limit}&offset=${commandPage.offset}`;
+            for (let key in commandFilters) {
+                queryParams += `&${key}=${encodeURIComponent(commandFilters[key])}`;
+            }
+            
+            fetch(`/api/plugin/fpp-plugin-AdvancedStats/command-history?${queryParams}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        showError('Failed to load command history');
+                        return;
+                    }
+                    
+                    const cmdHistBody = document.getElementById('commandHistoryBody');
+                    const cmdHistTable = document.getElementById('commandHistoryTable');
+                    const cmdHistLoading = document.getElementById('commandHistoryLoading');
+                    const cmdHistEmpty = document.getElementById('commandHistoryEmpty');
+                    const cmdHistPagination = document.getElementById('commandHistoryPagination');
+                    
+                    cmdHistLoading.style.display = 'none';
+                    commandPage.total = data.total || 0;
+                    
+                    if (data.data && data.data.length > 0) {
+                        cmdHistTable.style.display = 'table';
+                        cmdHistEmpty.style.display = 'none';
+                        cmdHistBody.innerHTML = data.data.map(cmd => {
+                            // Parse args if it's a JSON string, otherwise use as-is
+                            let argsDisplay = '--';
+                            try {
+                                const parsedArgs = typeof cmd.args === 'string' ? JSON.parse(cmd.args) : cmd.args;
+                                if (Array.isArray(parsedArgs) && parsedArgs.length > 0) {
+                                    argsDisplay = parsedArgs.join(', ');
+                                } else if (parsedArgs && typeof parsedArgs === 'object' && Object.keys(parsedArgs).length > 0) {
+                                    argsDisplay = JSON.stringify(parsedArgs);
+                                }
+                            } catch (e) {
+                                argsDisplay = cmd.args || '--';
+                            }
+                            const multisync = cmd.multisyncCommand ? 'Yes' : 'No';
+                            const source = cmd.trigger_source || 'Unknown';
+                            return `
+                            <tr>
+                                <td>${formatTimestamp(cmd.timestamp * 1000)}</td>
+                                <td><code>${cmd.command}</code></td>
+                                <td>${argsDisplay}</td>
+                                <td>${multisync}</td>
+                                <td>${source}</td>
+                            </tr>
+                        `}).join('');
+                        
+                        // Update pagination controls
+                        cmdHistPagination.style.display = 'flex';
+                        const startNum = commandPage.offset + 1;
+                        const endNum = Math.min(commandPage.offset + commandPage.limit, commandPage.total);
+                        document.getElementById('cmdHistPageInfo').textContent = 
+                            `${startNum}-${endNum} of ${commandPage.total}`;
+                        document.getElementById('cmdHistPrev').disabled = commandPage.offset === 0;
+                        document.getElementById('cmdHistNext').disabled = 
+                            commandPage.offset + commandPage.limit >= commandPage.total;
+                    } else {
+                        cmdHistTable.style.display = 'none';
+                        cmdHistEmpty.style.display = 'block';
+                        cmdHistPagination.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    showError('Failed to load command history: ' + error.message);
+                });
+        }
+        
+        // Load preset history
+        function loadPresetHistory(action) {
+            if (action === 'prev' && presetPage.offset > 0) {
+                presetPage.offset -= presetPage.limit;
+            } else if (action === 'next' && presetPage.offset + presetPage.limit < presetPage.total) {
+                presetPage.offset += presetPage.limit;
+            } else if (action === 'prev' || action === 'next') {
+                return;
+            }
+            
+            let queryParams = `limit=${presetPage.limit}&offset=${presetPage.offset}`;
+            for (let key in presetFilters) {
+                queryParams += `&${key}=${encodeURIComponent(presetFilters[key])}`;
+            }
+            
+            fetch(`/api/plugin/fpp-plugin-AdvancedStats/command-preset-history?${queryParams}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        showError('Failed to load preset history');
+                        return;
+                    }
+                    
+                    const presetHistBody = document.getElementById('presetHistoryBody');
+                    const presetHistTable = document.getElementById('presetHistoryTable');
+                    const presetHistLoading = document.getElementById('presetHistoryLoading');
+                    const presetHistEmpty = document.getElementById('presetHistoryEmpty');
+                    const presetHistPagination = document.getElementById('presetHistoryPagination');
+                    
+                    presetHistLoading.style.display = 'none';
+                    presetPage.total = data.total || 0;
+                    
+                    if (data.data && data.data.length > 0) {
+                        presetHistTable.style.display = 'table';
+                        presetHistEmpty.style.display = 'none';
+                        presetHistBody.innerHTML = data.data.map(preset => {
+                            const source = preset.trigger_source || 'Unknown';
+                            return `
+                            <tr>
+                                <td>${formatTimestamp(preset.timestamp * 1000)}</td>
+                                <td><strong>${preset.preset_name}</strong></td>
+                                <td>${preset.command_count} commands</td>
+                                <td>${source}</td>
+                            </tr>
+                        `}).join('');
+                        
+                        // Update pagination controls
+                        presetHistPagination.style.display = 'flex';
+                        const startNum = presetPage.offset + 1;
+                        const endNum = Math.min(presetPage.offset + presetPage.limit, presetPage.total);
+                        document.getElementById('presetHistPageInfo').textContent = 
+                            `${startNum}-${endNum} of ${presetPage.total}`;
+                        document.getElementById('presetHistPrev').disabled = presetPage.offset === 0;
+                        document.getElementById('presetHistNext').disabled = 
+                            presetPage.offset + presetPage.limit >= presetPage.total;
+                    } else {
+                        presetHistTable.style.display = 'none';
+                        presetHistEmpty.style.display = 'block';
+                        presetHistPagination.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    showError('Failed to load preset history: ' + error.message);
+                });
         }
         
         // Load sequence history
@@ -1198,6 +1596,8 @@ $mqttRunning = isMQTTRunning();
             loadDashboardData();
             loadSequenceHistory();
             loadGPIOEvents();
+            loadCommandHistory();
+            loadPresetHistory();
             loadInterruptions();
             loadTimeSeriesCharts();
             document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();

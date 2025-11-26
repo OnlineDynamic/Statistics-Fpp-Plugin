@@ -121,6 +121,18 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsSaveSettings');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'command-history',
+        'callback' => 'advancedStatsGetCommandHistory');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'command-preset-history',
+        'callback' => 'advancedStatsGetCommandPresetHistory');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -520,6 +532,8 @@ function advancedStatsGetDashboardData() {
         $totalGPIO = $db->querySingle("SELECT COUNT(*) FROM gpio_events");
         $totalSequences = $db->querySingle("SELECT COUNT(*) FROM sequence_history WHERE event_type = 'start'");
         $totalPlaylists = $db->querySingle("SELECT COUNT(*) FROM playlist_history WHERE event_type = 'start'");
+        $totalCommands = $db->querySingle("SELECT COUNT(*) FROM command_history");
+        $totalPresets = $db->querySingle("SELECT COUNT(*) FROM command_preset_history");
         
         // Get most played sequences (top 10)
         $topSequences = array();
@@ -561,6 +575,30 @@ function advancedStatsGetDashboardData() {
             $topGPIO[] = $row;
         }
         
+        // Get most used commands (top 10)
+        $topCommands = array();
+        $query = "SELECT command, COUNT(*) as use_count 
+                  FROM command_history 
+                  GROUP BY command 
+                  ORDER BY use_count DESC 
+                  LIMIT 10";
+        $result = $db->query($query);
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $topCommands[] = $row;
+        }
+        
+        // Get most used command presets (top 10)
+        $topPresets = array();
+        $query = "SELECT preset_name, COUNT(*) as use_count 
+                  FROM command_preset_history 
+                  GROUP BY preset_name 
+                  ORDER BY use_count DESC 
+                  LIMIT 10";
+        $result = $db->query($query);
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $topPresets[] = $row;
+        }
+        
         $db->close();
         
         return json(array(
@@ -569,11 +607,15 @@ function advancedStatsGetDashboardData() {
             'totals' => array(
                 'gpio_events' => $totalGPIO,
                 'sequences' => $totalSequences,
-                'playlists' => $totalPlaylists
+                'playlists' => $totalPlaylists,
+                'commands' => $totalCommands,
+                'presets' => $totalPresets
             ),
             'top_sequences' => $topSequences,
             'top_playlists' => $topPlaylists,
-            'top_gpio_pins' => $topGPIO
+            'top_gpio_pins' => $topGPIO,
+            'top_commands' => $topCommands,
+            'top_presets' => $topPresets
         ));
     } catch (Exception $e) {
         return json(array(
@@ -692,7 +734,7 @@ function advancedStatsExportData() {
     $table = isset($_GET['table']) ? $_GET['table'] : 'sequence_history';
     $format = isset($_GET['format']) ? $_GET['format'] : 'csv';
     
-    $validTables = array('gpio_events', 'sequence_history', 'playlist_history', 'daily_stats');
+    $validTables = array('gpio_events', 'sequence_history', 'playlist_history', 'daily_stats', 'command_history', 'command_preset_history');
     if (!in_array($table, $validTables)) {
         header('Content-Type: application/json');
         echo json_encode(array(
@@ -1336,6 +1378,14 @@ function advancedStatsGetDatabaseInfo() {
         $result = $db->querySingle("SELECT COUNT(*) FROM daily_stats");
         $counts['daily_stats'] = (int)$result;
         
+        // Command history count
+        $result = $db->querySingle("SELECT COUNT(*) FROM command_history");
+        $counts['command_history'] = (int)$result;
+        
+        // Command preset history count
+        $result = $db->querySingle("SELECT COUNT(*) FROM command_preset_history");
+        $counts['command_preset_history'] = (int)$result;
+        
         $db->close();
         
         return json(array(
@@ -1442,6 +1492,140 @@ function advancedStatsSaveSettings() {
         return json(array(
             'success' => false,
             'message' => 'Error saving settings: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get command execution history
+ */
+function advancedStatsGetCommandHistory() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    // Get pagination parameters
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
+    $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
+    
+    try {
+        $db = new SQLite3($dbPath);
+        
+        // Build query with optional search
+        $whereClause = '';
+        $params = array();
+        
+        if (!empty($search)) {
+            $whereClause = "WHERE command LIKE :search OR args LIKE :search OR trigger_source LIKE :search";
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        // Get total count
+        $countQuery = "SELECT COUNT(*) as total FROM command_history $whereClause";
+        $stmt = $db->prepare($countQuery);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, SQLITE3_TEXT);
+        }
+        $result = $stmt->execute();
+        $totalRow = $result->fetchArray(SQLITE3_ASSOC);
+        $total = $totalRow['total'];
+        
+        // Get paginated results
+        $query = "SELECT * FROM command_history $whereClause ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
+        $stmt = $db->prepare($query);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, SQLITE3_TEXT);
+        }
+        $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+        
+        $result = $stmt->execute();
+        $commands = array();
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $commands[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'data' => $commands,
+            'total' => $total,
+            'limit' => $limit,
+            'offset' => $offset
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error fetching command history: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get command preset execution history
+ */
+function advancedStatsGetCommandPresetHistory() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    // Get pagination parameters
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
+    $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
+    
+    try {
+        $db = new SQLite3($dbPath);
+        
+        // Build query with optional search
+        $whereClause = '';
+        $params = array();
+        
+        if (!empty($search)) {
+            $whereClause = "WHERE preset_name LIKE :search OR trigger_source LIKE :search";
+            $params[':search'] = '%' . $search . '%';
+        }
+        
+        // Get total count
+        $countQuery = "SELECT COUNT(*) as total FROM command_preset_history $whereClause";
+        $stmt = $db->prepare($countQuery);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, SQLITE3_TEXT);
+        }
+        $result = $stmt->execute();
+        $totalRow = $result->fetchArray(SQLITE3_ASSOC);
+        $total = $totalRow['total'];
+        
+        // Get paginated results
+        $query = "SELECT * FROM command_preset_history $whereClause ORDER BY timestamp DESC LIMIT :limit OFFSET :offset";
+        $stmt = $db->prepare($query);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, SQLITE3_TEXT);
+        }
+        $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+        $stmt->bindValue(':offset', $offset, SQLITE3_INTEGER);
+        
+        $result = $stmt->execute();
+        $presets = array();
+        
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $presets[] = $row;
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'data' => $presets,
+            'total' => $total,
+            'limit' => $limit,
+            'offset' => $offset
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error fetching command preset history: ' . $e->getMessage()
         ));
     }
 }

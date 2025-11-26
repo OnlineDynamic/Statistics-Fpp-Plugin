@@ -75,6 +75,42 @@ try {
         )
     ');
     
+    // Create command execution history table
+    $db->exec('
+        CREATE TABLE IF NOT EXISTS command_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp INTEGER NOT NULL,
+            command TEXT NOT NULL,
+            args TEXT,
+            multisyncCommand INTEGER DEFAULT 0,
+            multisyncHosts TEXT,
+            trigger_source TEXT,
+            payload_json TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+    
+    // Create indexes for command history
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_cmd_timestamp ON command_history(timestamp)');
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_cmd_command ON command_history(command)');
+    
+    // Create command preset execution history table
+    $db->exec('
+        CREATE TABLE IF NOT EXISTS command_preset_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp INTEGER NOT NULL,
+            preset_name TEXT NOT NULL,
+            command_count INTEGER DEFAULT 0,
+            trigger_source TEXT,
+            payload_json TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ');
+    
+    // Create indexes for command preset history
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_preset_timestamp ON command_preset_history(timestamp)');
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_preset_name ON command_preset_history(preset_name)');
+    
     // === SCHEMA MIGRATIONS ===
     // Check and add missing columns for existing installations
     
@@ -95,8 +131,8 @@ try {
     }
     
     echo "Database initialized successfully at: $dbPath\n";
-    echo "Tables created: gpio_events, sequence_history, playlist_history, daily_stats\n";
-    echo "Schema version: 1.1 (includes gpio_events.description)\n";
+    echo "Tables created: gpio_events, sequence_history, playlist_history, daily_stats, command_history, command_preset_history\n";
+    echo "Schema version: 1.2 (includes commands and command presets)\n";
     
     $db->close();
     

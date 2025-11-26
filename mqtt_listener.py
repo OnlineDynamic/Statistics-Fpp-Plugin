@@ -133,6 +133,10 @@ def on_message(client, userdata, msg):
         # Handle GPIO-related topics  
         elif 'gpio' in subtopic:
             handle_gpio_topic(topic, subtopic, payload, data)
+        
+        # Handle command-related topics
+        elif 'command' in subtopic:
+            handle_command_topic(topic, subtopic, payload, data)
             
     except Exception as e:
         log_message(f"Error processing MQTT message: {e}")
@@ -288,6 +292,62 @@ def handle_gpio_topic(topic, subtopic, payload, data):
                 
     except Exception as e:
         log_message(f"Error handling GPIO topic: {e}")
+
+def handle_command_topic(topic, subtopic, payload, data):
+    """Handle command-related MQTT topics"""
+    global db
+    
+    try:
+        # Command topics structure:
+        # falcon/player/{hostname}/command/run - individual command execution
+        # falcon/player/{hostname}/command/preset/triggered - preset execution
+        
+        if 'command/preset/triggered' in subtopic:
+            # Command preset execution
+            # Expected payload: JSON with preset details
+            preset_name = data.get('preset', data.get('name', str(data.get('slot', 'Unknown'))))
+            # Count commands if provided, otherwise estimate or use 0
+            command_count = data.get('command_count', len(data.get('commands', []))) if 'commands' in data else 1
+            trigger_source = data.get('trigger', data.get('source', ''))
+            payload_json = json.dumps(data) if isinstance(data, dict) else payload
+            
+            if db:
+                db.log_command_preset_event(
+                    preset_name=preset_name,
+                    command_count=command_count,
+                    trigger_source=trigger_source,
+                    payload_json=payload_json
+                )
+                log_message(f"Command Preset Executed: {preset_name} ({command_count} commands) - Trigger: {trigger_source}")
+            else:
+                log_message(f"Command preset event received but database not available: {preset_name}")
+                
+        elif 'command/run' in subtopic:
+            # Individual command execution
+            # Expected payload: JSON with command details
+            command = data.get('command', data.get('type', 'Unknown'))
+            args = json.dumps(data.get('args', [])) if 'args' in data else ''
+            multisync_command = 1 if data.get('multisyncCommand', False) else 0
+            multisync_hosts = ','.join(data.get('multisyncHosts', [])) if 'multisyncHosts' in data else ''
+            trigger_source = data.get('trigger', data.get('source', ''))
+            payload_json = json.dumps(data) if isinstance(data, dict) else payload
+            
+            if db:
+                db.log_command_event(
+                    command=command,
+                    args=args,
+                    multisync_command=multisync_command,
+                    multisync_hosts=multisync_hosts,
+                    trigger_source=trigger_source,
+                    payload_json=payload_json
+                )
+                multisync_str = f" [MultiSync: {multisync_hosts}]" if multisync_command else ""
+                log_message(f"Command Executed: {command} (args: {args[:50]}){multisync_str}")
+            else:
+                log_message(f"Command event received but database not available: {command}")
+                
+    except Exception as e:
+        log_message(f"Error handling command topic: {e}")
 
 def main():
     """Main entry point"""

@@ -222,3 +222,66 @@ class StatsDatabase:
         except Exception as e:
             print(f"Error getting daily stats: {e}")
             return []
+    
+    def log_command_event(self, command, args='', multisync_command=0, multisync_hosts='', 
+                         trigger_source='', payload_json=''):
+        """
+        Log a command execution event
+        
+        Args:
+            command: Command name/type
+            args: Command arguments (JSON string or text)
+            multisync_command: Whether this is a multisync command (0 or 1)
+            multisync_hosts: Comma-separated list of target hosts
+            trigger_source: What triggered the command
+            payload_json: Full JSON payload for reference
+        """
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            timestamp = int(time.time())
+            
+            cursor.execute('''
+                INSERT INTO command_history 
+                (timestamp, command, args, multisyncCommand, multisyncHosts, trigger_source, payload_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (timestamp, command, args, multisync_command, multisync_hosts, trigger_source, payload_json))
+            
+            conn.commit()
+            conn.close()
+            
+            return True
+        except Exception as e:
+            print(f"Error logging command event: {e}")
+            return False
+    
+    def log_command_preset_event(self, preset_name, command_count=0, trigger_source='', payload_json=''):
+        """
+        Log a command preset execution event
+        
+        Args:
+            preset_name: Name of the command preset
+            command_count: Number of commands in the preset
+            trigger_source: What triggered the preset
+            payload_json: Full JSON payload for reference
+        """
+        try:
+            conn = self.get_connection()
+            cursor = conn.cursor()
+            
+            timestamp = int(time.time())
+            
+            cursor.execute('''
+                INSERT INTO command_preset_history 
+                (timestamp, preset_name, command_count, trigger_source, payload_json)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (timestamp, preset_name, command_count, trigger_source, payload_json))
+            
+            conn.commit()
+            conn.close()
+            
+            return True
+        except Exception as e:
+            print(f"Error logging command preset event: {e}")
+            return False
