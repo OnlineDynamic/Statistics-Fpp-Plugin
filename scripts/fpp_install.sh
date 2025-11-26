@@ -30,7 +30,16 @@ fi
 echo "Installing Python MQTT library..."
 apt-get install -y python3-paho-mqtt > /dev/null 2>&1 || echo "Warning: Could not install python3-paho-mqtt"
 
-# Initialize database
+# Check if database already exists (upgrade scenario)
+DB_PATH="/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db"
+if [ -f "$DB_PATH" ]; then
+    echo "Existing database found - running migrations..."
+    php "${PLUGIN_DIR}/migrate_database.php"
+else
+    echo "No existing database - performing fresh installation..."
+fi
+
+# Initialize database (creates tables if they don't exist)
 echo "Initializing Advanced Stats database..."
 php "${PLUGIN_DIR}/init_database.php"
 if [ $? -eq 0 ]; then

@@ -75,8 +75,28 @@ try {
         )
     ');
     
+    // === SCHEMA MIGRATIONS ===
+    // Check and add missing columns for existing installations
+    
+    // Migration 1: Add description column to gpio_events if it doesn't exist
+    $result = $db->query("PRAGMA table_info(gpio_events)");
+    $hasDescription = false;
+    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        if ($row['name'] === 'description') {
+            $hasDescription = true;
+            break;
+        }
+    }
+    
+    if (!$hasDescription) {
+        echo "Migrating schema: Adding description column to gpio_events table...\n";
+        $db->exec('ALTER TABLE gpio_events ADD COLUMN description TEXT');
+        echo "Migration complete: description column added\n";
+    }
+    
     echo "Database initialized successfully at: $dbPath\n";
     echo "Tables created: gpio_events, sequence_history, playlist_history, daily_stats\n";
+    echo "Schema version: 1.1 (includes gpio_events.description)\n";
     
     $db->close();
     
