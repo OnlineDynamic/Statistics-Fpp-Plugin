@@ -204,6 +204,7 @@ function advancedStatsGetGPIOEvents() {
         $pin = isset($_GET['pin']) ? intval($_GET['pin']) : null;
         $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : null;
         $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : null;
+        $search = isset($_GET['search']) ? trim($_GET['search']) : null;
         
         // Build WHERE clause for filters
         $where = array();
@@ -224,6 +225,11 @@ function advancedStatsGetGPIOEvents() {
             $endTimestamp = strtotime($endDate . ' 23:59:59');
             $where[] = 'timestamp <= :end_timestamp';
             $params[':end_timestamp'] = $endTimestamp;
+        }
+        
+        if ($search) {
+            $where[] = '(pin_number LIKE :search OR description LIKE :search)';
+            $params[':search'] = '%' . $search . '%';
         }
         
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -289,6 +295,7 @@ function advancedStatsGetSequenceHistory() {
         $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : null;
         $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : null;
         $eventType = isset($_GET['event_type']) ? $_GET['event_type'] : null;
+        $search = isset($_GET['search']) ? trim($_GET['search']) : null;
         
         // Build WHERE clause for filters
         $where = array();
@@ -309,6 +316,11 @@ function advancedStatsGetSequenceHistory() {
         if ($eventType && ($eventType === 'start' || $eventType === 'stop')) {
             $where[] = 'event_type = :event_type';
             $params[':event_type'] = $eventType;
+        }
+        
+        if ($search) {
+            $where[] = '(sequence_name LIKE :search OR playlist_name LIKE :search)';
+            $params[':search'] = '%' . $search . '%';
         }
         
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';

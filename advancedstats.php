@@ -284,7 +284,8 @@ $mqttRunning = isMQTTRunning();
         }
         
         .filter-section input[type="date"],
-        .filter-section select {
+        .filter-section select,
+        .filter-section input[type="text"] {
             padding: 8px;
             border: 1px solid #ced4da;
             border-radius: 4px;
@@ -748,6 +749,8 @@ $mqttRunning = isMQTTRunning();
                     <option value="start">Start Only</option>
                     <option value="stop">Stop Only</option>
                 </select>
+                <label for="seqSearch">Search:</label>
+                <input type="text" id="seqSearch" placeholder="Search sequence or playlist..." style="min-width: 200px;" />
                 <button onclick="applySequenceFilters()">
                     <i class="fas fa-filter"></i> Apply Filters
                 </button>
@@ -806,6 +809,8 @@ $mqttRunning = isMQTTRunning();
                 <select id="gpioPin">
                     <option value="">All Pins</option>
                 </select>
+                <label for="gpioSearch">Search:</label>
+                <input type="text" id="gpioSearch" placeholder="Search pin or description..." style="min-width: 200px;" />
                 <button onclick="applyGPIOFilters()">
                     <i class="fas fa-filter"></i> Apply Filters
                 </button>
@@ -983,10 +988,12 @@ $mqttRunning = isMQTTRunning();
             const startDate = document.getElementById('seqStartDate').value;
             const endDate = document.getElementById('seqEndDate').value;
             const eventType = document.getElementById('seqEventType').value;
+            const searchText = document.getElementById('seqSearch').value;
             
             if (startDate) sequenceFilters.start_date = startDate;
             if (endDate) sequenceFilters.end_date = endDate;
             if (eventType) sequenceFilters.event_type = eventType;
+            if (searchText) sequenceFilters.search = searchText;
             
             sequencePage.offset = 0; // Reset to first page
             loadSequenceHistory();
@@ -997,6 +1004,7 @@ $mqttRunning = isMQTTRunning();
             document.getElementById('seqStartDate').value = '';
             document.getElementById('seqEndDate').value = '';
             document.getElementById('seqEventType').value = '';
+            document.getElementById('seqSearch').value = '';
             sequenceFilters = {};
             sequencePage.offset = 0;
             loadSequenceHistory();
@@ -1008,10 +1016,12 @@ $mqttRunning = isMQTTRunning();
             const startDate = document.getElementById('gpioStartDate').value;
             const endDate = document.getElementById('gpioEndDate').value;
             const pin = document.getElementById('gpioPin').value;
+            const searchText = document.getElementById('gpioSearch').value;
             
             if (startDate) gpioFilters.start_date = startDate;
             if (endDate) gpioFilters.end_date = endDate;
             if (pin) gpioFilters.pin = pin;
+            if (searchText) gpioFilters.search = searchText;
             
             gpioPage.offset = 0; // Reset to first page
             loadGPIOEvents();
@@ -1022,6 +1032,7 @@ $mqttRunning = isMQTTRunning();
             document.getElementById('gpioStartDate').value = '';
             document.getElementById('gpioEndDate').value = '';
             document.getElementById('gpioPin').value = '';
+            document.getElementById('gpioSearch').value = '';
             gpioFilters = {};
             gpioPage.offset = 0;
             loadGPIOEvents();
@@ -1519,6 +1530,15 @@ $mqttRunning = isMQTTRunning();
             loadAllData();
             loadTimeSeriesCharts();
             loadHeatMap(currentHeatMapType);
+            
+            // Add Enter key support for search boxes
+            document.getElementById('seqSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') applySequenceFilters();
+            });
+            
+            document.getElementById('gpioSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') applyGPIOFilters();
+            });
         });
     </script>
 </body>
