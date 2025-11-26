@@ -187,25 +187,92 @@
         
         <!-- Overview Tab -->
         <div id="overview" class="tab-content active">
-            <h2>Overview</h2>
+            <h2>Welcome to Advanced Stats Plugin</h2>
             <p>
-                The Advanced Stats Plugin enhances Falcon Player (FPP) by providing detailed analytics 
-                and statistics about your light show operations.
+                The Advanced Stats Plugin enhances Falcon Player (FPP) by providing comprehensive analytics, 
+                real-time monitoring, and detailed insights about your light show operations. Track sequences, 
+                playlists, GPIO events, and system performance all in one place.
             </p>
             
-            <h2>Purpose</h2>
-            <p>
-                This plugin tracks and displays comprehensive statistics about your FPP system, including 
-                playlist performance, system metrics, and operational insights.
-            </p>
+            <h2>Key Features</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #007bff;"><i class="fas fa-chart-line"></i> Real-Time Analytics</h3>
+                    <ul style="margin: 0;">
+                        <li>Live event monitoring</li>
+                        <li>Time-series graphs with multiple periods</li>
+                        <li>Heat map visualizations (day/hour activity)</li>
+                        <li>Instant statistics updates</li>
+                    </ul>
+                </div>
+                
+                <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #28a745;"><i class="fas fa-database"></i> Data Tracking</h3>
+                    <ul style="margin: 0;">
+                        <li>Sequence playback history</li>
+                        <li>Playlist execution logs</li>
+                        <li>GPIO button event capture</li>
+                        <li>Daily aggregated statistics</li>
+                    </ul>
+                </div>
+                
+                <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #856404;"><i class="fas fa-search"></i> Search & Filter</h3>
+                    <ul style="margin: 0;">
+                        <li>Search sequences by name</li>
+                        <li>Filter GPIO events by pin</li>
+                        <li>Paginated results (15 per page)</li>
+                        <li>Real-time filtering</li>
+                    </ul>
+                </div>
+                
+                <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #dc3545;"><i class="fas fa-microchip"></i> GPIO Integration</h3>
+                    <ul style="margin: 0;">
+                        <li>Button press tracking</li>
+                        <li>Rising/falling edge detection</li>
+                        <li>Custom pin descriptions</li>
+                        <li>Event state monitoring</li>
+                    </ul>
+                </div>
+                
+                <div style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #17a2b8;"><i class="fas fa-code"></i> REST API</h3>
+                    <ul style="margin: 0;">
+                        <li>Full programmatic access</li>
+                        <li>JSON response format</li>
+                        <li>15+ endpoints available</li>
+                        <li>Easy integration</li>
+                    </ul>
+                </div>
+                
+                <div style="background-color: #e2e3e5; border-left: 4px solid #6c757d; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #6c757d;"><i class="fas fa-shield-alt"></i> Data Management</h3>
+                    <ul style="margin: 0;">
+                        <li>Database backup & restore</li>
+                        <li>Automatic data archiving</li>
+                        <li>Retention policies (up to 10 years)</li>
+                        <li>Manual data cleanup</li>
+                    </ul>
+                </div>
+            </div>
             
-            <h2>Features</h2>
+            <h2>What You Can Track</h2>
             <ul>
-                <li><strong>Real-time Statistics:</strong> Monitor your system's performance in real-time</li>
-                <li><strong>Historical Data:</strong> Track trends and patterns over time</li>
-                <li><strong>Detailed Analytics:</strong> Gain insights into playlist usage and system health</li>
-                <li><strong>REST API:</strong> Full API access for integration with other systems</li>
-                <li><strong>GPIO Integration:</strong> Hardware button support for physical control</li>
+                <li><strong>Sequences:</strong> Every sequence played, duration, part of playlist or standalone, interruption detection</li>
+                <li><strong>Playlists:</strong> Playlist starts, stops, repeats, and total play counts</li>
+                <li><strong>GPIO Events:</strong> Button presses, state changes, with customizable descriptions</li>
+                <li><strong>System Activity:</strong> Peak usage times, most popular shows, daily/weekly/monthly trends</li>
+            </ul>
+            
+            <h2>Dashboard Features</h2>
+            <ul>
+                <li><strong>Quick Stats Cards:</strong> Total sequences, playlists, GPIO events, interruptions at a glance</li>
+                <li><strong>Interactive Charts:</strong> Zoom through hourly, daily, weekly, and monthly views</li>
+                <li><strong>Heat Maps:</strong> Visualize activity patterns by day of week and hour of day</li>
+                <li><strong>Top 10 Lists:</strong> Most played sequences, popular playlists, active GPIO pins</li>
+                <li><strong>Live Monitor:</strong> Dedicated page for real-time event streaming with filters</li>
+                <li><strong>History Tables:</strong> Detailed logs with search, pagination, and timestamps</li>
             </ul>
         </div>
         
@@ -303,21 +370,59 @@
             </ol>
             
             <h2>MQTT Topic Structure</h2>
-            <p>The plugin listens to the following MQTT topics to collect statistics:</p>
-            <ul>
-                <li><code>falcon/player/+/playlist/name/status</code> - Playlist start/stop events</li>
-                <li><code>falcon/player/+/playlist/sequence/status</code> - Sequence within playlist</li>
-                <li><code>falcon/player/+/playlist/media/status</code> - Media file playback</li>
-                <li><code>falcon/player/+/status</code> - Overall FPP status</li>
-            </ul>
+            <p>The plugin automatically listens to the following MQTT topics to collect statistics:</p>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #dee2e6;">
+                <ul style="font-family: monospace; font-size: 14px;">
+                    <li><code>falcon/player/#/playlist/name/status</code> - Playlist start/stop events</li>
+                    <li><code>falcon/player/#/playlist/sequence/status</code> - Sequence within playlist events</li>
+                    <li><code>falcon/player/#/gpio/+</code> - GPIO pin state changes and button events</li>
+                </ul>
+            </div>
+            <p style="margin-top: 10px;"><em>Note: The '#' and '+' are MQTT wildcards that match all FPP instances and GPIO pins.</em></p>
             
             <h2>Tips for Best Results</h2>
             <ul>
-                <li><strong>Regular Monitoring:</strong> Check your stats regularly to identify trends</li>
-                <li><strong>Data Analysis:</strong> Use the historical data to optimize your shows</li>
-                <li><strong>API Integration:</strong> Leverage the REST API for custom reporting</li>
-                <li><strong>Keep MQTT Running:</strong> Statistics are only collected when MQTT is active</li>
+                <li><strong>Regular Monitoring:</strong> Check the dashboard weekly to identify patterns and optimize your shows</li>
+                <li><strong>Use the Heat Map:</strong> Identify peak viewing times to schedule your best content</li>
+                <li><strong>Monitor GPIO Events:</strong> Track button usage to understand which manual controls are used most</li>
+                <li><strong>Archive Old Data:</strong> Keep your database lean by archiving old statistics (Settings page)</li>
+                <li><strong>Backup Regularly:</strong> Download database backups before major changes or at regular intervals</li>
+                <li><strong>API Integration:</strong> Use the REST API to build custom dashboards or integrate with home automation</li>
+                <li><strong>Keep MQTT Running:</strong> Statistics are only collected when MQTT broker is active and configured</li>
             </ul>
+            
+            <h2>Understanding Your Dashboard</h2>
+            <div style="background-color: #e7f3ff; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #007bff;">
+                <h3 style="margin-top: 0;">Quick Stats Cards (Top of Page)</h3>
+                <ul>
+                    <li><strong>Total Sequences:</strong> Number of unique sequences played</li>
+                    <li><strong>Total Playlists:</strong> Number of playlist start events</li>
+                    <li><strong>GPIO Events:</strong> Total button presses and state changes</li>
+                    <li><strong>Interruptions:</strong> Sequences that were stopped before completing</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #d4edda; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #28a745;">
+                <h3 style="margin-top: 0;">Time-Series Graphs</h3>
+                <p>Three interactive charts showing activity over time:</p>
+                <ul>
+                    <li><strong>Sequence Activity:</strong> Track how many sequences played per period</li>
+                    <li><strong>Playlist Activity:</strong> Monitor playlist usage trends</li>
+                    <li><strong>GPIO Activity:</strong> See button press patterns</li>
+                </ul>
+                <p>Use the period buttons (Hour/Day/Week/Month) to zoom in or out.</p>
+            </div>
+            
+            <div style="background-color: #fff3cd; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #ffc107;">
+                <h3 style="margin-top: 0;">Heat Map Visualization</h3>
+                <p>Shows a 7×24 grid (days of week vs. hours of day) with color intensity representing activity level:</p>
+                <ul>
+                    <li><strong>Dark blue:</strong> High activity</li>
+                    <li><strong>Light blue:</strong> Moderate activity</li>
+                    <li><strong>White:</strong> No activity</li>
+                </ul>
+                <p>Switch between Sequence, Playlist, and GPIO views using the buttons above the heat map.</p>
+            </div>
             
             <h2>Data Management</h2>
             <p>The plugin includes several tools to help you manage your statistics database:</p>
@@ -344,22 +449,33 @@
             <h3>Archive Old Data</h3>
             <p>Over time, your database can grow large. The archive feature helps keep it manageable:</p>
             <ul>
-                <li><strong>Manual Archive:</strong> Click the "Archive Old Data" button on the dashboard
+                <li><strong>Manual Archive (Dashboard):</strong>
                     <ul>
-                        <li>You'll be prompted to enter how many days of data to keep</li>
-                        <li>The system will show you what will be deleted before proceeding</li>
-                        <li>A preview allows you to confirm before any data is removed</li>
-                        <li>Data older than the specified period will be permanently deleted</li>
+                        <li>Click the "Archive Old Data" button on the dashboard</li>
+                        <li>Enter how many days of data to keep (e.g., 365 for one year)</li>
+                        <li>Preview shows exactly what will be deleted</li>
+                        <li>Confirm to permanently remove old records</li>
                     </ul>
                 </li>
-                <li><strong>Automatic Archive:</strong> Configure in Settings (Content Setup → Advanced Stats Settings)
+                <li><strong>Automatic Archive (Settings Page):</strong>
                     <ul>
-                        <li>Enable "Auto-Archive Old Data"</li>
-                        <li>Set your retention period (30, 60, 90, 180, or 365 days)</li>
-                        <li>Old data will be automatically cleaned up on a regular schedule</li>
+                        <li>Go to Content Setup → Advanced Stats → Settings</li>
+                        <li>Enable "Enable Automatic Archiving"</li>
+                        <li>Select retention period: 30 days to 10 years, or "Never" to keep all data</li>
+                        <li>Save settings</li>
+                        <li>Old data will be automatically cleaned up on schedule</li>
                     </ul>
                 </li>
             </ul>
+            
+            <h3>Database Information</h3>
+            <p>The Settings page displays:</p>
+            <ul>
+                <li><strong>Database Size:</strong> Total size of the SQLite database file</li>
+                <li><strong>Record Counts:</strong> Number of records in each table (sequences, playlists, GPIO, daily stats)</li>
+                <li><strong>Total Records:</strong> Combined count across all tables</li>
+            </ul>
+            <p>Click "Refresh Database Info" to update the statistics.</p>
             
             <div style="background-color: #f8d7da; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545; border-radius: 4px;">
                 <strong>⚠️ Warning:</strong> Archived data is permanently deleted and cannot be recovered. Always create a backup before archiving if you might need the historical data later.
@@ -369,20 +485,30 @@
         <!-- API Tab -->
         <div id="api" class="tab-content">
             <h2>API Endpoints</h2>
-            <p>All endpoints are available at: <code>/api/plugin/fpp-plugin-AdvancedStats/</code></p>
+            <p>All endpoints are available at: <code>/api/plugin/fpp-plugin-AdvancedStats/{endpoint}</code></p>
+            <p>Base URL: <code>http://your-fpp-ip/api/plugin/fpp-plugin-AdvancedStats/</code></p>
+            
+            <h3>Statistics & Data Retrieval</h3>
             
             <div class="api-endpoint">
                 <div>
                     <span class="api-method get">GET</span>
-                    <span class="api-path">/api/plugin/fpp-plugin-AdvancedStats/status</span>
+                    <span class="api-path">/dashboard-data</span>
                 </div>
-                <p style="margin-top: 10px;">Returns current plugin status and statistics.</p>
+                <p style="margin-top: 10px;">Returns complete dashboard statistics including totals, top 10 lists, and recent activity.</p>
                 <div class="code-block">
+# Example Response
 {
-    "status": "active",
-    "version": "1.0",
-    "uptime": 3600,
-    "stats": { ... }
+  "success": true,
+  "totals": {
+    "sequences": 156,
+    "playlists": 42,
+    "gpio_events": 89,
+    "interruptions": 3
+  },
+  "top_sequences": [...],
+  "top_playlists": [...],
+  "top_gpio_pins": [...]
 }
                 </div>
             </div>
@@ -390,61 +516,370 @@
             <div class="api-endpoint">
                 <div>
                     <span class="api-method get">GET</span>
-                    <span class="api-path">/api/plugin/fpp-plugin-AdvancedStats/stats</span>
+                    <span class="api-path">/sequence-history?limit=15&offset=0&search=</span>
                 </div>
-                <p style="margin-top: 10px;">Returns detailed statistics data.</p>
+                <p style="margin-top: 10px;">Returns paginated sequence playback history. Supports search parameter for filtering.</p>
+                <strong>Query Parameters:</strong>
+                <ul>
+                    <li><code>limit</code> - Number of records to return (default: 50)</li>
+                    <li><code>offset</code> - Starting position for pagination (default: 0)</li>
+                    <li><code>search</code> - Filter by sequence name (optional)</li>
+                </ul>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/gpio-events?limit=15&offset=0&search=</span>
+                </div>
+                <p style="margin-top: 10px;">Returns GPIO button press history with filtering support.</p>
+                <strong>Query Parameters:</strong>
+                <ul>
+                    <li><code>limit</code> - Number of records to return</li>
+                    <li><code>offset</code> - Starting position for pagination</li>
+                    <li><code>search</code> - Filter by pin number or description</li>
+                </ul>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/stats/timeseries?type=sequence&period=day</span>
+                </div>
+                <p style="margin-top: 10px;">Returns time-series data for graphing activity over time.</p>
+                <strong>Query Parameters:</strong>
+                <ul>
+                    <li><code>type</code> - Data type: <code>sequence</code>, <code>playlist</code>, or <code>gpio</code></li>
+                    <li><code>period</code> - Aggregation period: <code>hour</code>, <code>day</code>, <code>week</code>, <code>month</code></li>
+                </ul>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/stats/heatmap?type=sequence</span>
+                </div>
+                <p style="margin-top: 10px;">Returns heat map data (7×24 grid) showing activity by day of week and hour of day.</p>
+                <strong>Query Parameters:</strong>
+                <ul>
+                    <li><code>type</code> - Data type: <code>sequence</code>, <code>playlist</code>, or <code>gpio</code></li>
+                </ul>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/events/stream?since=1234567890&limit=30</span>
+                </div>
+                <p style="margin-top: 10px;">Returns live event stream for real-time monitoring. Used by the Live Monitor page.</p>
+                <strong>Query Parameters:</strong>
+                <ul>
+                    <li><code>since</code> - Unix timestamp; only return events after this time</li>
+                    <li><code>limit</code> - Maximum number of events to return (default: 50)</li>
+                    <li><code>types</code> - Comma-separated list: <code>sequence,playlist,gpio</code> (optional)</li>
+                </ul>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/sequence-interruptions?limit=15</span>
+                </div>
+                <p style="margin-top: 10px;">Returns sequences that were interrupted (stopped before completion).</p>
+            </div>
+            
+            <h3>Settings & Configuration</h3>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/get-settings</span>
+                </div>
+                <p style="margin-top: 10px;">Returns current plugin settings and preferences.</p>
             </div>
             
             <div class="api-endpoint">
                 <div>
                     <span class="api-method post">POST</span>
-                    <span class="api-path">/api/plugin/fpp-plugin-AdvancedStats/reset</span>
+                    <span class="api-path">/save-settings</span>
                 </div>
-                <p style="margin-top: 10px;">Resets statistics counters (requires confirmation).</p>
+                <p style="margin-top: 10px;">Saves plugin settings. Send JSON body with settings object.</p>
+                <div class="code-block">
+# Example Request
+{
+  "enableStats": "1",
+  "updateInterval": "60",
+  "enableAutoArchive": "0",
+  "retentionDays": "365",
+  "showCharts": "1",
+  "chartType": "line"
+}
+                </div>
+            </div>
+            
+            <h3>Data Management</h3>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/database-info</span>
+                </div>
+                <p style="margin-top: 10px;">Returns database size and record counts for all tables.</p>
+                <div class="code-block">
+# Example Response
+{
+  "success": true,
+  "database_size": 1048576,
+  "database_path": "/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db",
+  "counts": {
+    "sequence_history": 1250,
+    "playlist_history": 340,
+    "gpio_events": 567,
+    "daily_stats": 90
+  }
+}
+                </div>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/backup-database</span>
+                </div>
+                <p style="margin-top: 10px;">Downloads the SQLite database file as a backup.</p>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method post">POST</span>
+                    <span class="api-path">/restore-database</span>
+                </div>
+                <p style="margin-top: 10px;">Restores database from uploaded backup file. Creates automatic backup before restore.</p>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method post">POST</span>
+                    <span class="api-path">/archive-old-data</span>
+                </div>
+                <p style="margin-top: 10px;">Archives (deletes) old records based on retention period.</p>
+                <strong>POST Body:</strong>
+                <div class="code-block">
+{
+  "retention_days": 365,
+  "dry_run": true  // Set false to actually delete
+}
+                </div>
+            </div>
+            
+            <h3>System Information</h3>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/status</span>
+                </div>
+                <p style="margin-top: 10px;">Returns plugin status and version information.</p>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/git-commits</span>
+                </div>
+                <p style="margin-top: 10px;">Returns recent git commit history (if installed via git).</p>
             </div>
             
             <h3>Example Usage</h3>
             <div class="code-block">
-# Get current status
-curl http://your-fpp-ip/api/plugin/fpp-plugin-AdvancedStats/status
+# Get dashboard data
+curl http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/dashboard-data
 
-# Get statistics
-curl http://your-fpp-ip/api/plugin/fpp-plugin-AdvancedStats/stats
+# Get sequence history with search
+curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/sequence-history?search=christmas&limit=10"
+
+# Get time-series data for daily sequence activity
+curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/stats/timeseries?type=sequence&period=day"
+
+# Get heat map data for GPIO events
+curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/stats/heatmap?type=gpio"
+
+# Get live event stream (events in last 60 seconds)
+curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/events/stream?since=$(($(date +%s) - 60))"
+
+# Get database information
+curl http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/database-info
+
+# Archive old data (dry run preview)
+curl -X POST http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/archive-old-data \
+  -H "Content-Type: application/json" \
+  -d '{"retention_days": 365, "dry_run": true}'
+            </div>
+            
+            <h3>Response Format</h3>
+            <p>All API endpoints return JSON responses with a standard structure:</p>
+            <div class="code-block">
+{
+  "success": true,    // or false if error
+  "message": "...",   // error message if success=false
+  "data": { ... }     // endpoint-specific data
+}
             </div>
         </div>
         
         <!-- Troubleshooting Tab -->
         <div id="troubleshooting" class="tab-content">
-            <h2>Common Issues</h2>
+            <h2>Common Issues & Solutions</h2>
             
-            <h3>Stats Not Updating</h3>
-            <ul>
-                <li>Check that FPPd is running</li>
-                <li>Verify plugin is enabled in Plugin Manager</li>
-                <li>Check system logs for errors</li>
-            </ul>
+            <div style="background-color: #f8f9fa; border-left: 4px solid #007bff; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> No Statistics Being Collected</h3>
+                <p><strong>Symptoms:</strong> Dashboard shows zero events, no data appearing</p>
+                <p><strong>Causes & Solutions:</strong></p>
+                <ol>
+                    <li><strong>MQTT Broker Not Enabled</strong>
+                        <ul>
+                            <li>Go to Status/Control → FPP Settings → Services</li>
+                            <li>Enable "Enable Local MQTT Broker"</li>
+                            <li>Save and restart FPPD</li>
+                        </ul>
+                    </li>
+                    <li><strong>MQTT Not Configured</strong>
+                        <ul>
+                            <li>Go to Status/Control → FPP Settings → MQTT tab</li>
+                            <li>Set Host: <code>localhost</code>, Port: <code>1883</code></li>
+                            <li>Set Username: <code>fpp</code>, Password: <code>falcon</code></li>
+                            <li>Save settings</li>
+                        </ul>
+                    </li>
+                    <li><strong>MQTT Listener Not Running</strong>
+                        <ul>
+                            <li>Check if plugin is enabled in Plugin Manager</li>
+                            <li>Restart FPPD: <code>sudo systemctl restart fppd</code></li>
+                            <li>Check logs: <code>/var/log/fpp/fpp.log</code></li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
             
-            <h3>Dashboard Not Loading</h3>
-            <ul>
-                <li>Clear your browser cache</li>
-                <li>Check browser console for JavaScript errors</li>
-                <li>Verify FPP version compatibility (requires FPP 9.0+)</li>
-            </ul>
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0;"><i class="fas fa-chart-line"></i> Charts Not Loading / Displaying Errors</h3>
+                <p><strong>Symptoms:</strong> Blank chart areas, JavaScript errors in console</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li><strong>Clear Browser Cache:</strong> Press Ctrl+Shift+R (or Cmd+Shift+R on Mac)</li>
+                    <li><strong>Check Chart.js:</strong> Ensure <code>js/chart.min.js</code> exists in plugin directory</li>
+                    <li><strong>Browser Console:</strong> Open Developer Tools (F12) and check for JavaScript errors</li>
+                    <li><strong>Verify Data:</strong> Test API endpoint: <code>/api/plugin/fpp-plugin-AdvancedStats/stats/timeseries?type=sequence&period=day</code></li>
+                </ul>
+            </div>
             
-            <h3>API Not Responding</h3>
-            <ul>
-                <li>Ensure FPP web interface is accessible</li>
-                <li>Check firewall settings</li>
-                <li>Verify correct API endpoint URL</li>
-            </ul>
+            <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0;"><i class="fas fa-database"></i> Database Errors</h3>
+                <p><strong>Symptoms:</strong> "Database locked" errors, data not saving</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li><strong>Check Permissions:</strong>
+                        <ul>
+                            <li>Database location: <code>/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db</code></li>
+                            <li>Ensure www-data user has write access</li>
+                            <li>Run: <code>sudo chown www-data:www-data /home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Database Corruption:</strong>
+                        <ul>
+                            <li>Backup existing database</li>
+                            <li>Try restoring from a backup</li>
+                            <li>If needed, delete and recreate: plugin will rebuild schema</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
             
-            <h3>Getting Help</h3>
+            <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0;"><i class="fas fa-microchip"></i> GPIO Events Not Being Captured</h3>
+                <p><strong>Symptoms:</strong> Button presses work but don't appear in stats</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li><strong>Check GPIO Configuration:</strong>
+                        <li>Go to Input/Output Setup → GPIO Inputs</li>
+                        <li>Ensure GPIO pins are properly configured</li>
+                        <li>Verify "Mode" is set correctly (e.g., GPIO Input)</li>
+                    </li>
+                    <li><strong>MQTT GPIO Events:</strong>
+                        <ul>
+                            <li>Plugin requires MQTT broker to capture GPIO events</li>
+                            <li>FPP publishes GPIO state changes to MQTT topic <code>falcon/player/#/gpio/+</code></li>
+                            <li>Verify MQTT is working with: <code>mosquitto_sub -h localhost -t "falcon/player/#" -v</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Add GPIO Descriptions:</strong>
+                        <ul>
+                            <li>Use Channel Inputs page to add descriptions to GPIO pins</li>
+                            <li>Descriptions make events easier to identify in the stats</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0;"><i class="fas fa-sync-alt"></i> Dashboard Not Updating / Stale Data</h3>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li><strong>Hard Refresh:</strong> Press Ctrl+Shift+R (Cmd+Shift+R on Mac)</li>
+                    <li><strong>Check Browser Console:</strong> Look for API call errors (F12 → Console tab)</li>
+                    <li><strong>Test API Manually:</strong> Visit <code>http://your-fpp-ip/api/plugin/fpp-plugin-AdvancedStats/dashboard-data</code></li>
+                    <li><strong>Verify Plugin Active:</strong> Check Content Setup → Plugin Manager</li>
+                </ul>
+            </div>
+            
+            <h3>Performance Optimization</h3>
+            <div style="background-color: #e2e3e5; padding: 15px; margin: 15px 0; border-radius: 4px; border: 1px solid #6c757d;">
+                <p><strong>If dashboard is loading slowly:</strong></p>
+                <ul>
+                    <li><strong>Archive Old Data:</strong> Large databases slow down queries
+                        <ul>
+                            <li>Go to Settings → Archive Old Data</li>
+                            <li>Keep only necessary history (e.g., 365 days)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Reduce Page Size:</strong> Tables now show 15 entries per page (configurable)</li>
+                    <li><strong>Use Live Monitor Sparingly:</strong> Real-time polling adds overhead</li>
+                </ul>
+            </div>
+            
+            <h3>Getting Additional Help</h3>
             <p>If you continue to experience issues:</p>
             <ul>
-                <li>Check the <a href="https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues" target="_blank">GitHub Issues</a> page</li>
-                <li>Review FPP system logs in Status/Control → Status Page</li>
-                <li>Post detailed information in the FPP Discord or Forums</li>
+                <li><strong>GitHub Issues:</strong> <a href="https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues" target="_blank">Report bugs or request features</a></li>
+                <li><strong>FPP Forums:</strong> Post in the FPP community forums with detailed information</li>
+                <li><strong>FPP Discord:</strong> Join the FPP Discord server for real-time help</li>
+                <li><strong>System Logs:</strong> Check <code>/var/log/fpp/fpp.log</code> for error messages</li>
+                <li><strong>Plugin Logs:</strong> Look in <code>/home/fpp/media/logs/</code> for plugin-specific logs</li>
             </ul>
+            
+            <h3>Debug Checklist</h3>
+            <div class="code-block">
+# 1. Check if MQTT broker is running
+sudo systemctl status mosquitto
+
+# 2. Test MQTT subscription to FPP events
+mosquitto_sub -h localhost -u fpp -P falcon -t "falcon/player/#" -v
+
+# 3. Check plugin files exist
+ls -la /home/fpp/media/plugins/fpp-plugin-AdvancedStats/
+
+# 4. Verify database exists and has data
+sqlite3 /home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db "SELECT COUNT(*) FROM sequence_history;"
+
+# 5. Check Python listener is running
+ps aux | grep mqtt_listener
+
+# 6. View recent log entries
+tail -50 /var/log/fpp/fpp.log | grep -i "advancedstats\|mqtt"
+
+# 7. Test API endpoint
+curl http://localhost/api/plugin/fpp-plugin-AdvancedStats/status
+            </div>
         </div>
         
         <!-- Changelog Tab -->
