@@ -503,14 +503,7 @@ $mqttRunning = isMQTTRunning();
                 <button class="refresh-btn" style="background-color: #4CAF50;" onclick="window.location.href='/plugin.php?plugin=fpp-plugin-AdvancedStats&page=monitor.php'">
                     <i class="fas fa-broadcast-tower"></i> Live Monitor
                 </button>
-                <button class="refresh-btn" style="background-color: #17a2b8;" onclick="backupDatabase()">
-                    <i class="fas fa-download"></i> Backup Database
-                </button>
-                <button class="refresh-btn" style="background-color: #ffc107; color: #212529;" onclick="document.getElementById('restoreFileInput').click()">
-                    <i class="fas fa-upload"></i> Restore Database
-                </button>
             </div>
-            <input type="file" id="restoreFileInput" accept=".db" style="display:none;" onchange="restoreDatabase(this.files[0])" />
             <div id="lastUpdate" style="color: #6c757d; font-size: 12px; margin-top: 10px;"></div>
         </div>
         

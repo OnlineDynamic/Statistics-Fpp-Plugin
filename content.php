@@ -195,11 +195,18 @@
                     </div>
                 </div>
                 
-                <div style="text-align: center;">
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                     <button type="button" class="btn" style="background-color: #17a2b8; color: white;" onclick="loadDatabaseInfo()">
                         <i class="fas fa-sync-alt"></i> Refresh Database Info
                     </button>
+                    <button type="button" class="btn" style="background-color: #28a745; color: white;" onclick="backupDatabase()">
+                        <i class="fas fa-download"></i> Backup Database
+                    </button>
+                    <button type="button" class="btn" style="background-color: #ffc107; color: #212529;" onclick="document.getElementById('restoreFileInput').click()">
+                        <i class="fas fa-upload"></i> Restore Database
+                    </button>
                 </div>
+                <input type="file" id="restoreFileInput" accept=".db" style="display:none;" onchange="restoreDatabase(this.files[0])" />
             </div>
             
             <div class="settings-section">
@@ -277,6 +284,43 @@
     </div>
     
     <script>
+        // Backup database
+        function backupDatabase() {
+            window.location.href = '/api/plugin/fpp-plugin-AdvancedStats/backup-database';
+        }
+        
+        // Restore database
+        function restoreDatabase(file) {
+            if (!file) return;
+            
+            if (!confirm('Are you sure you want to restore from this backup? This will replace your current database. A safety backup will be created automatically.')) {
+                document.getElementById('restoreFileInput').value = '';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('database', file);
+            
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/restore-database', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Database restored successfully! Reloading info...');
+                    loadDatabaseInfo();
+                } else {
+                    alert('Restore failed: ' + data.message);
+                }
+                document.getElementById('restoreFileInput').value = '';
+            })
+            .catch(error => {
+                alert('Restore error: ' + error.message);
+                document.getElementById('restoreFileInput').value = '';
+            });
+        }
+        
         // Placeholder JavaScript - replace with actual implementation
         
         // Load existing settings when page loads
