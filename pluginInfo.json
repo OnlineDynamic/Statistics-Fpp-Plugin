@@ -2,7 +2,7 @@
 	"repoName": "fpp-plugin-AdvancedStats",
 	"name": "Advanced Stats Plugin",
 	"author": "Stuart Ledingham (onlinedynamic)",
-	"description": "Enhances Falcon Player by adding advanced analytics",
+	"description": "Comprehensive analytics & monitoring for FPP - Track sequences, playlists, GPIO events, commands & presets in real-time. Features interactive dashboards, heat maps, live event monitoring, searchable history, automatic archiving, and full REST API. Identify usage patterns, optimize show scheduling, and gain deep insights into your light show operations. Requires MQTT broker enabled.",
 	"homeURL": "https://github.com/OnlineDynamic/Statistics-Fpp-Plugin",
 	"srcURL": "https://github.com/OnlineDynamic/Statistics-Fpp-Plugin.git",
 	"bugURL": "https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues",
