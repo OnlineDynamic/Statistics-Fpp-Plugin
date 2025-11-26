@@ -255,6 +255,16 @@
                         <li>Manual data cleanup</li>
                     </ul>
                 </div>
+                
+                <div style="background-color: #e8d5f2; border-left: 4px solid #9c27b0; padding: 15px; border-radius: 4px;">
+                    <h3 style="margin-top: 0; color: #9c27b0;"><i class="fas fa-terminal"></i> Command Tracking</h3>
+                    <ul style="margin: 0;">
+                        <li>Individual command execution logs</li>
+                        <li>Command preset triggering</li>
+                        <li>Trigger source identification (UI/API/Internal)</li>
+                        <li>Arguments and parameters captured</li>
+                    </ul>
+                </div>
             </div>
             
             <h2>What You Can Track</h2>
@@ -262,18 +272,58 @@
                 <li><strong>Sequences:</strong> Every sequence played, duration, part of playlist or standalone, interruption detection</li>
                 <li><strong>Playlists:</strong> Playlist starts, stops, repeats, and total play counts</li>
                 <li><strong>GPIO Events:</strong> Button presses, state changes, with customizable descriptions</li>
+                <li><strong>Commands:</strong> FPP command executions with arguments, trigger source (UI, API, Internal), and timestamps</li>
+                <li><strong>Command Presets:</strong> Command preset triggering with command count and execution details</li>
                 <li><strong>System Activity:</strong> Peak usage times, most popular shows, daily/weekly/monthly trends</li>
             </ul>
             
             <h2>Dashboard Features</h2>
             <ul>
-                <li><strong>Quick Stats Cards:</strong> Total sequences, playlists, GPIO events, interruptions at a glance</li>
+                <li><strong>Quick Stats Cards:</strong> Total sequences, playlists, GPIO events, commands, and command presets at a glance</li>
                 <li><strong>Interactive Charts:</strong> Zoom through hourly, daily, weekly, and monthly views</li>
                 <li><strong>Heat Maps:</strong> Visualize activity patterns by day of week and hour of day</li>
-                <li><strong>Top 10 Lists:</strong> Most played sequences, popular playlists, active GPIO pins</li>
-                <li><strong>Live Monitor:</strong> Dedicated page for real-time event streaming with filters</li>
-                <li><strong>History Tables:</strong> Detailed logs with search, pagination, and timestamps</li>
+                <li><strong>Top 10 Lists:</strong> Most played sequences, popular playlists, active GPIO pins, frequently used commands and presets</li>
+                <li><strong>Live Monitor:</strong> Dedicated page for real-time event streaming with filters (sequences, playlists, GPIO, commands, presets)</li>
+                <li><strong>History Tables:</strong> Detailed logs with search, pagination, and timestamps for all event types</li>
+                <li><strong>Command Analytics:</strong> Track which commands are being used, how they're triggered, and execution frequency</li>
             </ul>
+            
+            <h2>Command Tracking Features</h2>
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #dee2e6;">
+                <h3 style="margin-top: 0;"><i class="fas fa-terminal"></i> Command Execution Tracking</h3>
+                <p>The plugin automatically tracks all FPP command executions and identifies how they were triggered:</p>
+                <ul>
+                    <li><strong>UI Triggers:</strong> Commands executed through FPP's "Run FPP Command" dialog</li>
+                    <li><strong>API Triggers:</strong> Commands called via REST API (GET or POST requests)</li>
+                    <li><strong>Internal Triggers:</strong> Commands executed by schedules, playlists, MQTT events, GPIO triggers, or other automated sources</li>
+                </ul>
+                
+                <h4>Captured Information:</h4>
+                <ul>
+                    <li><strong>Command Name:</strong> The exact command that was executed (e.g., "Brightness", "Volume Set")</li>
+                    <li><strong>Arguments:</strong> Any parameters passed to the command (captured as JSON array)</li>
+                    <li><strong>Trigger Source:</strong> How the command was initiated (ui/api-get/api-post/internal)</li>
+                    <li><strong>MultiSync:</strong> Whether the command was sent to multiple FPP instances</li>
+                    <li><strong>Timestamp:</strong> Exact date and time of execution</li>
+                </ul>
+                
+                <h4>Command Presets:</h4>
+                <p>When command presets are executed, the plugin tracks:</p>
+                <ul>
+                    <li>Preset name or slot number</li>
+                    <li>Number of commands in the preset</li>
+                    <li>Trigger source</li>
+                    <li>Full execution timestamp</li>
+                </ul>
+                
+                <h4>Dashboard Views:</h4>
+                <ul>
+                    <li><strong>Top Commands:</strong> See which commands are used most frequently</li>
+                    <li><strong>Top Presets:</strong> Track the most commonly triggered command presets</li>
+                    <li><strong>Recent Executions:</strong> Browse command history with search and pagination</li>
+                    <li><strong>Live Monitor:</strong> Watch commands execute in real-time with color-coded event types</li>
+                </ul>
+            </div>
         </div>
         
         <!-- Setup Guide Tab -->
@@ -428,20 +478,27 @@
             <p>The plugin includes several tools to help you manage your statistics database:</p>
             
             <h3>Backup & Restore</h3>
+            <div style="background-color: #d1ecf1; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #17a2b8;">
+                <p><strong>Location:</strong> Backup and restore functions are located in the <strong>Settings</strong> page under the <strong>Database Information</strong> section.</p>
+            </div>
             <ul>
                 <li><strong>Backup Database:</strong> Download a complete copy of your statistics database
                     <ul>
-                        <li>Click the "Backup Database" button on the main dashboard</li>
+                        <li>Navigate to the <strong>Settings</strong> page (gear icon in header)</li>
+                        <li>Find the <strong>Database Information</strong> section</li>
+                        <li>Click the "Backup Database" button</li>
                         <li>The database file will be downloaded to your computer</li>
                         <li>Store backups in a safe location</li>
                     </ul>
                 </li>
                 <li><strong>Restore Database:</strong> Replace your current database with a backup
                     <ul>
-                        <li>Click the "Restore Database" button on the main dashboard</li>
+                        <li>Navigate to the <strong>Settings</strong> page</li>
+                        <li>Find the <strong>Database Information</strong> section</li>
+                        <li>Click the "Restore Database" button</li>
                         <li>Select a backup file from your computer</li>
                         <li>A safety backup is automatically created before restoring</li>
-                        <li>The page will reload with data from the restored backup</li>
+                        <li>The database info will refresh with data from the restored backup</li>
                     </ul>
                 </li>
             </ul>
@@ -576,7 +633,7 @@
                 <ul>
                     <li><code>since</code> - Unix timestamp; only return events after this time</li>
                     <li><code>limit</code> - Maximum number of events to return (default: 50)</li>
-                    <li><code>types</code> - Comma-separated list: <code>sequence,playlist,gpio</code> (optional)</li>
+                    <li><code>types</code> - Comma-separated list: <code>sequence,playlist,gpio,command,command_preset</code> (optional)</li>
                 </ul>
             </div>
             
@@ -586,6 +643,52 @@
                     <span class="api-path">/sequence-interruptions?limit=15</span>
                 </div>
                 <p style="margin-top: 10px;">Returns sequences that were interrupted (stopped before completion).</p>
+            </div>
+            
+            <h3>Command Tracking</h3>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/command-history?limit=15&offset=0&search=</span>
+                </div>
+                <p style="margin-top: 10px;">Returns paginated command execution history with trigger source and arguments.</p>
+                <strong>Query Parameters:</strong>
+                <ul>
+                    <li><code>limit</code> - Number of records to return (default: 50)</li>
+                    <li><code>offset</code> - Starting position for pagination (default: 0)</li>
+                    <li><code>search</code> - Filter by command name, args, or trigger source (optional)</li>
+                </ul>
+                <div class="code-block">
+# Example Response
+{
+  "success": true,
+  "data": [
+    {
+      "timestamp": 1732622854,
+      "command": "Brightness",
+      "args": "[\"60\"]",
+      "multisyncCommand": 0,
+      "trigger_source": "ui"
+    }
+  ],
+  "total": 156
+}
+                </div>
+            </div>
+            
+            <div class="api-endpoint">
+                <div>
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/command-preset-history?limit=15&offset=0&search=</span>
+                </div>
+                <p style="margin-top: 10px;">Returns command preset execution history.</p>
+                <strong>Query Parameters:</strong>
+                <ul>
+                    <li><code>limit</code> - Number of records to return (default: 50)</li>
+                    <li><code>offset</code> - Starting position for pagination (default: 0)</li>
+                    <li><code>search</code> - Filter by preset name or trigger (optional)</li>
+                </ul>
             </div>
             
             <h3>Settings & Configuration</h3>
@@ -692,11 +795,17 @@
             
             <h3>Example Usage</h3>
             <div class="code-block">
-# Get dashboard data
+# Get dashboard data (now includes command statistics)
 curl http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/dashboard-data
 
 # Get sequence history with search
 curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/sequence-history?search=christmas&limit=10"
+
+# Get command execution history
+curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/command-history?limit=20"
+
+# Get command preset history
+curl http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/command-preset-history
 
 # Get time-series data for daily sequence activity
 curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/stats/timeseries?type=sequence&period=day"
@@ -704,8 +813,8 @@ curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/stats/timeseries?
 # Get heat map data for GPIO events
 curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/stats/heatmap?type=gpio"
 
-# Get live event stream (events in last 60 seconds)
-curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/events/stream?since=$(($(date +%s) - 60))"
+# Get live event stream including commands (events in last 60 seconds)
+curl "http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/events/stream?since=$(($(date +%s) - 60))&types=sequence,playlist,gpio,command,command_preset"
 
 # Get database information
 curl http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/database-info
