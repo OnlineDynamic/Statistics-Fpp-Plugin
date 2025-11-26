@@ -97,6 +97,12 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetHeatMap');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'events/stream',
+        'callback' => 'advancedStatsGetEventStream');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -1167,6 +1173,112 @@ function advancedStatsGetHeatMap() {
         return json(array(
             'success' => false,
             'message' => 'Error fetching heat map data: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get live event stream - recent events across all tables
+ * 
+ * Query parameters:
+ * - since: timestamp to get events after (optional, defaults to last 60 seconds)
+ * - types: comma-separated list of event types to include (sequence,playlist,gpio)
+ * - limit: max events to return (default 50)
+ */
+function advancedStatsGetEventStream() {
+    global $settings;
+    
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $since = isset($_GET['since']) ? intval($_GET['since']) : (time() - 60);
+        $types = isset($_GET['types']) ? $_GET['types'] : 'sequence,playlist,gpio';
+        $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
+        
+        $typeArray = array_map('trim', explode(',', $types));
+        $events = array();
+        
+        $db = new SQLite3($dbPath);
+        
+        // Get sequence events
+        if (in_array('sequence', $typeArray)) {
+            $query = "SELECT timestamp, sequence_name as name, event_type, playlist_name, duration, 'sequence' as source
+                      FROM sequence_history 
+                      WHERE timestamp > :since 
+                      ORDER BY timestamp DESC 
+                      LIMIT :limit";
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(':since', $since, SQLITE3_INTEGER);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+            
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $events[] = $row;
+            }
+        }
+        
+        // Get playlist events
+        if (in_array('playlist', $typeArray)) {
+            $query = "SELECT timestamp, playlist_name as name, event_type, '' as playlist_name, 0 as duration, 'playlist' as source
+                      FROM playlist_history 
+                      WHERE timestamp > :since 
+                      ORDER BY timestamp DESC 
+                      LIMIT :limit";
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(':since', $since, SQLITE3_INTEGER);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+            
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $events[] = $row;
+            }
+        }
+        
+        // Get GPIO events
+        if (in_array('gpio', $typeArray)) {
+            $query = "SELECT timestamp, pin_number as name, event_type, description as playlist_name, pin_state as duration, 'gpio' as source
+                      FROM gpio_events 
+                      WHERE timestamp > :since 
+                      ORDER BY timestamp DESC 
+                      LIMIT :limit";
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(':since', $since, SQLITE3_INTEGER);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+            
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $events[] = $row;
+            }
+        }
+        
+        $db->close();
+        
+        // Sort all events by timestamp descending
+        usort($events, function($a, $b) {
+            return $b['timestamp'] - $a['timestamp'];
+        });
+        
+        // Limit to requested number
+        $events = array_slice($events, 0, $limit);
+        
+        return json(array(
+            'success' => true,
+            'events' => $events,
+            'count' => count($events),
+            'server_time' => time()
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error fetching event stream: ' . $e->getMessage()
         ));
     }
 }

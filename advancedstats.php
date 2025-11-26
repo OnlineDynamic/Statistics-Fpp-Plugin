@@ -500,6 +500,9 @@ $mqttRunning = isMQTTRunning();
                 <button class="refresh-btn" onclick="loadAllData()">
                     <i class="fas fa-sync"></i> Refresh Data
                 </button>
+                <button class="refresh-btn" style="background-color: #4CAF50;" onclick="window.location.href='/plugin.php?plugin=fpp-plugin-AdvancedStats&page=monitor.php'">
+                    <i class="fas fa-broadcast-tower"></i> Live Monitor
+                </button>
                 <button class="refresh-btn" style="background-color: #17a2b8;" onclick="backupDatabase()">
                     <i class="fas fa-download"></i> Backup Database
                 </button>
