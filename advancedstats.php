@@ -978,8 +978,8 @@ $mqttRunning = isMQTTRunning();
         }
         
         // Pagination state
-        let sequencePage = { offset: 0, limit: 50, total: 0 };
-        let gpioPage = { offset: 0, limit: 50, total: 0 };
+        let sequencePage = { offset: 0, limit: 15, total: 0 };
+        let gpioPage = { offset: 0, limit: 15, total: 0 };
         
         // Filter state
         let sequenceFilters = {};
@@ -1205,7 +1205,7 @@ $mqttRunning = isMQTTRunning();
         
         // Load sequence interruptions
         function loadInterruptions() {
-            fetch('/api/plugin/fpp-plugin-AdvancedStats/sequence-interruptions?limit=20')
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/sequence-interruptions?limit=15')
                 .then(response => response.json())
                 .then(data => {
                     if (!data.success || data.count === 0) {
