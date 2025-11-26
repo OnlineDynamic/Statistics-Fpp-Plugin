@@ -103,6 +103,12 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetEventStream');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'database-info',
+        'callback' => 'advancedStatsGetDatabaseInfo');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -1279,6 +1285,58 @@ function advancedStatsGetEventStream() {
         return json(array(
             'success' => false,
             'message' => 'Error fetching event stream: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get database information (size and record counts)
+ */
+function advancedStatsGetDatabaseInfo() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    try {
+        // Get database file size
+        $fileSize = 0;
+        if (file_exists($dbPath)) {
+            $fileSize = filesize($dbPath);
+        }
+        
+        // Open database
+        $db = new SQLite3($dbPath);
+        
+        // Get record counts for each table
+        $counts = array();
+        
+        // Sequence history count
+        $result = $db->querySingle("SELECT COUNT(*) FROM sequence_history");
+        $counts['sequence_history'] = (int)$result;
+        
+        // Playlist history count
+        $result = $db->querySingle("SELECT COUNT(*) FROM playlist_history");
+        $counts['playlist_history'] = (int)$result;
+        
+        // GPIO events count
+        $result = $db->querySingle("SELECT COUNT(*) FROM gpio_events");
+        $counts['gpio_events'] = (int)$result;
+        
+        // Daily stats count
+        $result = $db->querySingle("SELECT COUNT(*) FROM daily_stats");
+        $counts['daily_stats'] = (int)$result;
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'database_size' => $fileSize,
+            'database_path' => $dbPath,
+            'counts' => $counts
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error getting database info: ' . $e->getMessage()
         ));
     }
 }

@@ -167,6 +167,48 @@
             </div>
             
             <div class="settings-section">
+                <h3><i class="fas fa-database"></i> Database Information</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #495057; font-weight: bold;">DATABASE SIZE</div>
+                        <div style="font-size: 24px; color: #007bff; font-weight: bold;" id="dbSize">-</div>
+                    </div>
+                    
+                    <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #495057; font-weight: bold;">SEQUENCE RECORDS</div>
+                        <div style="font-size: 24px; color: #007bff; font-weight: bold;" id="sequenceCount">-</div>
+                    </div>
+                    
+                    <div style="background-color: #e7f3ff; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #495057; font-weight: bold;">PLAYLIST RECORDS</div>
+                        <div style="font-size: 24px; color: #28a745; font-weight: bold;" id="playlistCount">-</div>
+                    </div>
+                    
+                    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #495057; font-weight: bold;">GPIO RECORDS</div>
+                        <div style="font-size: 24px; color: #856404; font-weight: bold;" id="gpioCount">-</div>
+                    </div>
+                    
+                    <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #495057; font-weight: bold;">DAILY STATS</div>
+                        <div style="font-size: 24px; color: #dc3545; font-weight: bold;" id="dailyStatsCount">-</div>
+                    </div>
+                    
+                    <div style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; border-radius: 4px;">
+                        <div style="font-size: 12px; color: #495057; font-weight: bold;">TOTAL RECORDS</div>
+                        <div style="font-size: 24px; color: #17a2b8; font-weight: bold;" id="totalRecords">-</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button type="button" class="btn" style="background-color: #17a2b8; color: white;" onclick="loadDatabaseInfo()">
+                        <i class="fas fa-sync-alt"></i> Refresh Database Info
+                    </button>
+                </div>
+            </div>
+            
+            <div class="settings-section">
                 <h3><i class="fas fa-database"></i> Data Retention & Archive</h3>
                 
                 <div class="form-group">
@@ -256,7 +298,43 @@
         // Load existing settings when page loads
         document.addEventListener('DOMContentLoaded', function() {
             loadSettings();
+            loadDatabaseInfo();
         });
+        
+        function loadDatabaseInfo() {
+            // Get database size and record counts
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/database-info')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Format file size
+                        const size = data.database_size;
+                        let sizeStr;
+                        if (size < 1024) {
+                            sizeStr = size + ' B';
+                        } else if (size < 1024 * 1024) {
+                            sizeStr = (size / 1024).toFixed(2) + ' KB';
+                        } else {
+                            sizeStr = (size / (1024 * 1024)).toFixed(2) + ' MB';
+                        }
+                        
+                        document.getElementById('dbSize').textContent = sizeStr;
+                        document.getElementById('sequenceCount').textContent = data.counts.sequence_history.toLocaleString();
+                        document.getElementById('playlistCount').textContent = data.counts.playlist_history.toLocaleString();
+                        document.getElementById('gpioCount').textContent = data.counts.gpio_events.toLocaleString();
+                        document.getElementById('dailyStatsCount').textContent = data.counts.daily_stats.toLocaleString();
+                        
+                        const total = data.counts.sequence_history + 
+                                     data.counts.playlist_history + 
+                                     data.counts.gpio_events + 
+                                     data.counts.daily_stats;
+                        document.getElementById('totalRecords').textContent = total.toLocaleString();
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to load database info:', error);
+                });
+        }
         
         function loadSettings() {
             // TODO: Load settings from API
