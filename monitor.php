@@ -146,6 +146,16 @@
             background-color: rgba(255, 193, 7, 0.1);
         }
         
+        .event-item.command {
+            border-left-color: #9c27b0;
+            background-color: rgba(156, 39, 176, 0.1);
+        }
+        
+        .event-item.command_preset {
+            border-left-color: #e91e63;
+            background-color: rgba(233, 30, 99, 0.1);
+        }
+        
         .event-time {
             color: #888;
             min-width: 90px;
@@ -165,6 +175,8 @@
         .event-type.sequence { background-color: #007bff; color: white; }
         .event-type.playlist { background-color: #28a745; color: white; }
         .event-type.gpio { background-color: #ffc107; color: black; }
+        .event-type.command { background-color: #9c27b0; color: white; }
+        .event-type.command_preset { background-color: #e91e63; color: white; }
         
         .event-details {
             color: #ddd;
@@ -200,6 +212,8 @@
         .stat-value.sequence { color: #007bff; }
         .stat-value.playlist { color: #28a745; }
         .stat-value.gpio { color: #ffc107; }
+        .stat-value.command { color: #9c27b0; }
+        .stat-value.command_preset { color: #e91e63; }
         
         .stat-label {
             font-size: 12px;
@@ -233,6 +247,14 @@
                 <div class="stat-label">GPIO Events</div>
             </div>
             <div class="stat-item">
+                <div class="stat-value command" id="monitorCommandCount">0</div>
+                <div class="stat-label">Commands</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value command_preset" id="monitorCommandPresetCount">0</div>
+                <div class="stat-label">Command Presets</div>
+            </div>
+            <div class="stat-item">
                 <div class="stat-value" style="color: #fff;" id="monitorTotalCount">0</div>
                 <div class="stat-label">Total Events</div>
             </div>
@@ -260,6 +282,12 @@
                         <input type="checkbox" id="filterGpio" checked onchange="updateFilters()" /> GPIO
                     </label>
                     <label class="filter-checkbox">
+                        <input type="checkbox" id="filterCommand" checked onchange="updateFilters()" /> Commands
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" id="filterCommandPreset" checked onchange="updateFilters()" /> Presets
+                    </label>
+                    <label class="filter-checkbox">
                         <input type="checkbox" id="monitorAutoScroll" checked /> Auto-scroll
                     </label>
                 </div>
@@ -276,7 +304,7 @@
         let monitorInterval = null;
         let lastEventTime = Math.floor(Date.now() / 1000) - 60;
         const maxEvents = 100;
-        let eventCounts = { sequence: 0, playlist: 0, gpio: 0 };
+        let eventCounts = { sequence: 0, playlist: 0, gpio: 0, command: 0, command_preset: 0 };
         
         function startEventMonitor() {
             if (monitorInterval) return;
@@ -297,6 +325,8 @@
             if (document.getElementById('filterSequence').checked) types.push('sequence');
             if (document.getElementById('filterPlaylist').checked) types.push('playlist');
             if (document.getElementById('filterGpio').checked) types.push('gpio');
+            if (document.getElementById('filterCommand').checked) types.push('command');
+            if (document.getElementById('filterCommandPreset').checked) types.push('command_preset');
             return types.join(',');
         }
         
@@ -305,6 +335,8 @@
             const showSequence = document.getElementById('filterSequence').checked;
             const showPlaylist = document.getElementById('filterPlaylist').checked;
             const showGpio = document.getElementById('filterGpio').checked;
+            const showCommand = document.getElementById('filterCommand').checked;
+            const showCommandPreset = document.getElementById('filterCommandPreset').checked;
             
             const stream = document.getElementById('eventStream');
             const events = stream.getElementsByClassName('event-item');
@@ -316,6 +348,10 @@
                     event.classList.toggle('hidden', !showPlaylist);
                 } else if (event.classList.contains('gpio')) {
                     event.classList.toggle('hidden', !showGpio);
+                } else if (event.classList.contains('command')) {
+                    event.classList.toggle('hidden', !showCommand);
+                } else if (event.classList.contains('command_preset')) {
+                    event.classList.toggle('hidden', !showCommandPreset);
                 }
             }
         }
@@ -343,12 +379,18 @@
                         const showSequence = document.getElementById('filterSequence').checked;
                         const showPlaylist = document.getElementById('filterPlaylist').checked;
                         const showGpio = document.getElementById('filterGpio').checked;
+                        const showCommand = document.getElementById('filterCommand').checked;
+                        const showCommandPreset = document.getElementById('filterCommandPreset').checked;
                         
                         if (event.source === 'sequence' && !showSequence) {
                             eventDiv.classList.add('hidden');
                         } else if (event.source === 'playlist' && !showPlaylist) {
                             eventDiv.classList.add('hidden');
                         } else if (event.source === 'gpio' && !showGpio) {
+                            eventDiv.classList.add('hidden');
+                        } else if (event.source === 'command' && !showCommand) {
+                            eventDiv.classList.add('hidden');
+                        } else if (event.source === 'command_preset' && !showCommandPreset) {
                             eventDiv.classList.add('hidden');
                         }
                         
@@ -405,6 +447,11 @@
                 detailsSpan.textContent = event.name;
             } else if (event.source === 'gpio') {
                 detailsSpan.textContent = `Pin ${event.name} (${event.playlist_name || 'no desc'}) → ${event.duration === 1 ? 'HIGH' : 'LOW'}`;
+            } else if (event.source === 'command') {
+                const args = event.playlist_name && event.playlist_name !== '[]' ? ` (${event.playlist_name})` : '';
+                detailsSpan.textContent = `${event.name}${args}`;
+            } else if (event.source === 'command_preset') {
+                detailsSpan.textContent = event.name;
             }
             
             div.appendChild(timeSpan);
@@ -419,8 +466,10 @@
             document.getElementById('monitorSequenceCount').textContent = eventCounts.sequence;
             document.getElementById('monitorPlaylistCount').textContent = eventCounts.playlist;
             document.getElementById('monitorGpioCount').textContent = eventCounts.gpio;
+            document.getElementById('monitorCommandCount').textContent = eventCounts.command;
+            document.getElementById('monitorCommandPresetCount').textContent = eventCounts.command_preset;
             document.getElementById('monitorTotalCount').textContent = 
-                eventCounts.sequence + eventCounts.playlist + eventCounts.gpio;
+                eventCounts.sequence + eventCounts.playlist + eventCounts.gpio + eventCounts.command + eventCounts.command_preset;
         }
         
         function toggleMonitorPause() {
@@ -440,7 +489,7 @@
             const stream = document.getElementById('eventStream');
             stream.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Monitoring for events...</div>';
             lastEventTime = Math.floor(Date.now() / 1000);
-            eventCounts = { sequence: 0, playlist: 0, gpio: 0 };
+            eventCounts = { sequence: 0, playlist: 0, gpio: 0, command: 0, command_preset: 0 };
             updateStats();
         }
         

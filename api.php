@@ -1259,7 +1259,7 @@ function advancedStatsGetEventStream() {
     
     try {
         $since = isset($_GET['since']) ? intval($_GET['since']) : (time() - 60);
-        $types = isset($_GET['types']) ? $_GET['types'] : 'sequence,playlist,gpio';
+        $types = isset($_GET['types']) ? $_GET['types'] : 'sequence,playlist,gpio,command,command_preset';
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
         
         $typeArray = array_map('trim', explode(',', $types));
@@ -1305,6 +1305,40 @@ function advancedStatsGetEventStream() {
         if (in_array('gpio', $typeArray)) {
             $query = "SELECT timestamp, pin_number as name, event_type, description as playlist_name, pin_state as duration, 'gpio' as source
                       FROM gpio_events 
+                      WHERE timestamp > :since 
+                      ORDER BY timestamp DESC 
+                      LIMIT :limit";
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(':since', $since, SQLITE3_INTEGER);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+            
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $events[] = $row;
+            }
+        }
+        
+        // Get Command events
+        if (in_array('command', $typeArray)) {
+            $query = "SELECT timestamp, command as name, 'executed' as event_type, args as playlist_name, 0 as duration, 'command' as source
+                      FROM command_history 
+                      WHERE timestamp > :since 
+                      ORDER BY timestamp DESC 
+                      LIMIT :limit";
+            $stmt = $db->prepare($query);
+            $stmt->bindValue(':since', $since, SQLITE3_INTEGER);
+            $stmt->bindValue(':limit', $limit, SQLITE3_INTEGER);
+            $result = $stmt->execute();
+            
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $events[] = $row;
+            }
+        }
+        
+        // Get Command Preset events
+        if (in_array('command_preset', $typeArray)) {
+            $query = "SELECT timestamp, preset_name as name, 'triggered' as event_type, '' as playlist_name, 0 as duration, 'command_preset' as source
+                      FROM command_preset_history 
                       WHERE timestamp > :since 
                       ORDER BY timestamp DESC 
                       LIMIT :limit";
