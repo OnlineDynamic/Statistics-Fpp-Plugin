@@ -3,6 +3,7 @@
 <head>
     <title>Advanced Stats Plugin - Help & About</title>
     <link rel="stylesheet" href="/css/fpp.css" />
+    <link rel="stylesheet" href="/css/fontawesome.all.min.css" />
     <?php include_once(__DIR__ . '/../logo_base64.php'); ?>
     <style>
         /* Tab Navigation */
