@@ -10,6 +10,11 @@
 * ✅ Implement auto-start for MQTT listener - postStart.sh/preStop.sh implemented
 * ✅ Add link buttons to settings/help pages - Navigation in top-right corner
 * ✅ Add pagination to history tables - API and UI support for paging through large datasets
+* ✅ GPIO event MQTT integration - Capture GPIO events via FPP's MQTT topics
+* ✅ GPIO descriptions from config - Load pin descriptions from gpio.json
+* ✅ Top 10 sequences/playlists widgets - With visual enhancements (rank badges, trophies)
+* ✅ Sequence interruption detection - Alert when sequences stop unexpectedly
+* ✅ GPIO duplicate event filtering - Only capture rising/falling, skip 'event' duplicates
 
 ## 🎯 Implementation Priority Order
 
@@ -34,7 +39,7 @@
 
 ### Phase 4: Enhanced Analytics (Value-Add) 🔄 IN PROGRESS
 
-11. **Add time-series graphs** - Visualize trends over time
+11. **Add time-series graphs** - Visualize trends over time ⬅️ NEXT
 12. ✅ **Create top sequences/playlists widget** - Popularity insights
 13. **Add heat map visualization** - Pattern discovery
 14. ✅ **Sequence interruption detection** - Reliability monitoring
@@ -55,11 +60,11 @@
 ## 📋 High Priority Enhancements
 
 * ✅ Add link buttons to settings and help pages on main page - in top right (similar to background music player plugin approach)
-* For GPIO triggers capture the human readable function the trigger is doing (held in GPIO input settings as 'Description')
+* ✅ For GPIO triggers capture the human readable function the trigger is doing (held in GPIO input settings as 'Description')
 * ✅ Add ability to backup and restore DB of event history
 * Add graphs to show events over time - with period filters (daily, weekly, monthly, yearly)
 * Add ability to drill into a tabular breakdown of numbers - to show event details
-* Add pagination to sequence/playlist/GPIO history tables (currently limited to 10 rows)
+* ✅ Add pagination to sequence/playlist/GPIO history tables (currently limited to 10 rows)
 
 ## 🎯 New Feature Ideas
 

@@ -332,7 +332,58 @@ $mqttRunning = isMQTTRunning();
             background-color: #ffc107;
             color: #212529;
         }
+        
+        /* Time-series graph styles */
+        .graph-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .graph-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .period-selector {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .period-btn {
+            padding: 5px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .period-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .period-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .chart-canvas {
+            max-height: 300px;
+        }
     </style>
+    <script src="/plugin.php?plugin=fpp-plugin-AdvancedStats&file=js/chart.min.js&nopage=1"></script>
 </head>
 <body>
     <div class="stats-container">
@@ -517,6 +568,49 @@ $mqttRunning = isMQTTRunning();
                 </thead>
                 <tbody id="interruptionsBody"></tbody>
             </table>
+        </div>
+        
+        <!-- Time-Series Graphs -->
+        <div class="graph-container">
+            <div class="graph-header">
+                <h3><i class="fas fa-chart-line"></i> Sequence Activity Over Time</h3>
+                <div class="period-selector">
+                    <button class="period-btn active" onclick="changeSequencePeriod(1)">24h</button>
+                    <button class="period-btn" onclick="changeSequencePeriod(7)">7d</button>
+                    <button class="period-btn" onclick="changeSequencePeriod(30)">30d</button>
+                    <button class="period-btn" onclick="changeSequencePeriod(90)">90d</button>
+                    <button class="period-btn" onclick="changeSequencePeriod(365)">1y</button>
+                </div>
+            </div>
+            <canvas id="sequenceChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <div class="graph-container">
+            <div class="graph-header">
+                <h3><i class="fas fa-chart-line"></i> Playlist Activity Over Time</h3>
+                <div class="period-selector">
+                    <button class="period-btn active" onclick="changePlaylistPeriod(1)">24h</button>
+                    <button class="period-btn" onclick="changePlaylistPeriod(7)">7d</button>
+                    <button class="period-btn" onclick="changePlaylistPeriod(30)">30d</button>
+                    <button class="period-btn" onclick="changePlaylistPeriod(90)">90d</button>
+                    <button class="period-btn" onclick="changePlaylistPeriod(365)">1y</button>
+                </div>
+            </div>
+            <canvas id="playlistChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <div class="graph-container">
+            <div class="graph-header">
+                <h3><i class="fas fa-chart-line"></i> GPIO Activity Over Time</h3>
+                <div class="period-selector">
+                    <button class="period-btn active" onclick="changeGpioPeriod(1)">24h</button>
+                    <button class="period-btn" onclick="changeGpioPeriod(7)">7d</button>
+                    <button class="period-btn" onclick="changeGpioPeriod(30)">30d</button>
+                    <button class="period-btn" onclick="changeGpioPeriod(90)">90d</button>
+                    <button class="period-btn" onclick="changeGpioPeriod(365)">1y</button>
+                </div>
+            </div>
+            <canvas id="gpioChart" class="chart-canvas"></canvas>
         </div>
         
         <!-- Recent Sequence History -->
@@ -980,6 +1074,7 @@ $mqttRunning = isMQTTRunning();
             loadSequenceHistory();
             loadGPIOEvents();
             loadInterruptions();
+            loadTimeSeriesCharts();
             document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
         }
         
@@ -1061,9 +1156,146 @@ $mqttRunning = isMQTTRunning();
             window.location.href = `/api/plugin/fpp-plugin-AdvancedStats/export-data?table=${table}&format=${format}`;
         }
         
+        // Time-series chart instances
+        let sequenceChart = null;
+        let playlistChart = null;
+        let gpioChart = null;
+        let currentSequenceDays = 1;
+        let currentPlaylistDays = 1;
+        let currentGpioDays = 1;
+        
+        // Load time-series data and render chart
+        function loadTimeSeries(type, days, chartId) {
+            const period = days === 1 ? 'hourly' : (days <= 7 ? 'daily' : (days <= 90 ? 'daily' : 'weekly'));
+            
+            fetch(`/api/plugin/fpp-plugin-AdvancedStats/stats/timeseries?type=${type}&period=${period}&days=${days}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Failed to load time-series data:', data.message);
+                        return;
+                    }
+                    
+                    // Prepare chart data
+                    const labels = data.data.map(item => item.label);
+                    const values = data.data.map(item => item.count);
+                    
+                    // Get existing chart instance and destroy if it exists
+                    let chartInstance = null;
+                    if (type === 'sequence' && sequenceChart) {
+                        sequenceChart.destroy();
+                    } else if (type === 'playlist' && playlistChart) {
+                        playlistChart.destroy();
+                    } else if (type === 'gpio' && gpioChart) {
+                        gpioChart.destroy();
+                    }
+                    
+                    // Create new chart
+                    const ctx = document.getElementById(chartId).getContext('2d');
+                    const chartColor = type === 'sequence' ? '#007bff' : (type === 'playlist' ? '#28a745' : '#ffc107');
+                    
+                    chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `${type.charAt(0).toUpperCase() + type.slice(1)} Events`,
+                                data: values,
+                                borderColor: chartColor,
+                                backgroundColor: chartColor + '20',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.dataset.label + ': ' + context.parsed.y + ' events';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0
+                                    }
+                                }
+                            },
+                            interaction: {
+                                mode: 'nearest',
+                                axis: 'x',
+                                intersect: false
+                            }
+                        }
+                    });
+                    
+                    // Store chart instance
+                    if (type === 'sequence') sequenceChart = chartInstance;
+                    else if (type === 'playlist') playlistChart = chartInstance;
+                    else if (type === 'gpio') gpioChart = chartInstance;
+                })
+                .catch(error => {
+                    console.error('Failed to load time-series data:', error);
+                });
+        }
+        
+        // Period change handlers
+        function changeSequencePeriod(days) {
+            currentSequenceDays = days;
+            updatePeriodButtons('sequence', days);
+            loadTimeSeries('sequence', days, 'sequenceChart');
+        }
+        
+        function changePlaylistPeriod(days) {
+            currentPlaylistDays = days;
+            updatePeriodButtons('playlist', days);
+            loadTimeSeries('playlist', days, 'playlistChart');
+        }
+        
+        function changeGpioPeriod(days) {
+            currentGpioDays = days;
+            updatePeriodButtons('gpio', days);
+            loadTimeSeries('gpio', days, 'gpioChart');
+        }
+        
+        // Update active button styling
+        function updatePeriodButtons(type, days) {
+            const container = document.querySelector(`#${type}Chart`).closest('.graph-container');
+            const buttons = container.querySelectorAll('.period-btn');
+            
+            buttons.forEach((btn, index) => {
+                const btnDays = [1, 7, 30, 90, 365][index];
+                if (btnDays === days) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // Load all time-series charts
+        function loadTimeSeriesCharts() {
+            loadTimeSeries('sequence', currentSequenceDays, 'sequenceChart');
+            loadTimeSeries('playlist', currentPlaylistDays, 'playlistChart');
+            loadTimeSeries('gpio', currentGpioDays, 'gpioChart');
+        }
+        
         // Auto-load on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
+            loadTimeSeriesCharts();
         });
     </script>
 </body>

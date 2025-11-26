@@ -85,6 +85,12 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetSequenceInterruptions');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'stats/timeseries',
+        'callback' => 'advancedStatsGetTimeSeries');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -918,6 +924,125 @@ function advancedStatsGetSequenceInterruptions() {
         return json(array(
             'success' => false,
             'message' => 'Error detecting interruptions: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get time-series data for graphing
+ * 
+ * Query parameters:
+ * - type: 'sequence', 'playlist', or 'gpio' (required)
+ * - period: 'hourly', 'daily', 'weekly', 'monthly' (default: 'daily')
+ * - days: number of days to look back (default: 30)
+ */
+function advancedStatsGetTimeSeries() {
+    global $settings;
+    
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $type = isset($_GET['type']) ? $_GET['type'] : 'sequence';
+        $period = isset($_GET['period']) ? $_GET['period'] : 'daily';
+        $days = isset($_GET['days']) ? intval($_GET['days']) : 30;
+        
+        // Validate inputs
+        if (!in_array($type, ['sequence', 'playlist', 'gpio'])) {
+            return json(array(
+                'success' => false,
+                'message' => 'Invalid type. Must be sequence, playlist, or gpio.'
+            ));
+        }
+        
+        if (!in_array($period, ['hourly', 'daily', 'weekly', 'monthly'])) {
+            return json(array(
+                'success' => false,
+                'message' => 'Invalid period. Must be hourly, daily, weekly, or monthly.'
+            ));
+        }
+        
+        $db = new SQLite3($dbPath);
+        
+        // Calculate start timestamp
+        $start_time = time() - ($days * 24 * 60 * 60);
+        
+        // Build query based on type and period
+        $table = '';
+        $time_format = '';
+        
+        switch ($period) {
+            case 'hourly':
+                $time_format = '%Y-%m-%d %H:00';
+                break;
+            case 'daily':
+                $time_format = '%Y-%m-%d';
+                break;
+            case 'weekly':
+                $time_format = '%Y-W%W';
+                break;
+            case 'monthly':
+                $time_format = '%Y-%m';
+                break;
+        }
+        
+        switch ($type) {
+            case 'sequence':
+                $table = 'sequence_history';
+                break;
+            case 'playlist':
+                $table = 'playlist_history';
+                break;
+            case 'gpio':
+                $table = 'gpio_events';
+                break;
+        }
+        
+        $query = "
+            SELECT 
+                strftime('$time_format', datetime(timestamp, 'unixepoch', 'localtime')) as period_label,
+                COUNT(*) as event_count,
+                MIN(timestamp) as period_start_ts
+            FROM $table
+            WHERE timestamp >= $start_time
+            GROUP BY period_label
+            ORDER BY period_start_ts ASC
+        ";
+        
+        $result = $db->query($query);
+        if (!$result) {
+            throw new Exception('Query failed: ' . $db->lastErrorMsg());
+        }
+        
+        $data = array();
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data[] = array(
+                'label' => $row['period_label'],
+                'count' => intval($row['event_count']),
+                'timestamp' => intval($row['period_start_ts'])
+            );
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'type' => $type,
+            'period' => $period,
+            'days' => $days,
+            'data' => $data
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error fetching time-series data: ' . $e->getMessage()
         ));
     }
 }
