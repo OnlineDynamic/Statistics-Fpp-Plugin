@@ -382,6 +382,103 @@ $mqttRunning = isMQTTRunning();
         .chart-canvas {
             max-height: 300px;
         }
+        
+        /* Heat map styles */
+        .heatmap-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .heatmap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .heatmap-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .type-selector {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .type-btn {
+            padding: 5px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .type-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .type-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: 60px repeat(24, 1fr);
+            gap: 2px;
+            font-size: 11px;
+            overflow-x: auto;
+        }
+        
+        .heatmap-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .heatmap-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            position: relative;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .heatmap-cell.empty {
+            background-color: #f5f5f5;
+        }
+        
+        .heatmap-tooltip {
+            position: absolute;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+            display: none;
+        }
     </style>
     <script src="/plugin.php?plugin=fpp-plugin-AdvancedStats&file=js/chart.min.js&nopage=1"></script>
 </head>
@@ -611,6 +708,20 @@ $mqttRunning = isMQTTRunning();
                 </div>
             </div>
             <canvas id="gpioChart" class="chart-canvas"></canvas>
+        </div>
+        
+        <!-- Activity Heat Map -->
+        <div class="heatmap-container">
+            <div class="heatmap-header">
+                <h3><i class="fas fa-th"></i> Activity Heat Map - Peak Usage Times</h3>
+                <div class="type-selector">
+                    <button class="type-btn active" onclick="changeHeatMapType('sequence')">Sequences</button>
+                    <button class="type-btn" onclick="changeHeatMapType('playlist')">Playlists</button>
+                    <button class="type-btn" onclick="changeHeatMapType('gpio')">GPIO</button>
+                </div>
+            </div>
+            <div id="heatmapGrid" class="heatmap-grid"></div>
+            <div class="heatmap-tooltip" id="heatmapTooltip"></div>
         </div>
         
         <!-- Recent Sequence History -->
@@ -1292,10 +1403,122 @@ $mqttRunning = isMQTTRunning();
             loadTimeSeries('gpio', currentGpioDays, 'gpioChart');
         }
         
+        // Heat map functions
+        let currentHeatMapType = 'sequence';
+        
+        function loadHeatMap(type, days = 30) {
+            fetch(`/api/plugin/fpp-plugin-AdvancedStats/stats/heatmap?type=${type}&days=${days}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Failed to load heat map data:', data.message);
+                        return;
+                    }
+                    
+                    renderHeatMap(data.matrix, data.max_count);
+                })
+                .catch(error => {
+                    console.error('Failed to load heat map data:', error);
+                });
+        }
+        
+        function renderHeatMap(matrix, maxCount) {
+            const grid = document.getElementById('heatmapGrid');
+            grid.innerHTML = '';
+            
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            // Add top row with hour labels
+            grid.appendChild(createLabel(''));
+            for (let hour = 0; hour < 24; hour++) {
+                grid.appendChild(createLabel(hour.toString()));
+            }
+            
+            // Add rows for each day
+            for (let day = 0; day < 7; day++) {
+                grid.appendChild(createLabel(days[day]));
+                
+                for (let hour = 0; hour < 24; hour++) {
+                    const count = matrix[day][hour];
+                    const cell = document.createElement('div');
+                    cell.className = 'heatmap-cell';
+                    
+                    if (count === 0) {
+                        cell.classList.add('empty');
+                    } else {
+                        const intensity = maxCount > 0 ? count / maxCount : 0;
+                        const color = getHeatColor(intensity);
+                        cell.style.backgroundColor = color;
+                    }
+                    
+                    // Add hover tooltip
+                    cell.addEventListener('mouseenter', function(e) {
+                        showTooltip(e, days[day], hour, count);
+                    });
+                    
+                    cell.addEventListener('mouseleave', function() {
+                        hideTooltip();
+                    });
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+        
+        function createLabel(text) {
+            const label = document.createElement('div');
+            label.className = 'heatmap-label';
+            label.textContent = text;
+            return label;
+        }
+        
+        function getHeatColor(intensity) {
+            // Color gradient from light blue to dark red
+            if (intensity < 0.2) return `rgba(33, 150, 243, ${0.2 + intensity})`;
+            if (intensity < 0.4) return `rgba(76, 175, 80, ${0.4 + intensity})`;
+            if (intensity < 0.6) return `rgba(255, 193, 7, ${0.5 + intensity})`;
+            if (intensity < 0.8) return `rgba(255, 152, 0, ${0.6 + intensity})`;
+            return `rgba(244, 67, 54, ${0.7 + intensity})`;
+        }
+        
+        function showTooltip(event, day, hour, count) {
+            const tooltip = document.getElementById('heatmapTooltip');
+            const hourStr = hour === 0 ? '12am' : (hour < 12 ? `${hour}am` : (hour === 12 ? '12pm' : `${hour-12}pm`));
+            tooltip.textContent = `${day} ${hourStr}: ${count} events`;
+            tooltip.style.display = 'block';
+            tooltip.style.left = event.pageX + 10 + 'px';
+            tooltip.style.top = event.pageY + 10 + 'px';
+        }
+        
+        function hideTooltip() {
+            const tooltip = document.getElementById('heatmapTooltip');
+            tooltip.style.display = 'none';
+        }
+        
+        function changeHeatMapType(type) {
+            currentHeatMapType = type;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.type-btn');
+            buttons.forEach(btn => {
+                const btnText = btn.textContent.toLowerCase();
+                if ((type === 'sequence' && btnText === 'sequences') ||
+                    (type === 'playlist' && btnText === 'playlists') ||
+                    (type === 'gpio' && btnText === 'gpio')) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            loadHeatMap(type);
+        }
+        
         // Auto-load on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
             loadTimeSeriesCharts();
+            loadHeatMap(currentHeatMapType);
         });
     </script>
 </body>

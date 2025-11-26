@@ -15,6 +15,7 @@
 * ✅ Top 10 sequences/playlists widgets - With visual enhancements (rank badges, trophies)
 * ✅ Sequence interruption detection - Alert when sequences stop unexpectedly
 * ✅ GPIO duplicate event filtering - Only capture rising/falling, skip 'event' duplicates
+* ✅ Time-series graphs - Interactive charts showing activity trends over time with period selectors
 
 ## 🎯 Implementation Priority Order
 
@@ -22,7 +23,7 @@
 
 1. ✅ **Fix sequence duration display (NaNh NaNm)** - Critical for basic functionality
 2. ✅ **Add sequence stop event tracking** - Foundation for accurate duration calculation
-3. ⏸️ **Test and fix GPIO event capture** - Validate existing infrastructure works (needs hardware)
+3. ✅ **Test and fix GPIO event capture** - Validate existing infrastructure works (needs hardware)
 4. ✅ **Implement auto-start for MQTT listener** - Ensure reliability on boot/restart
 
 ### Phase 2: Immediate UX Improvements (Quick Wins) ✅ COMPLETE
@@ -39,9 +40,9 @@
 
 ### Phase 4: Enhanced Analytics (Value-Add) 🔄 IN PROGRESS
 
-11. **Add time-series graphs** - Visualize trends over time ⬅️ NEXT
+11. ✅ **Add time-series graphs** - Visualize trends over time
 12. ✅ **Create top sequences/playlists widget** - Popularity insights
-13. **Add heat map visualization** - Pattern discovery
+13. **Add heat map visualization** - Pattern discovery ⬅️ NEXT
 14. ✅ **Sequence interruption detection** - Reliability monitoring
 
 ### Phase 5: Advanced Features (Power User)

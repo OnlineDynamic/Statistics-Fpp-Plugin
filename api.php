@@ -91,6 +91,12 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetTimeSeries');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'stats/heatmap',
+        'callback' => 'advancedStatsGetHeatMap');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -1043,6 +1049,112 @@ function advancedStatsGetTimeSeries() {
         return json(array(
             'success' => false,
             'message' => 'Error fetching time-series data: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get heat map data showing activity by day of week and hour
+ * 
+ * Query parameters:
+ * - type: 'sequence', 'playlist', or 'gpio' (required)
+ * - days: number of days to look back (default: 30)
+ */
+function advancedStatsGetHeatMap() {
+    global $settings;
+    
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not initialized'
+        ));
+    }
+    
+    try {
+        $type = isset($_GET['type']) ? $_GET['type'] : 'sequence';
+        $days = isset($_GET['days']) ? intval($_GET['days']) : 30;
+        
+        // Validate inputs
+        if (!in_array($type, ['sequence', 'playlist', 'gpio'])) {
+            return json(array(
+                'success' => false,
+                'message' => 'Invalid type. Must be sequence, playlist, or gpio.'
+            ));
+        }
+        
+        $db = new SQLite3($dbPath);
+        
+        // Calculate start timestamp
+        $start_time = time() - ($days * 24 * 60 * 60);
+        
+        // Determine table
+        $table = '';
+        switch ($type) {
+            case 'sequence':
+                $table = 'sequence_history';
+                break;
+            case 'playlist':
+                $table = 'playlist_history';
+                break;
+            case 'gpio':
+                $table = 'gpio_events';
+                break;
+        }
+        
+        // Query to get counts by day of week (0=Sunday) and hour (0-23)
+        $query = "
+            SELECT 
+                CAST(strftime('%w', datetime(timestamp, 'unixepoch', 'localtime')) AS INTEGER) as day_of_week,
+                CAST(strftime('%H', datetime(timestamp, 'unixepoch', 'localtime')) AS INTEGER) as hour,
+                COUNT(*) as event_count
+            FROM $table
+            WHERE timestamp >= $start_time
+            GROUP BY day_of_week, hour
+            ORDER BY day_of_week, hour
+        ";
+        
+        $result = $db->query($query);
+        if (!$result) {
+            throw new Exception('Query failed: ' . $db->lastErrorMsg());
+        }
+        
+        // Initialize 7x24 matrix with zeros
+        $matrix = array();
+        for ($day = 0; $day < 7; $day++) {
+            $matrix[$day] = array();
+            for ($hour = 0; $hour < 24; $hour++) {
+                $matrix[$day][$hour] = 0;
+            }
+        }
+        
+        // Fill matrix with actual counts
+        $max_count = 0;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $day = intval($row['day_of_week']);
+            $hour = intval($row['hour']);
+            $count = intval($row['event_count']);
+            $matrix[$day][$hour] = $count;
+            if ($count > $max_count) {
+                $max_count = $count;
+            }
+        }
+        
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'type' => $type,
+            'days' => $days,
+            'matrix' => $matrix,
+            'max_count' => $max_count
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error fetching heat map data: ' . $e->getMessage()
         ));
     }
 }
