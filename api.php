@@ -109,6 +109,18 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetDatabaseInfo');
     array_push($result, $ep);
     
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'get-settings',
+        'callback' => 'advancedStatsGetSettings');
+    array_push($result, $ep);
+    
+    $ep = array(
+        'method' => 'POST',
+        'endpoint' => 'save-settings',
+        'callback' => 'advancedStatsSaveSettings');
+    array_push($result, $ep);
+    
     return $result;
 }
 
@@ -1337,6 +1349,99 @@ function advancedStatsGetDatabaseInfo() {
         return json(array(
             'success' => false,
             'message' => 'Error getting database info: ' . $e->getMessage()
+        ));
+    }
+}
+
+/**
+ * Get plugin settings
+ */
+function advancedStatsGetSettings() {
+    global $pluginConfigFile;
+    
+    $defaults = array(
+        'enableStats' => '1',
+        'updateInterval' => '60',
+        'enableAutoArchive' => '0',
+        'retentionDays' => '365',
+        'showCharts' => '1',
+        'chartType' => 'line'
+    );
+    
+    $settings = array();
+    
+    // Load settings from config file
+    if (file_exists($pluginConfigFile)) {
+        $lines = file($pluginConfigFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $parts = explode('=', $line, 2);
+            if (count($parts) === 2) {
+                $key = trim($parts[0]);
+                $value = trim($parts[1], " \t\n\r\0\x0B\"'");
+                $settings[$key] = $value;
+            }
+        }
+    }
+    
+    // Merge with defaults
+    $settings = array_merge($defaults, $settings);
+    
+    return json(array(
+        'success' => true,
+        'settings' => $settings
+    ));
+}
+
+/**
+ * Save plugin settings
+ */
+function advancedStatsSaveSettings() {
+    global $pluginConfigFile;
+    
+    try {
+        // Get POST data
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        
+        if (!$data) {
+            return json(array(
+                'success' => false,
+                'message' => 'Invalid JSON data'
+            ));
+        }
+        
+        // Validate settings
+        $validKeys = array('enableStats', 'updateInterval', 'enableAutoArchive', 'retentionDays', 'showCharts', 'chartType');
+        $settings = array();
+        
+        foreach ($validKeys as $key) {
+            if (isset($data[$key])) {
+                $settings[$key] = $data[$key];
+            }
+        }
+        
+        // Write to config file
+        $content = '';
+        foreach ($settings as $key => $value) {
+            $content .= $key . '=' . $value . "\n";
+        }
+        
+        if (file_put_contents($pluginConfigFile, $content) === false) {
+            return json(array(
+                'success' => false,
+                'message' => 'Failed to write settings file'
+            ));
+        }
+        
+        return json(array(
+            'success' => true,
+            'message' => 'Settings saved successfully'
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error saving settings: ' . $e->getMessage()
         ));
     }
 }

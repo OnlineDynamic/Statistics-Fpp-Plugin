@@ -158,12 +158,6 @@
                     <input type="number" id="updateInterval" name="updateInterval" value="60" min="10" max="3600">
                     <small>How often to collect statistics (10-3600 seconds)</small>
                 </div>
-                
-                <div class="form-group">
-                    <label for="dataRetention">Data Retention (days)</label>
-                    <input type="number" id="dataRetention" name="dataRetention" value="30" min="1" max="365">
-                    <small>How long to keep historical statistics (1-365 days)</small>
-                </div>
             </div>
             
             <div class="settings-section">
@@ -225,11 +219,16 @@
                     <select id="retentionDays" name="retentionDays">
                         <option value="30">30 days</option>
                         <option value="60">60 days</option>
-                        <option value="90" selected>90 days</option>
+                        <option value="90">90 days (3 months)</option>
                         <option value="180">180 days (6 months)</option>
-                        <option value="365">365 days (1 year)</option>
+                        <option value="365" selected>365 days (1 year)</option>
+                        <option value="730">730 days (2 years)</option>
+                        <option value="1095">1095 days (3 years)</option>
+                        <option value="1825">1825 days (5 years)</option>
+                        <option value="3650">3650 days (10 years)</option>
+                        <option value="-1">Never (keep all data)</option>
                     </select>
-                    <small>Records older than this will be automatically deleted</small>
+                    <small>Records older than this will be automatically deleted (if auto-archive is enabled)</small>
                 </div>
                 
                 <div class="form-group" style="background-color: #fff3cd; padding: 15px; border-radius: 4px; border-left: 4px solid #ffc107;">
@@ -275,21 +274,6 @@
                 </button>
             </div>
         </form>
-        
-        <div style="margin-top: 30px; padding: 20px; background-color: #d1ecf1; border-left: 4px solid #0c5460; border-radius: 4px;">
-            <h3 style="margin-top: 0; color: #0c5460;">
-                <i class="fas fa-info-circle"></i> Customization Notes
-            </h3>
-            <p style="color: #0c5460; margin: 10px 0;">
-                This is a template settings page. To customize:
-            </p>
-            <ul style="color: #0c5460;">
-                <li>Replace the example settings with your actual plugin configuration options</li>
-                <li>Update the saveSettings() function to handle form submission</li>
-                <li>Load existing settings from the plugin configuration file</li>
-                <li>Add validation for your specific settings</li>
-            </ul>
-        </div>
     </div>
     
     <script>
@@ -337,40 +321,46 @@
         }
         
         function loadSettings() {
-            // TODO: Load settings from API
-            // Example:
-            // fetch('/api/plugin/fpp-plugin-AdvancedStats/get-settings')
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         document.getElementById('enableStats').value = data.enableStats || '1';
-            //         document.getElementById('updateInterval').value = data.updateInterval || '60';
-            //         // etc...
-            //     });
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/get-settings')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('enableStats').value = data.settings.enableStats || '1';
+                        document.getElementById('updateInterval').value = data.settings.updateInterval || '60';
+                        document.getElementById('enableAutoArchive').value = data.settings.enableAutoArchive || '0';
+                        document.getElementById('retentionDays').value = data.settings.retentionDays || '365';
+                        document.getElementById('showCharts').value = data.settings.showCharts || '1';
+                        document.getElementById('chartType').value = data.settings.chartType || 'line';
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to load settings:', error);
+                });
         }
         
         function saveSettings(event) {
             event.preventDefault();
             
-            // TODO: Implement actual save functionality
-            // Example:
-            // const formData = new FormData(event.target);
-            // const settings = Object.fromEntries(formData);
-            // 
-            // fetch('/api/plugin/fpp-plugin-AdvancedStats/save-settings', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(settings)
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if (data.status === 'OK') {
-            //         alert('Settings saved successfully!');
-            //     } else {
-            //         alert('Error saving settings: ' + data.message);
-            //     }
-            // });
+            const formData = new FormData(event.target);
+            const settings = Object.fromEntries(formData);
             
-            alert('Settings page is a template. Implement actual save functionality.');
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/save-settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(settings)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Settings saved successfully!');
+                } else {
+                    alert('Error saving settings: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                alert('Error saving settings: ' + error.message);
+            });
+            
             return false;
         }
         
