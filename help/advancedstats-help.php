@@ -1023,7 +1023,7 @@ curl http://localhost/api/plugin/fpp-plugin-AdvancedStats/status
                     <p style="margin-top: 20px;"><strong>Resources:</strong></p>
                     <ul style="margin-left: 20px;">
                         <li><a href='https://github.com/OnlineDynamic/Statistics-Fpp-Plugin' target='_blank'>
-                            <i class="fab fa-github"></i> Git Repository
+                            <i class="fas fa-code-branch"></i> Git Repository
                         </a></li>
                         <li><a href='https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues' target='_blank'>
                             <i class="fas fa-bug"></i> Bug Reporter / Feature Requests
