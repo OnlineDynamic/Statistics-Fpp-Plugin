@@ -4,7 +4,22 @@
 
 include_once("/opt/fpp/www/common.php");
 $pluginName = "fpp-plugin-AdvancedStats";
-$pluginConfigFile = $settings['configDirectory'] . "/plugin." . $pluginName;
+
+/**
+ * Get the plugin config file path
+ * This function safely retrieves the config file path, handling cases where $settings is not yet loaded
+ */
+function getPluginConfigFile() {
+    global $settings;
+    $pluginName = "fpp-plugin-AdvancedStats";
+    
+    if (isset($settings) && isset($settings['configDirectory'])) {
+        return $settings['configDirectory'] . "/plugin." . $pluginName;
+    }
+    
+    // Fallback to default FPP config directory
+    return "/home/fpp/media/config/plugin." . $pluginName;
+}
 
 /**
  * Register API endpoints for the plugin
@@ -1441,7 +1456,7 @@ function advancedStatsGetDatabaseInfo() {
  * Get plugin settings
  */
 function advancedStatsGetSettings() {
-    global $pluginConfigFile;
+    $pluginConfigFile = getPluginConfigFile();
     
     $defaults = array(
         'enableStats' => '1',
@@ -1480,7 +1495,7 @@ function advancedStatsGetSettings() {
  * Save plugin settings
  */
 function advancedStatsSaveSettings() {
-    global $pluginConfigFile;
+    $pluginConfigFile = getPluginConfigFile();
     
     try {
         // Get POST data

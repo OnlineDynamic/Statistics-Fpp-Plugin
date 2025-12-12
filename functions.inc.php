@@ -2,7 +2,14 @@
 
 include_once("/opt/fpp/www/common.php");
 $pluginName = basename(dirname(__FILE__));
-$pluginConfigFile = $settings['configDirectory'] . "/plugin." .$pluginName;
+
+// Safely get the plugin config file path
+if (isset($settings) && isset($settings['configDirectory'])) {
+    $pluginConfigFile = $settings['configDirectory'] . "/plugin." . $pluginName;
+} else {
+    // Fallback to default FPP config directory
+    $pluginConfigFile = "/home/fpp/media/config/plugin." . $pluginName;
+}
 
 if (file_exists($pluginConfigFile)){
 $pluginSettings = parse_ini_file($pluginConfigFile);
