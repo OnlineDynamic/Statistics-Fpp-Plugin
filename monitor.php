@@ -29,17 +29,22 @@
         
         .header-buttons a {
             display: inline-block;
-            padding: 8px 16px;
-            background-color: #007bff;
+            margin-left: 10px;
+            padding: 8px 15px;
+            background-color: #6c757d;
             color: white;
             text-decoration: none;
             border-radius: 5px;
-            margin-left: 10px;
+            font-size: 14px;
             transition: background-color 0.3s;
         }
         
         .header-buttons a:hover {
-            background-color: #0056b3;
+            background-color: #5a6268;
+        }
+        
+        .header-buttons a i {
+            margin-right: 5px;
         }
         
         .live-monitor {
