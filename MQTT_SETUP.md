@@ -35,9 +35,11 @@ The Advanced Stats plugin uses FPP's built-in MQTT broker to capture events in r
 # Check if MQTT broker is running
 systemctl status mosquitto
 
-# Test MQTT connection
-mosquitto_sub -h localhost -t '#' -v -C 1
+# Test MQTT connection (FPP's MQTT broker requires authentication)
+mosquitto_sub -h localhost -u fpp -P falcon -t '#' -v -C 1
 ```
+
+**Note:** FPP's MQTT broker uses authentication with username `fpp` and password `falcon`.
 
 ### 3. Plugin Automatically Starts
 
@@ -103,8 +105,8 @@ pkill -f mqtt_listener.py && sleep 2 && cd /home/fpp/media/plugins/fpp-plugin-Ad
 ### Method 1: Monitor Raw MQTT Messages
 
 ```bash
-# Subscribe to all FPP topics
-mosquitto_sub -h localhost -t 'falcon/player/+/#' -v
+# Subscribe to all FPP topics (requires authentication)
+mosquitto_sub -h localhost -u fpp -P falcon -t 'falcon/player/+/#' -v
 
 # Then play a sequence or trigger a GPIO in FPP
 ```
@@ -142,6 +144,15 @@ sqlite3 /home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db "SELECT * FROM
 **Problem:** `Failed to connect to MQTT broker: [Errno 111] Connection refused`
 
 **Solution:** Enable MQTT in FPP settings (see Step 1 above)
+
+### Authentication Error
+
+**Problem:** `Connection error: Connection Refused: not authorised`
+
+**Solution:** FPP's MQTT broker requires authentication. Always use `-u fpp -P falcon` with mosquitto_sub:
+```bash
+mosquitto_sub -h localhost -u fpp -P falcon -t 'falcon/player/#' -v
+```
 
 ### No Events Captured
 
