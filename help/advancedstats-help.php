@@ -1,3 +1,4 @@
+<?php include_once(__DIR__ . '/../mqtt_warning.inc.php'); ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,6 +6,7 @@
     <link rel="stylesheet" href="/css/fpp.css" />
     <link rel="stylesheet" href="/css/fontawesome.all.min.css" />
     <?php include_once(__DIR__ . '/../logo_base64.php'); ?>
+    <?php echo getMQTTWarningStyles(); ?>
     <style>
         /* Tab Navigation */
         .tab-navigation {
@@ -162,6 +164,8 @@
                 </a>
             </div>
         </div>
+        
+        <?php displayMQTTWarning(); ?>
         
         <!-- Tab Navigation -->
         <div class="tab-navigation">

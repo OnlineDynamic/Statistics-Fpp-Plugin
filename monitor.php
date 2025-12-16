@@ -1,8 +1,10 @@
+<?php include_once(__DIR__ . '/mqtt_warning.inc.php'); ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Live Event Monitor</title>
     <link rel="stylesheet" href="/css/fpp.css" />
+    <?php echo getMQTTWarningStyles(); ?>
     <style>
         .monitor-container {
             max-width: 1600px;
@@ -237,6 +239,8 @@
             <h1><i class="fas fa-broadcast-tower"></i> Live Event Monitor</h1>
             <p style="color: #666;">Real-time monitoring of FPP sequences, playlists, and GPIO events</p>
         </div>
+        
+        <?php displayMQTTWarning(); ?>
         
         <div class="stats-bar">
             <div class="stat-item">

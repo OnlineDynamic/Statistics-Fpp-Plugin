@@ -1,8 +1,10 @@
+<?php include_once(__DIR__ . '/mqtt_warning.inc.php'); ?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Advanced Stats Settings</title>
     <link rel="stylesheet" href="/css/fpp.css" />
+    <?php echo getMQTTWarningStyles(); ?>
     <style>
         .settings-container {
             max-width: 1000px;
@@ -138,6 +140,7 @@
             <p style="color: #6c757d; font-size: 16px;">Configure plugin options and preferences</p>
         </div>
         
+        <?php displayMQTTWarning(); ?>
         
         <!-- Example settings form - replace with actual settings -->
         <form id="settingsForm" onsubmit="return saveSettings(event);">
