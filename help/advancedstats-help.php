@@ -181,6 +181,9 @@
             <button class="tab-button" onclick="switchTab('troubleshooting', this)">
                 <i class="fas fa-wrench"></i> Troubleshooting
             </button>
+            <button class="tab-button" onclick="switchTab('support', this)">
+                <i class="fas fa-life-ring"></i> Support
+            </button>
             <button class="tab-button" onclick="switchTab('changelog', this)">
                 <i class="fas fa-history"></i> Changelog
             </button>
@@ -996,6 +999,158 @@ curl http://localhost/api/plugin/fpp-plugin-AdvancedStats/status
         </div>
         
         <!-- Changelog Tab -->
+
+        
+        <!-- Support Tab -->
+        <div id="support" class="tab-content">
+            <h2><i class="fas fa-life-ring"></i> Support & System Diagnostics</h2>
+            
+            <div style="background-color: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin-bottom: 20px;">
+                <h3 style="margin-top: 0; color: #155724;"><i class="fab fa-github"></i> Report Issues</h3>
+                <p style="margin-bottom: 10px;">
+                    If you encounter problems or have feature requests, please report them on GitHub:
+                </p>
+                <p style="text-align: center; margin: 15px 0;">
+                    <a href="https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues/new" target="_blank" 
+                       style="display: inline-block; background-color: #28a745; color: white; padding: 12px 24px; 
+                              text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        <i class="fab fa-github"></i> Open GitHub Issues
+                    </a>
+                </p>
+            </div>
+            
+            <h3><i class="fas fa-clipboard-list"></i> System Configuration for Bug Reports</h3>
+            <p>
+                When reporting issues, include the system configuration below. Click the "Copy to Clipboard" button
+                to copy all diagnostic information, then paste it into your GitHub issue. Or use "Create GitHub Issue"
+                to open a new issue with diagnostics pre-populated.
+            </p>
+            
+            <div style="margin: 20px 0;">
+                <button onclick="loadSystemConfigAdvStats()" style="padding: 10px 20px; background-color: #007bff; color: white; 
+                        border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+                    <i class="fas fa-sync-alt"></i> Refresh System Info
+                </button>
+                <button onclick="copySystemConfigAdvStats()" style="padding: 10px 20px; background-color: #28a745; color: white; 
+                        border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+                    <i class="fas fa-copy"></i> Copy to Clipboard
+                </button>
+                <button onclick="createGitHubIssueAdvStats()" style="padding: 10px 20px; background-color: #6c757d; color: white; 
+                        border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                    <i class="fab fa-github"></i> Create GitHub Issue
+                </button>
+            </div>
+            
+            <div id="systemConfigContainerAdvStats" style="background-color: #f8f9fa; border: 2px solid #dee2e6; 
+                 border-radius: 5px; padding: 15px; margin: 20px 0;">
+                <pre id="systemConfigContentAdvStats" style="margin: 0; white-space: pre-wrap; word-wrap: break-word; 
+                     font-family: 'Courier New', monospace; font-size: 12px; max-height: 600px; overflow-y: auto;">
+<i class="fas fa-spinner fa-spin"></i> Click "Refresh System Info" to load configuration data...</pre>
+            </div>
+            
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+                <h4 style="margin-top: 0; color: #856404;"><i class="fas fa-info-circle"></i> What to Include in Bug Reports</h4>
+                <ul style="margin-bottom: 0;">
+                    <li><strong>System Configuration:</strong> The diagnostic info above (copied via button)</li>
+                    <li><strong>Problem Description:</strong> Clear description of the issue</li>
+                    <li><strong>Steps to Reproduce:</strong> Exact steps that cause the problem</li>
+                    <li><strong>Expected vs Actual:</strong> What should happen vs what actually happens</li>
+                    <li><strong>MQTT Status:</strong> Whether MQTT broker is enabled and reachable</li>
+                    <li><strong>Database Info:</strong> Size and record counts from diagnostics</li>
+                    <li><strong>Screenshots:</strong> Visual evidence of the issue (if helpful)</li>
+                </ul>
+            </div>
+            
+            <script>
+                let systemConfigDataAdvStats = null;
+                
+                function loadSystemConfigAdvStats() {
+                    const container = document.getElementById('systemConfigContentAdvStats');
+                    container.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading system configuration...';
+                    
+                    fetch('/api/plugin/fpp-plugin-AdvancedStats/system-diagnostics')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'OK') {
+                                systemConfigDataAdvStats = data.diagnostics;
+                                container.textContent = systemConfigDataAdvStats;
+                            } else {
+                                container.innerHTML = '<span style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Error loading system configuration: ' + 
+                                    (data.message || 'Unknown error') + '</span>';
+                            }
+                        })
+                        .catch(error => {
+                            container.innerHTML = '<span style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Error: ' + 
+                                error.message + '</span>';
+                        });
+                }
+                
+                function copySystemConfigAdvStats() {
+                    if (!systemConfigDataAdvStats) {
+                        alert('Please load system configuration first by clicking "Refresh System Info"');
+                        return;
+                    }
+                    
+                    navigator.clipboard.writeText(systemConfigDataAdvStats)
+                        .then(() => {
+                            const btn = event.target.closest('button');
+                            const originalHTML = btn.innerHTML;
+                            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            btn.style.backgroundColor = '#28a745';
+                            setTimeout(() => {
+                                btn.innerHTML = originalHTML;
+                                btn.style.backgroundColor = '#28a745';
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            alert('Failed to copy to clipboard. Please manually select and copy the text.');
+                        });
+                }
+                
+                function createGitHubIssueAdvStats() {
+                    if (!systemConfigDataAdvStats) {
+                        alert('Please load system configuration first by clicking "Refresh System Info"');
+                        return;
+                    }
+                    
+                    const issueTemplate = `## Description
+<!-- Provide a clear and concise description of the issue -->
+
+
+## Steps to Reproduce
+1. 
+2. 
+3. 
+
+## Expected Behavior
+<!-- What you expected to happen -->
+
+
+## Actual Behavior
+<!-- What actually happened -->
+
+
+## System Diagnostics
+<details>
+<summary>Click to expand system configuration</summary>
+
+\`\`\`
+${systemConfigDataAdvStats}
+\`\`\`
+</details>
+
+## Additional Context
+<!-- Add any other context, screenshots, or log entries here -->
+
+`;
+                    
+                    const encodedBody = encodeURIComponent(issueTemplate);
+                    const issueUrl = `https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues/new?body=${encodedBody}`;
+                    
+                    window.open(issueUrl, '_blank');
+                }
+            </script>
+        </div>
         <div id="changelog" class="tab-content">
             <h2>Plugin Version History</h2>
             <p>Recent commits and changes to the Advanced Stats Plugin:</p>

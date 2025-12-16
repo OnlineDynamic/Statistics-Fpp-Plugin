@@ -148,6 +148,12 @@ function getEndpointsfpppluginAdvancedStats() {
         'callback' => 'advancedStatsGetCommandPresetHistory');
     array_push($result, $ep);
     
+    
+    $ep = array(
+        'method' => 'GET',
+        'endpoint' => 'system-diagnostics',
+        'callback' => 'advancedStatsSystemDiagnostics');
+    array_push($result, $ep);
     return $result;
 }
 
@@ -1678,4 +1684,263 @@ function advancedStatsGetCommandPresetHistory() {
         ));
     }
 }
-?>
+
+// Helper function to fetch FPP setting value
+function getFPPSettingValueAdvStats($settingName) {
+    $url = "http://127.0.0.1/api/settings/" . urlencode($settingName);
+    $value = @file_get_contents($url);
+    if ($value === false || $value === '') {
+        return null;
+    }
+    $decoded = json_decode($value, true);
+    
+    // If the setting has a 'value' field, return it
+    if (is_array($decoded) && isset($decoded['value'])) {
+        if (is_array($decoded['value']) || is_object($decoded['value'])) {
+            return json_encode($decoded['value']);
+        }
+        return $decoded['value'];
+    }
+    
+    // If no 'value' field exists, the setting is not configured
+    return null;
+}
+
+function advancedStatsSystemDiagnostics() {
+    global $settings;
+    
+    try {
+        $diagnostics = "=== ADVANCED STATS PLUGIN - SYSTEM DIAGNOSTICS ===\n";
+        $diagnostics .= "Generated: " . date('Y-m-d H:i:s T') . "\n\n";
+        
+        // Get system info from FPP API
+        $systemInfoJson = @file_get_contents('http://127.0.0.1/api/system/info');
+        $systemInfo = array();
+        if ($systemInfoJson !== false) {
+            $systemInfo = json_decode($systemInfoJson, true);
+            if (!is_array($systemInfo)) {
+                $systemInfo = array();
+            }
+        }
+        
+        // === FPP CORE INFORMATION ===
+        $diagnostics .= "--- FPP CORE INFORMATION ---\n";
+        
+        $fppVersion = $systemInfo['Version'] ?? 'Unknown';
+        $diagnostics .= "FPP Version: " . $fppVersion . "\n";
+        
+        $fppBranch = $systemInfo['Branch'] ?? 'Unknown';
+        $diagnostics .= "FPP Branch: " . $fppBranch . "\n";
+        
+        $osVersion = $systemInfo['OSVersion'] ?? 'Unknown';
+        $diagnostics .= "OS Version: " . $osVersion . "\n";
+        
+        $platform = $systemInfo['Platform'] ?? 'Unknown';
+        $diagnostics .= "Platform: " . $platform . "\n";
+        
+        $variant = $systemInfo['Variant'] ?? '';
+        if ($variant) {
+            $diagnostics .= "Variant: " . $variant . "\n";
+        }
+        
+        $subPlatform = $systemInfo['SubPlatform'] ?? exec("cat /proc/device-tree/model 2>/dev/null | tr -d '\\0' || echo 'Unknown'");
+        $diagnostics .= "Hardware Model: " . $subPlatform . "\n";
+        
+        $osRelease = $systemInfo['OSRelease'] ?? exec("cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2 | tr -d '\"' 2>/dev/null || echo 'Unknown'");
+        $diagnostics .= "Operating System: " . $osRelease . "\n";
+        
+        $kernel = exec("uname -r 2>/dev/null || echo 'Unknown'");
+        $diagnostics .= "Kernel Version: " . $kernel . "\n";
+        
+        // === PLUGIN INFORMATION ===
+        $diagnostics .= "\n--- ADVANCED STATS PLUGIN INFORMATION ---\n";
+        
+        $pluginInfoFile = '/home/fpp/media/plugins/fpp-plugin-AdvancedStats/pluginInfo.json';
+        if (file_exists($pluginInfoFile)) {
+            $pluginInfo = json_decode(file_get_contents($pluginInfoFile), true);
+            if ($pluginInfo) {
+                $diagnostics .= "Plugin Name: " . ($pluginInfo['name'] ?? 'Unknown') . "\n";
+                $diagnostics .= "Plugin Author: " . ($pluginInfo['author'] ?? 'Unknown') . "\n";
+            }
+        }
+        
+        $gitHash = exec("cd /home/fpp/media/plugins/fpp-plugin-AdvancedStats && git rev-parse HEAD 2>/dev/null | cut -c1-7 || echo 'Unknown'");
+        $diagnostics .= "Git Commit: " . $gitHash . "\n";
+        
+        $gitBranch = exec("cd /home/fpp/media/plugins/fpp-plugin-AdvancedStats && git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'Unknown'");
+        $diagnostics .= "Git Branch: " . $gitBranch . "\n";
+        
+        // === MQTT CONFIGURATION ===
+        $diagnostics .= "\n--- MQTT CONFIGURATION ---\n";
+        
+        // Check local MQTT broker service
+        $localBrokerActive = trim(shell_exec("systemctl is-active mosquitto 2>/dev/null || echo 'inactive'"));
+        $localBrokerEnabled = trim(shell_exec("systemctl is-enabled mosquitto 2>/dev/null || echo 'disabled'"));
+        $diagnostics .= "Local MQTT Broker Service: " . ucfirst($localBrokerActive);
+        if ($localBrokerEnabled == 'enabled') {
+            $diagnostics .= " (enabled at boot)\n";
+        } else {
+            $diagnostics .= " (not enabled at boot)\n";
+        }
+        
+        // Check MQTT client configuration (FPP uses MQTTHost to determine if MQTT is configured)
+        $mqttHost = getFPPSettingValueAdvStats('MQTTHost');
+        $mqttClientConfigured = !empty($mqttHost);
+        
+        $diagnostics .= "MQTT Client Configured: " . ($mqttClientConfigured ? 'Yes' : 'No') . "\n";
+        
+        if ($mqttClientConfigured) {
+            $diagnostics .= "MQTT Host: " . $mqttHost . "\n";
+            
+            $mqttPort = getFPPSettingValueAdvStats('MQTTPort');
+            $diagnostics .= "MQTT Port: " . ($mqttPort ?: '1883') . "\n";
+            
+            $mqttPrefix = getFPPSettingValueAdvStats('MQTTPrefix');
+            $diagnostics .= "MQTT Prefix: " . ($mqttPrefix ?: 'Not Set') . "\n";
+            
+            $mqttUsername = getFPPSettingValueAdvStats('MQTTUsername');
+            $diagnostics .= "MQTT Username: " . ($mqttUsername ? 'Configured' : 'Not Set') . "\n";
+            
+            $mqttPassword = getFPPSettingValueAdvStats('MQTTPassword');
+            $diagnostics .= "MQTT Password: " . ($mqttPassword ? 'Configured (hidden)' : 'Not Set') . "\n";
+            
+            $mqttCA = getFPPSettingValueAdvStats('MQTTCaFile');
+            $diagnostics .= "MQTT CA Certificate: " . ($mqttCA ? 'Configured' : 'Not Set') . "\n";
+            
+            // Check MQTT broker connectivity
+            $diagnostics .= "\nMQTT Broker Connection Test:\n";
+            $mqttTest = shell_exec("timeout 2 mosquitto_sub -h " . escapeshellarg($mqttHost) . " -p " . escapeshellarg($mqttPort ?: '1883') . " -t '\$SYS/broker/version' -C 1 2>&1");
+            
+            if ($mqttTest && !empty(trim($mqttTest))) {
+                // Check for various error conditions
+                if (stripos($mqttTest, 'not authorised') !== false || stripos($mqttTest, 'Connection Refused: not authorised') !== false) {
+                    $diagnostics .= "  Broker: Reachable (authentication required)\n";
+                    $diagnostics .= "  Status: Broker is running but requires credentials\n";
+                } elseif (stripos($mqttTest, 'Error') !== false || stripos($mqttTest, 'Connection refused') !== false) {
+                    $diagnostics .= "  Connection: FAILED\n";
+                    $diagnostics .= "  Error: " . trim($mqttTest) . "\n";
+                } else {
+                    $diagnostics .= "  Connection: SUCCESS\n";
+                    $diagnostics .= "  Broker Version: " . trim($mqttTest) . "\n";
+                }
+            } else {
+                $diagnostics .= "  Connection: FAILED (timeout or broker not running)\n";
+            }
+        }
+        
+        // Warnings
+        if ($localBrokerActive != 'active') {
+            $diagnostics .= "\n** WARNING: Local MQTT broker service is not running. **\n";
+        }
+        if (!$mqttClientConfigured) {
+            $diagnostics .= "\n** WARNING: MQTT client is not configured. This plugin requires MQTT to function properly. **\n";
+        }
+        
+        // === MQTT LISTENER STATUS ===
+        $diagnostics .= "\n--- MQTT LISTENER STATUS ---\n";
+        
+        // Check for mqtt_listener.py process - use ps with grep pattern to avoid matching grep itself
+        $listenerPid = trim(shell_exec("ps aux | grep '[m]qtt_listener.py' | grep -v grep | awk '{print \$2}' | head -1 2>/dev/null"));
+        
+        if ($listenerPid && is_numeric($listenerPid)) {
+            $diagnostics .= "MQTT Listener: Running (PID: $listenerPid)\n";
+            
+            // Get listener uptime
+            $uptime = trim(shell_exec("ps -p $listenerPid -o etime= 2>/dev/null"));
+            if ($uptime) {
+                $diagnostics .= "Listener Uptime: " . $uptime . "\n";
+            }
+            
+            // Check recent activity from logs
+            $recentActivity = shell_exec("tail -3 /home/fpp/media/logs/fpp-plugin-AdvancedStats.log 2>/dev/null | grep 'MQTT Message' | tail -1");
+            if ($recentActivity) {
+                $diagnostics .= "Recent Activity: Yes (receiving MQTT messages)\n";
+            }
+        } else {
+            $diagnostics .= "MQTT Listener: NOT RUNNING\n";
+            $diagnostics .= "** WARNING: MQTT listener is not running. Stats collection may not be working. **\n";
+        }
+        
+        // === DATABASE INFORMATION ===
+        $diagnostics .= "\n--- DATABASE INFORMATION ---\n";
+        
+        $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+        if (file_exists($dbPath)) {
+            $dbSize = filesize($dbPath);
+            $diagnostics .= "Database File: Exists\n";
+            $diagnostics .= "Database Size: " . number_format($dbSize / 1024 / 1024, 2) . " MB\n";
+            
+            // Try to get table counts
+            try {
+                $db = new SQLite3($dbPath);
+                
+                $tables = array('sequences', 'playlists', 'gpio_events', 'commands', 'command_presets');
+                foreach ($tables as $table) {
+                    $result = $db->querySingle("SELECT COUNT(*) FROM $table");
+                    $diagnostics .= "  $table: " . number_format($result) . " records\n";
+                }
+                
+                $db->close();
+            } catch (Exception $e) {
+                $diagnostics .= "  Error reading database: " . $e->getMessage() . "\n";
+            }
+        } else {
+            $diagnostics .= "Database File: NOT FOUND\n";
+            $diagnostics .= "** WARNING: Database file does not exist. Plugin may not be initialized. **\n";
+        }
+        
+        // === SYSTEM RESOURCES ===
+        $diagnostics .= "\n--- SYSTEM RESOURCES ---\n";
+        
+        $diskUsage = exec("df -h / | tail -1 | awk '{print $5}'");
+        $diagnostics .= "Root Disk Usage: " . $diskUsage . "\n";
+        
+        $mediaDiskUsage = exec("df -h /home/fpp/media | tail -1 | awk '{print $5}'");
+        $diagnostics .= "Media Disk Usage: " . $mediaDiskUsage . "\n";
+        
+        $memInfo = exec("free -h | grep Mem | awk '{print $3 \"/\" $2}'");
+        $diagnostics .= "Memory Usage: " . $memInfo . "\n";
+        
+        $loadAvg = exec("cat /proc/loadavg | awk '{print $1, $2, $3}'");
+        $diagnostics .= "CPU Load (1/5/15 min): " . $loadAvg . "\n";
+        
+        $uptime = exec("uptime -p 2>/dev/null || uptime | awk '{print $3, $4}'");
+        $diagnostics .= "System Uptime: " . $uptime . "\n";
+        
+        // === PYTHON ENVIRONMENT ===
+        $diagnostics .= "\n--- PYTHON ENVIRONMENT ---\n";
+        
+        $pythonVersion = exec("python3 --version 2>&1");
+        $diagnostics .= "Python Version: " . $pythonVersion . "\n";
+        
+        // Check for required Python packages
+        $packages = array('paho-mqtt', 'sqlite3');
+        foreach ($packages as $package) {
+            $installed = exec("python3 -c 'import " . str_replace('-', '_', $package) . "' 2>&1");
+            $diagnostics .= "  $package: " . (empty($installed) ? 'Installed' : 'NOT INSTALLED') . "\n";
+        }
+        
+        // === RECENT LOG ENTRIES ===
+        $diagnostics .= "\n--- RECENT LOG ENTRIES (Last 20 lines) ---\n";
+        $logFile = '/home/fpp/media/logs/fpp-plugin-AdvancedStats.log';
+        if (file_exists($logFile)) {
+            $recentLog = shell_exec("tail -n 20 " . escapeshellarg($logFile) . " 2>/dev/null || echo 'Could not read log file'");
+            $diagnostics .= trim($recentLog) . "\n";
+        } else {
+            $diagnostics .= "Log file not found\n";
+        }
+        
+        $diagnostics .= "\n=== END OF DIAGNOSTICS ===\n";
+        
+        return json(array(
+            'status' => 'OK',
+            'diagnostics' => $diagnostics
+        ));
+        
+    } catch (Exception $e) {
+        return json(array(
+            'status' => 'ERROR',
+            'message' => 'Error generating diagnostics: ' . $e->getMessage()
+        ));
+    }
+}
