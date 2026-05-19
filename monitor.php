@@ -6,115 +6,117 @@
     <link rel="stylesheet" href="/css/fpp.css" />
     <?php echo getMQTTWarningStyles(); ?>
     <style>
+        :root{
+            --bg: #ffffff;
+            --text: #111111;
+            --muted: #666666;
+            --accent: #4CAF50;
+            --btn-bg: #6c757d;
+            --btn-bg-hover: #5a6268;
+            --panel-bg: #f7f7f7;
+            --stream-bg: #ffffff;
+            --stream-border: #dddddd;
+            --stats-bg: #f1f1f1;
+            --pause-bg: #FFC107;
+            --play-bg: #4CAF50;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root{
+                --bg: #0b0b0b;
+                --text: #eaeaea;
+                --muted: #888888;
+                --accent: #4CAF50;
+                --btn-bg: #6c757d;
+                --btn-bg-hover: #5a6268;
+                --panel-bg: #1a1a1a;
+                --stream-bg: #000000;
+                --stream-border: #333333;
+                --stats-bg: #2a2a2a;
+                --pause-bg: #FFC107;
+                --play-bg: #4CAF50;
+            }
+        }
+
+        /* Allow FPP to toggle a 'dark' class on body as well */
+        body.dark, .dark {
+            --bg: #0b0b0b;
+            --text: #eaeaea;
+            --muted: #888888;
+            --panel-bg: #1a1a1a;
+            --stream-bg: #000000;
+            --stream-border: #333333;
+            --stats-bg: #2a2a2a;
+        }
+
+        html, body { background: var(--bg); color: var(--text); }
+
         .monitor-container {
             max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .monitor-header {
             text-align: center;
             margin-bottom: 30px;
             position: relative;
         }
-        
+
         .monitor-header h1 {
-            color: #4CAF50;
+            color: var(--accent);
             margin-bottom: 10px;
         }
-        
+
         .header-buttons {
             position: absolute;
             top: 0;
             right: 0;
         }
-        
+
         .header-buttons a {
             display: inline-block;
             margin-left: 10px;
             padding: 8px 15px;
-            background-color: #6c757d;
+            background-color: var(--btn-bg);
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s;
         }
-        
+
         .header-buttons a:hover {
-            background-color: #5a6268;
+            background-color: var(--btn-bg-hover);
         }
-        
-        .header-buttons a i {
-            margin-right: 5px;
-        }
-        
+
+        .header-buttons a i { margin-right: 5px; }
+
         .live-monitor {
-            background-color: #1a1a1a;
+            background-color: var(--panel-bg);
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
-        
-        .live-monitor-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .control-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .live-monitor-controls button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-        
-        .btn-pause {
-            background-color: #FFC107;
-            color: #000;
-        }
-        
-        .btn-pause:hover {
-            background-color: #FFB300;
-        }
-        
-        .btn-clear {
-            background-color: #f44336;
-            color: white;
-        }
-        
-        .btn-clear:hover {
-            background-color: #d32f2f;
-        }
-        
-        .filter-checkbox {
-            display: inline-flex;
-            align-items: center;
-            color: #fff;
-            font-size: 13px;
-            margin-right: 15px;
-        }
-        
-        .filter-checkbox input[type="checkbox"] {
-            margin-right: 5px;
-            margin-left: 0;
-        }
-        
+
+        .live-monitor-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .control-group { display: flex; gap: 10px; align-items: center; }
+
+        .live-monitor-controls button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; transition: all 0.2s; font-weight: 500; }
+
+        .btn-pause { background-color: var(--pause-bg); color: #000; }
+        .btn-pause:hover { background-color: #FFB300; }
+        .btn-pause.paused { background-color: var(--play-bg); color: #fff; }
+
+        .btn-clear { background-color: #f44336; color: white; }
+        .btn-clear:hover { background-color: #d32f2f; }
+
+        .filter-checkbox { display: inline-flex; align-items: center; color: var(--text); font-size: 13px; margin-right: 15px; }
+        .filter-checkbox input[type="checkbox"] { margin-right: 5px; margin-left: 0; }
+
         .event-stream {
-            background-color: #000;
-            border: 1px solid #333;
+            background-color: var(--stream-bg);
+            border: 1px solid var(--stream-border);
             border-radius: 4px;
             padding: 15px;
             height: calc(100vh - 300px);
@@ -123,109 +125,40 @@
             font-family: 'Courier New', monospace;
             font-size: 13px;
         }
-        
-        .event-item {
-            padding: 6px 10px;
-            margin-bottom: 6px;
-            border-left: 4px solid #666;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .event-item.hidden {
-            display: none;
-        }
-        
-        .event-item.sequence {
-            border-left-color: #007bff;
-            background-color: rgba(0, 123, 255, 0.1);
-        }
-        
-        .event-item.playlist {
-            border-left-color: #28a745;
-            background-color: rgba(40, 167, 69, 0.1);
-        }
-        
-        .event-item.gpio {
-            border-left-color: #ffc107;
-            background-color: rgba(255, 193, 7, 0.1);
-        }
-        
-        .event-item.command {
-            border-left-color: #9c27b0;
-            background-color: rgba(156, 39, 176, 0.1);
-        }
-        
-        .event-item.command_preset {
-            border-left-color: #e91e63;
-            background-color: rgba(233, 30, 99, 0.1);
-        }
-        
-        .event-time {
-            color: #888;
-            min-width: 90px;
-            font-weight: 500;
-        }
-        
-        .event-type {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-weight: bold;
-            font-size: 11px;
-            min-width: 70px;
-            text-align: center;
-        }
-        
+
+        .event-item { padding: 6px 10px; margin-bottom: 6px; border-left: 4px solid #666; color: var(--text); display: flex; align-items: center; gap: 10px; }
+        .event-item.hidden { display: none; }
+
+        .event-item.sequence { border-left-color: #007bff; background-color: rgba(0, 123, 255, 0.06); }
+        .event-item.playlist { border-left-color: #28a745; background-color: rgba(40, 167, 69, 0.06); }
+        .event-item.gpio { border-left-color: #ffc107; background-color: rgba(255, 193, 7, 0.06); }
+        .event-item.command { border-left-color: #9c27b0; background-color: rgba(156, 39, 176, 0.06); }
+        .event-item.command_preset { border-left-color: #e91e63; background-color: rgba(233, 30, 99, 0.06); }
+
+        .event-time { color: var(--muted); min-width: 90px; font-weight: 500; }
+        .event-type { display: inline-block; padding: 3px 8px; border-radius: 3px; font-weight: bold; font-size: 11px; min-width: 70px; text-align: center; }
         .event-type.sequence { background-color: #007bff; color: white; }
         .event-type.playlist { background-color: #28a745; color: white; }
         .event-type.gpio { background-color: #ffc107; color: black; }
         .event-type.command { background-color: #9c27b0; color: white; }
         .event-type.command_preset { background-color: #e91e63; color: white; }
-        
-        .event-details {
-            color: #ddd;
-            flex: 1;
-        }
-        
-        .event-action {
-            color: #aaa;
-            font-style: italic;
-            margin-right: 8px;
-        }
-        
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background-color: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-item {
-            text-align: center;
-            color: #fff;
-        }
-        
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
+
+        .event-details { color: var(--muted); flex: 1; }
+        .event-action { color: var(--muted); font-style: italic; margin-right: 8px; }
+
+        .stats-bar { display: flex; justify-content: space-around; background-color: var(--stats-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+
+        .stat-item { text-align: center; color: var(--text); }
+        .stat-value { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
         .stat-value.sequence { color: #007bff; }
         .stat-value.playlist { color: #28a745; }
         .stat-value.gpio { color: #ffc107; }
         .stat-value.command { color: #9c27b0; }
         .stat-value.command_preset { color: #e91e63; }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #aaa;
-        }
+        .stat-label { font-size: 12px; color: var(--muted); }
+
+        .monitor-desc { color: var(--muted); }
+        .monitor-empty { color: var(--muted); text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
@@ -237,7 +170,7 @@
                 <a href="/plugin.php?plugin=fpp-plugin-AdvancedStats&page=help/advancedstats-help.php"><i class="fas fa-question-circle"></i> Help</a>
             </div>
             <h1><i class="fas fa-broadcast-tower"></i> Live Event Monitor</h1>
-            <p style="color: #666;">Real-time monitoring of FPP sequences, playlists, and GPIO events</p>
+            <p class="monitor-desc">Real-time monitoring of FPP sequences, playlists, and GPIO events</p>
         </div>
         
         <?php displayMQTTWarning(); ?>
@@ -264,7 +197,7 @@
                 <div class="stat-label">Command Presets</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value" style="color: #fff;" id="monitorTotalCount">0</div>
+                <div class="stat-value total" id="monitorTotalCount">0</div>
                 <div class="stat-label">Total Events</div>
             </div>
         </div>
@@ -303,7 +236,7 @@
             </div>
             
             <div class="event-stream" id="eventStream">
-                <div style="color: #888; text-align: center; padding: 20px;">Monitoring for events...</div>
+                <div class="monitor-empty">Monitoring for events...</div>
             </div>
         </div>
     </div>
@@ -487,16 +420,16 @@
             
             if (monitorPaused) {
                 btn.innerHTML = '<i class="fas fa-play"></i> Resume';
-                btn.style.backgroundColor = '#4CAF50';
+                btn.classList.add('paused');
             } else {
                 btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
-                btn.style.backgroundColor = '#FFC107';
+                btn.classList.remove('paused');
             }
         }
         
         function clearEventStream() {
             const stream = document.getElementById('eventStream');
-            stream.innerHTML = '<div style="color: #888; text-align: center; padding: 20px;">Monitoring for events...</div>';
+            stream.innerHTML = '<div class="monitor-empty">Monitoring for events...</div>';
             lastEventTime = Math.floor(Date.now() / 1000);
             eventCounts = { sequence: 0, playlist: 0, gpio: 0, command: 0, command_preset: 0 };
             updateStats();

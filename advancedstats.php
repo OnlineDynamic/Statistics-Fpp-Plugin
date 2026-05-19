@@ -6,162 +6,241 @@
     <link rel="stylesheet" href="/css/fpp.css" />
     <?php echo getMQTTWarningStyles(); ?>
     <style>
+        :root {
+            --bg: #ffffff;
+            --text: #111111;
+            --muted: #6c757d;
+            --border: #dee2e6;
+            --surface: #f8f9fa;
+            --surface-strong: #ffffff;
+            --primary: #007bff;
+            --primary-dark: #0056b3;
+            --secondary: #6c757d;
+            --secondary-dark: #5a6268;
+            --success: #28a745;
+            --success-dark: #218838;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --info-dark: #117a8b;
+            --panel-shadow: rgba(0,0,0,0.1);
+            --code-bg: #f6f8fa;
+            --empty-bg: #f5f5f5;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0d1117;
+                --text: #e6edf3;
+                --muted: #9ba0ab;
+                --border: #272c34;
+                --surface: #161b22;
+                --surface-strong: #0e1218;
+                --primary: #58a6ff;
+                --primary-dark: #1f6feb;
+                --secondary: #8b95a2;
+                --secondary-dark: #6e7b8b;
+                --success: #3fb950;
+                --success-dark: #2ea043;
+                --warning: #d29922;
+                --danger: #f85149;
+                --info: #5bc0de;
+                --info-dark: #3aa0c8;
+                --panel-shadow: rgba(0,0,0,0.4);
+                --code-bg: #0b1220;
+                --empty-bg: #11171f;
+            }
+        }
+
+        body.dark, .dark {
+            --bg: #0d1117;
+            --text: #e6edf3;
+            --muted: #9ba0ab;
+            --border: #272c34;
+            --surface: #161b22;
+            --surface-strong: #0e1218;
+            --secondary: #8b95a2;
+            --secondary-dark: #6e7b8b;
+            --panel-shadow: rgba(0,0,0,0.4);
+            --code-bg: #0b1220;
+            --empty-bg: #11171f;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
         .stats-container {
             max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .stats-header {
             text-align: center;
             margin-bottom: 30px;
             position: relative;
         }
-        
+
         .stats-header h1 {
-            color: #007bff;
+            color: var(--primary);
             margin-bottom: 10px;
         }
-        
+
+        .stats-header p {
+            color: var(--muted);
+            font-size: 16px;
+        }
+
         .header-buttons {
             position: absolute;
             top: 0;
             right: 0;
         }
-        
-        .header-buttons a {
+
+        .header-buttons a,
+        .button,
+        .refresh-btn {
             display: inline-block;
             margin-left: 10px;
-            padding: 8px 15px;
-            background-color: #6c757d;
+            padding: 10px 20px;
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s;
-        }
-        
-        .header-buttons a:hover {
-            background-color: #5a6268;
-        }
-        
-        .header-buttons a i {
-            margin-right: 5px;
-        }
-        
-        .refresh-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
+            border: none;
+            font-weight: 500;
         }
-        
-        .refresh-btn:hover {
-            background-color: #0056b3;
-        }
-        
+
+        .btn-primary { background-color: var(--primary); }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: var(--success-dark); }
+
+        .btn-info { background-color: var(--info); }
+        .btn-info:hover { background-color: var(--info-dark); }
+
+        .btn-secondary { background-color: var(--secondary); }
+        .btn-secondary:hover { background-color: var(--secondary-dark); }
+
+        .btn-warning { background-color: var(--warning); color: #000; }
+
+        .small-btn { padding: 6px 12px; font-size: 13px; }
+        .ml-5 { margin-left: 5px; }
+        .header-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .section-title { color: var(--text); margin-top: 0; }
+        .timestamp { color: var(--muted); font-size: 12px; margin-top: 10px; }
+        .muted-text { color: var(--muted); }
+        .text-primary { color: var(--primary); }
+        .text-danger { color: var(--danger); }
+        .alert-warning { background-color: rgba(255,193,7,0.12); border-color: rgba(255,193,7,0.3); }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
-        
+
         .stat-card {
-            background-color: #f8f9fa;
-            border: 2px solid #dee2e6;
+            background-color: var(--surface);
+            border: 2px solid var(--border);
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--panel-shadow);
         }
-        
+
         .stat-card h3 {
             margin-top: 0;
-            color: #495057;
-            border-bottom: 2px solid #007bff;
+            color: var(--text);
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
             font-size: 16px;
         }
-        
+
         .stat-value {
             font-size: 32px;
             font-weight: bold;
-            color: #007bff;
+            color: var(--primary);
             margin: 15px 0;
         }
-        
+
         .stat-label {
-            color: #6c757d;
+            color: var(--muted);
             font-size: 14px;
         }
-        
+
         .table-section {
-            background-color: #ffffff;
-            border: 2px solid #dee2e6;
+            background-color: var(--surface-strong);
+            border: 2px solid var(--border);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--panel-shadow);
         }
-        
+
         .table-section h2 {
             margin-top: 0;
-            color: #495057;
-            border-bottom: 2px solid #007bff;
+            color: var(--text);
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
-        
+
         th {
-            background-color: #007bff;
+            background-color: var(--primary);
             color: white;
             padding: 12px;
             text-align: left;
             font-weight: bold;
         }
-        
+
         td {
             padding: 10px;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
         }
-        
+
         tr:hover {
-            background-color: #f8f9fa;
+            background-color: var(--surface);
         }
-        
+
+        .no-data,
+        .timestamp,
+        .muted-text {
+            color: var(--muted);
+        }
+
         .no-data {
             text-align: center;
-            color: #6c757d;
             padding: 30px;
             font-style: italic;
         }
-        
+
         .loading {
             text-align: center;
-            color: #007bff;
+            color: var(--primary);
             padding: 20px;
         }
-        
+
         .error {
-            background-color: #f8d7da;
-            border: 2px solid #f5c6cb;
-            color: #721c24;
+            background-color: rgba(220,53,69,0.12);
+            border: 2px solid rgba(220,53,69,0.3);
+            color: var(--danger);
             padding: 15px;
             border-radius: 5px;
             margin: 20px 0;
         }
-        
 
-        
         .rank-badge {
             display: inline-block;
             width: 30px;
@@ -172,14 +251,12 @@
             font-weight: bold;
             color: white;
         }
-        
-        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
-        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #808080); }
-        .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
-        .rank-other { background-color: #6c757d; }
-        
 
-        
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffa500); }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #808080); }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); }
+        .rank-other { background-color: var(--secondary); }
+
         .pagination {
             display: flex;
             justify-content: center;
@@ -187,10 +264,10 @@
             margin-top: 20px;
             gap: 10px;
         }
-        
+
         .pagination button {
             padding: 8px 16px;
-            background-color: #007bff;
+            background-color: var(--primary);
             color: white;
             border: none;
             border-radius: 5px;
@@ -198,26 +275,26 @@
             font-size: 14px;
             transition: background-color 0.3s;
         }
-        
+
         .pagination button:hover:not(:disabled) {
-            background-color: #0056b3;
+            background-color: var(--primary-dark);
         }
-        
+
         .pagination button:disabled {
-            background-color: #6c757d;
+            background-color: var(--secondary);
             cursor: not-allowed;
             opacity: 0.5;
         }
-        
+
         .pagination .page-info {
-            color: #495057;
+            color: var(--text);
             font-size: 14px;
             margin: 0 10px;
         }
-        
+
         .filter-section {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 5px;
             padding: 15px;
             margin-bottom: 20px;
@@ -226,24 +303,26 @@
             gap: 15px;
             flex-wrap: wrap;
         }
-        
+
         .filter-section label {
             font-weight: bold;
-            color: #495057;
+            color: var(--text);
         }
-        
+
         .filter-section input[type="date"],
         .filter-section select,
         .filter-section input[type="text"] {
             padding: 8px;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--border);
             border-radius: 4px;
             font-size: 14px;
+            background: var(--surface-strong);
+            color: var(--text);
         }
-        
+
         .filter-section button {
             padding: 8px 16px;
-            background-color: #28a745;
+            background-color: var(--success);
             color: white;
             border: none;
             border-radius: 5px;
@@ -251,19 +330,19 @@
             font-size: 14px;
             transition: background-color 0.3s;
         }
-        
+
         .filter-section button:hover {
-            background-color: #218838;
+            background-color: var(--success-dark);
         }
-        
+
         .filter-section .clear-btn {
-            background-color: #6c757d;
+            background-color: var(--secondary);
         }
-        
+
         .filter-section .clear-btn:hover {
-            background-color: #5a6268;
+            background-color: var(--secondary-dark);
         }
-        
+
         .badge {
             display: inline-block;
             padding: 4px 8px;
@@ -272,113 +351,74 @@
             font-weight: bold;
             text-transform: uppercase;
         }
-        
+
         .badge-success {
-            background-color: #28a745;
+            background-color: var(--success);
             color: white;
         }
-        
+
         .badge-warning {
-            background-color: #ffc107;
+            background-color: var(--warning);
             color: #212529;
         }
-        
-        /* Time-series graph styles */
-        .graph-container {
-            background-color: white;
+
+        .graph-container,
+        .heatmap-container {
+            background-color: var(--surface);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--panel-shadow);
         }
-        
-        .graph-header {
+
+        .graph-header,
+        .heatmap-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
-        
-        .graph-header h3 {
+
+        .graph-header h3,
+        .heatmap-header h3 {
             margin: 0;
-            color: #333;
+            color: var(--text);
         }
-        
-        .period-selector {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .period-btn {
-            padding: 5px 12px;
-            border: 1px solid #ddd;
-            background: white;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        
-        .period-btn:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .period-btn.active {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
+
         .chart-canvas {
             max-height: 300px;
         }
-        
-        /* Heat map styles */
-        .heatmap-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .heatmap-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .heatmap-header h3 {
-            margin: 0;
-            color: #333;
-        }
-        
+
+        .period-selector,
         .type-selector {
             display: flex;
             gap: 5px;
         }
-        
+
+        .period-btn,
         .type-btn {
             padding: 5px 12px;
-            border: 1px solid #ddd;
-            background: white;
+            border: 1px solid var(--border);
+            background: var(--surface-strong);
             cursor: pointer;
             border-radius: 4px;
             font-size: 12px;
             transition: all 0.2s;
+            color: var(--text);
         }
-        
+
+        .period-btn:hover,
         .type-btn:hover {
-            background-color: #f0f0f0;
+            background-color: var(--surface);
         }
-        
+
+        .period-btn.active,
         .type-btn.active {
-            background-color: #007bff;
+            background-color: var(--primary);
             color: white;
-            border-color: #007bff;
+            border-color: var(--primary);
         }
-        
+
         .heatmap-grid {
             display: grid;
             grid-template-columns: 60px repeat(24, 1fr);
@@ -386,16 +426,16 @@
             font-size: 11px;
             overflow-x: auto;
         }
-        
+
         .heatmap-label {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 4px;
             font-weight: 500;
-            color: #666;
+            color: var(--muted);
         }
-        
+
         .heatmap-cell {
             aspect-ratio: 1;
             display: flex;
@@ -406,17 +446,17 @@
             transition: transform 0.1s;
             position: relative;
         }
-        
+
         .heatmap-cell:hover {
             transform: scale(1.1);
             z-index: 10;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        
+
         .heatmap-cell.empty {
-            background-color: #f5f5f5;
+            background-color: var(--empty-bg);
         }
-        
+
         .heatmap-tooltip {
             position: absolute;
             background-color: rgba(0,0,0,0.8);
@@ -444,16 +484,16 @@
                 </a>
             </div>
             <h1><i class="fas fa-chart-line"></i> Advanced Stats Dashboard</h1>
-            <p style="color: #6c757d; font-size: 16px;">GPIO Input & Sequence Play History</p>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
-                <button class="refresh-btn" onclick="loadAllData()">
+            <p class="muted-text">GPIO Input & Sequence Play History</p>
+            <div class="header-actions">
+                <button class="refresh-btn btn-primary" onclick="loadAllData()">
                     <i class="fas fa-sync"></i> Refresh Data
                 </button>
-                <button class="refresh-btn" style="background-color: #4CAF50;" onclick="window.location.href='/plugin.php?plugin=fpp-plugin-AdvancedStats&page=monitor.php'">
+                <button class="refresh-btn btn-success" onclick="window.location.href='/plugin.php?plugin=fpp-plugin-AdvancedStats&page=monitor.php'">
                     <i class="fas fa-broadcast-tower"></i> Live Monitor
                 </button>
             </div>
-            <div id="lastUpdate" style="color: #6c757d; font-size: 12px; margin-top: 10px;"></div>
+            <div id="lastUpdate" class="timestamp"></div>
         </div>
         
         <?php displayMQTTWarning(); ?>
@@ -461,7 +501,7 @@
         <div id="errorContainer"></div>
         
         <!-- Today's Summary Cards -->
-        <h2 style="color: #495057; margin-top: 0;">Today's Activity</h2>
+        <h2 class="section-title">Today's Activity</h2>
         <div class="stats-grid">
             <div class="stat-card">
                 <h3><i class="fas fa-microchip"></i> GPIO Events</h3>
@@ -489,7 +529,7 @@
         </div>
         
         <!-- All Time Totals -->
-        <h2 style="color: #495057;">All-Time Totals</h2>
+        <h2 class="section-title">All-Time Totals</h2>
         <div class="stats-grid">
             <div class="stat-card">
                 <h3><i class="fas fa-microchip"></i> Total GPIO Events</h3>
@@ -588,9 +628,9 @@
         </div>
         
         <!-- Sequence Interruptions Alert -->
-        <div id="interruptionsAlert" class="table-section" style="display:none; background-color: #fff3cd; border-color: #ffc107;">
-            <h2 style="color: #856404;"><i class="fas fa-exclamation-triangle"></i> Possible Sequence Interruptions Detected</h2>
-            <p style="color: #856404; margin-bottom: 15px;">
+        <div id="interruptionsAlert" class="table-section alert-warning" style="display:none;">
+            <h2><i class="fas fa-exclamation-triangle"></i> Possible Sequence Interruptions Detected</h2>
+            <p style="margin-bottom: 15px;" class="muted-text">
                 The following sequences may have been interrupted or failed to complete properly:
             </p>
             <table id="interruptionsTable">
@@ -708,13 +748,13 @@
         
         <!-- Recent Sequence History -->
         <div class="table-section">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="table-actions">
                 <h2><i class="fas fa-history"></i> Recent Sequence History</h2>
                 <div>
-                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('sequence_history', 'csv')">
+                    <button class="refresh-btn btn-success small-btn" onclick="exportData('sequence_history', 'csv')">
                         <i class="fas fa-file-csv"></i> CSV
                     </button>
-                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('sequence_history', 'json')">
+                    <button class="refresh-btn btn-info small-btn ml-5" onclick="exportData('sequence_history', 'json')">
                         <i class="fas fa-file-code"></i> JSON
                     </button>
                 </div>
@@ -731,7 +771,7 @@
                     <option value="stop">Stop Only</option>
                 </select>
                 <label for="seqSearch">Search:</label>
-                <input type="text" id="seqSearch" placeholder="Search sequence or playlist..." style="min-width: 200px;" />
+                <input type="text" id="seqSearch" class="search-input" placeholder="Search sequence or playlist..." />
                 <button onclick="applySequenceFilters()">
                     <i class="fas fa-filter"></i> Apply Filters
                 </button>
@@ -770,13 +810,13 @@
         
         <!-- Recent GPIO Events -->
         <div class="table-section">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="table-actions">
                 <h2><i class="fas fa-microchip"></i> Recent GPIO Events</h2>
                 <div>
-                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('gpio_events', 'csv')">
+                    <button class="refresh-btn btn-success small-btn" onclick="exportData('gpio_events', 'csv')">
                         <i class="fas fa-file-csv"></i> CSV
                     </button>
-                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('gpio_events', 'json')">
+                    <button class="refresh-btn btn-info small-btn ml-5" onclick="exportData('gpio_events', 'json')">
                         <i class="fas fa-file-code"></i> JSON
                     </button>
                 </div>
@@ -791,7 +831,7 @@
                     <option value="">All Pins</option>
                 </select>
                 <label for="gpioSearch">Search:</label>
-                <input type="text" id="gpioSearch" placeholder="Search pin or description..." style="min-width: 200px;" />
+                <input type="text" id="gpioSearch" class="search-input" placeholder="Search pin or description..." />
                 <button onclick="applyGPIOFilters()">
                     <i class="fas fa-filter"></i> Apply Filters
                 </button>
@@ -830,13 +870,13 @@
         
         <!-- Command History Section -->
         <div class="table-section">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="table-actions">
                 <h2><i class="fas fa-terminal"></i> Recent Command Executions</h2>
                 <div>
-                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('command_history', 'csv')">
+                    <button class="refresh-btn btn-success small-btn" onclick="exportData('command_history', 'csv')">
                         <i class="fas fa-file-csv"></i> CSV
                     </button>
-                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('command_history', 'json')">
+                    <button class="refresh-btn btn-info small-btn ml-5" onclick="exportData('command_history', 'json')">
                         <i class="fas fa-file-code"></i> JSON
                     </button>
                 </div>
@@ -882,13 +922,13 @@
         
         <!-- Command Preset History Section -->
         <div class="table-section">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="table-actions">
                 <h2><i class="fas fa-layer-group"></i> Recent Command Preset Executions</h2>
                 <div>
-                    <button class="refresh-btn" style="background-color: #28a745; padding: 6px 12px; font-size: 13px;" onclick="exportData('command_preset_history', 'csv')">
+                    <button class="refresh-btn btn-success small-btn" onclick="exportData('command_preset_history', 'csv')">
                         <i class="fas fa-file-csv"></i> CSV
                     </button>
-                    <button class="refresh-btn" style="background-color: #17a2b8; padding: 6px 12px; font-size: 13px; margin-left: 5px;" onclick="exportData('command_preset_history', 'json')">
+                    <button class="refresh-btn btn-info small-btn ml-5" onclick="exportData('command_preset_history', 'json')">
                         <i class="fas fa-file-code"></i> JSON
                     </button>
                 </div>
@@ -1041,7 +1081,7 @@
                         topGpioTable.style.display = 'table';
                         topGpioEmpty.style.display = 'none';
                         topGpioBody.innerHTML = data.top_gpio_pins.map((pin, idx) => {
-                            const description = pin.description || '<span style="color: #6c757d;">N/A</span>';
+                            const description = pin.description || '<span class="muted-text">N/A</span>';
                             return `
                             <tr>
                                 <td>${idx + 1}</td>
@@ -1404,7 +1444,7 @@
                             // For start events, duration is sequence metadata (not playback time)
                             // For stop events, duration is actual playback time
                             const displayDuration = seq.event_type === 'start' ? 
-                                '<span style="color: #6c757d;">--</span>' : 
+                                '<span class="muted-text">--</span>' : 
                                 formatDuration(seq.duration);
                             
                             return `
@@ -1412,7 +1452,7 @@
                                 <td>${formatTimestamp(seq.timestamp * 1000)}</td>
                                 <td>${seq.sequence_name}</td>
                                 <td><span class="badge ${seq.event_type === 'start' ? 'badge-success' : 'badge-warning'}">${seq.event_type}</span></td>
-                                <td>${seq.playlist_name || '<span style="color: #6c757d;">N/A</span>'}</td>
+                                <td>${seq.playlist_name || '<span class="muted-text">N/A</span>'}</td>
                                 <td>${displayDuration}</td>
                             </tr>
                         `}).join('');
@@ -1478,7 +1518,7 @@
                         gpioTable.style.display = 'table';
                         gpioEmpty.style.display = 'none';
                         gpioBody.innerHTML = data.events.map(event => {
-                            const description = event.description || '<span style="color: #6c757d;">N/A</span>';
+                            const description = event.description || '<span class="muted-text">N/A</span>';
                             const eventType = event.event_type || 'event';
                             const stateColor = event.pin_state == 1 ? '#28a745' : '#dc3545';
                             return `
@@ -1486,7 +1526,7 @@
                                 <td>${formatTimestamp(event.timestamp * 1000)}</td>
                                 <td><code>${event.pin_number}</code></td>
                                 <td><strong>${description}</strong></td>
-                                <td><span style="color: #007bff;">${eventType}</span></td>
+                                <td><span class="text-primary">${eventType}</span></td>
                                 <td><strong style="color: ${stateColor};">${event.pin_state == 1 ? 'HIGH' : 'LOW'}</strong></td>
                             </tr>
                         `}).join('');
@@ -1550,7 +1590,7 @@
                                 <td>${item.start_time}</td>
                                 <td><strong>${item.sequence_name}</strong></td>
                                 <td>${playlistName}</td>
-                                <td><span style="color: #dc3545;">${issue}</span></td>
+                                <td><span class="text-danger">${issue}</span></td>
                             </tr>
                         `;
                     }).join('');

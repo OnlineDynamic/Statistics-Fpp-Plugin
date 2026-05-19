@@ -8,90 +8,168 @@
     <?php include_once(__DIR__ . '/../logo_base64.php'); ?>
     <?php echo getMQTTWarningStyles(); ?>
     <style>
-        /* Tab Navigation */
+        :root {
+            --bg: #ffffff;
+            --text: #111111;
+            --muted: #6c757d;
+            --border: #dee2e6;
+            --surface: #f8f9fa;
+            --surface-strong: #ffffff;
+            --primary: #007bff;
+            --secondary: #6c757d;
+            --secondary-dark: #5a6268;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --purple: #9c27b0;
+            --code-bg: #2d2d2d;
+            --panel-shadow: rgba(0,0,0,0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0d1117;
+                --text: #e6edf3;
+                --muted: #9ba0ab;
+                --border: #272c34;
+                --surface: #161b22;
+                --surface-strong: #0e1218;
+                --primary: #58a6ff;
+                --secondary: #8b95a2;
+                --secondary-dark: #6e7b8b;
+                --success: #3fb950;
+                --warning: #d29922;
+                --danger: #f85149;
+                --info: #5bc0de;
+                --purple: #b17ee3;
+                --code-bg: #0b1220;
+                --panel-shadow: rgba(0,0,0,0.4);
+            }
+        }
+
+        body.dark, .dark {
+            --bg: #0d1117;
+            --text: #e6edf3;
+            --muted: #9ba0ab;
+            --border: #272c34;
+            --surface: #161b22;
+            --surface-strong: #0e1218;
+            --secondary: #8b95a2;
+            --secondary-dark: #6e7b8b;
+            --purple: #b17ee3;
+            --panel-shadow: rgba(0,0,0,0.4);
+            --code-bg: #0b1220;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
         .tab-navigation {
             display: flex;
-            border-bottom: 2px solid #dee2e6;
+            border-bottom: 2px solid var(--border);
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        
+
         .tab-button {
             padding: 12px 24px;
-            background-color: #f8f9fa;
+            background-color: var(--surface);
             border: none;
             border-bottom: 3px solid transparent;
             cursor: pointer;
             font-size: 16px;
             font-weight: 500;
             transition: all 0.3s;
-            color: #495057;
+            color: var(--text);
         }
-        
+
         .tab-button:hover {
-            background-color: #e9ecef;
+            background-color: var(--surface-strong);
         }
-        
+
         .tab-button.active {
-            background-color: #fff;
-            border-bottom-color: #007bff;
-            color: #007bff;
+            background-color: var(--surface-strong);
+            border-bottom-color: var(--primary);
+            color: var(--primary);
         }
-        
+
         .tab-content {
             display: none;
             animation: fadeIn 0.3s;
         }
-        
+
         .tab-content.active {
             display: block;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        
+
         .section-divider {
             margin: 30px 0;
-            border-top: 2px solid #e0e0e0;
+            border-top: 2px solid var(--border);
         }
-        
-        .about-section {
-            background-color: #f8f9fa;
-            padding: 20px;
+
+        .about-section,
+        .help-box,
+        .help-note,
+        .help-table {
+            background-color: var(--surface);
+        }
+
+        .about-section,
+        .help-box,
+        .bubble,
+        .help-table {
             border-radius: 8px;
-            border: 2px solid #dee2e6;
+            box-shadow: 0 2px 4px var(--panel-shadow);
+        }
+
+        .about-section {
+            padding: 20px;
+            border: 2px solid var(--border);
             margin: 20px 0;
         }
-        
-        .about-section h2 {
+
+        .about-section h2,
+        .help-box h3,
+        .page-title {
             margin-top: 0;
-            color: #007bff;
         }
-        
+
+        .about-section h2,
+        .help-box h3 {
+            color: var(--primary);
+        }
+
         .credits {
             font-size: 16px;
             line-height: 1.8;
         }
-        
-        .credits a {
-            color: #007bff;
+
+        .credits a,
+        .help-link {
+            color: var(--primary);
             text-decoration: none;
         }
-        
-        .credits a:hover {
+
+        .credits a:hover,
+        .help-link:hover {
             text-decoration: underline;
         }
-        
+
         .api-endpoint {
-            background-color: #f8f9fa;
-            border-left: 4px solid #007bff;
+            border-left: 4px solid var(--primary);
             padding: 15px;
             margin: 15px 0;
             border-radius: 4px;
         }
-        
+
         .api-method {
             display: inline-block;
             padding: 4px 8px;
@@ -99,28 +177,28 @@
             font-weight: bold;
             font-size: 12px;
             margin-right: 10px;
+            color: white;
         }
-        
+
         .api-method.get {
-            background-color: #28a745;
-            color: white;
+            background-color: var(--success);
         }
-        
+
         .api-method.post {
-            background-color: #007bff;
-            color: white;
+            background-color: var(--primary);
         }
-        
+
         .api-path {
             font-family: monospace;
-            background-color: #e9ecef;
+            background-color: var(--surface-strong);
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 14px;
+            color: var(--text);
         }
-        
+
         .code-block {
-            background-color: #2d2d2d;
+            background-color: var(--code-bg);
             color: #f8f8f2;
             padding: 15px;
             border-radius: 4px;
@@ -129,32 +207,273 @@
             font-size: 13px;
             margin: 10px 0;
         }
-        
+
         .header-buttons a {
             display: inline-block;
             margin-left: 10px;
             padding: 8px 15px;
-            background-color: #6c757d;
+            background-color: var(--secondary);
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s;
         }
-        
+
         .header-buttons a:hover {
-            background-color: #5a6268;
+            background-color: var(--secondary-dark);
         }
-        
+
         .header-buttons a i {
             margin-right: 5px;
+        }
+
+        .help-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 28px;
+            color: var(--text);
+        }
+
+        .help-box {
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--border);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .help-box.info { border-left-color: var(--primary); }
+        .help-box.success { border-left-color: var(--success); }
+        .help-box.warning { border-left-color: var(--warning); }
+        .help-box.danger { border-left-color: var(--danger); }
+        .help-box.note { border-left-color: var(--border); }
+        .help-box.purple { border-left-color: var(--purple); }
+
+        .help-box.info h3,
+        .help-box.success h3,
+        .help-box.warning h3,
+        .help-box.danger h3,
+        .help-box.purple h3,
+        .help-box.note h3 {
+            color: inherit;
+        }
+
+        .help-box.success h3 { color: var(--success); }
+        .help-box.warning h3 { color: var(--warning); }
+        .help-box.danger h3 { color: var(--danger); }
+        .help-box.info h3 { color: var(--primary); }
+        .help-box.note h3 { color: var(--text); }
+        .help-box.purple h3 { color: var(--purple); }
+        .help-box h3,
+        .help-box h4 {
+            margin-top: 0;
+        }
+        .help-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background-color: var(--primary);
+        }
+
+        .action-btn.success {
+            background-color: var(--success);
+        }
+
+        .action-btn.secondary {
+            background-color: var(--secondary);
+        }
+
+        .action-btn:hover {
+            opacity: 0.95;
+        }
+
+        .inline-error {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .spinner-icon {
+            font-size: 32px;
+            color: var(--primary);
+        }
+
+        .help-box.warning h4 {
+            color: var(--warning);
+        }
+
+        .system-config-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .help-note {
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+
+        .help-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .help-table th,
+        .help-table td {
+            padding: 8px;
+        }
+
+        .help-table tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .help-table th {
+            font-weight: bold;
+            width: 200px;
+        }
+
+        .help-key {
+            font-weight: bold;
+            width: 200px;
+        }
+
+        .help-label {
+            font-weight: bold;
+        }
+
+        .commit-item {
+            background-color: var(--surface);
+            border-left: 4px solid var(--primary);
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .commit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .commit-hash {
+            background-color: var(--surface-strong);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: var(--text);
+        }
+
+        .commit-meta {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .commit-error,
+        .commit-error-danger {
+            text-align: center;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .commit-error {
+            background-color: rgba(255,193,7,0.12);
+            border: 2px solid rgba(255,193,7,0.35);
+        }
+
+        .commit-error-danger {
+            background-color: rgba(248,215,218,0.35);
+            border: 2px solid rgba(245,198,203,0.6);
+        }
+
+        .commit-error-icon,
+        .commit-error-danger-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .commit-error-icon {
+            color: var(--warning);
+        }
+
+        .commit-error-danger-icon {
+            color: var(--danger);
+        }
+
+        .commit-error-text,
+        .commit-error-danger-text {
+            margin: 0;
+        }
+
+        .commit-error-text {
+            color: var(--warning);
+        }
+
+        .commit-error-danger-text {
+            color: var(--danger);
+        }
+
+        .system-config-box {
+            background-color: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .help-list {
+            margin: 0;
+        }
+
+        .help-list li {
+            margin-bottom: 6px;
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .muted-text {
+            color: var(--muted);
         }
     </style>
 </head>
 <body>
     <div id="global" class="settings">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h1 style="margin: 0;">Advanced Stats Plugin - Help & About</h1>
+        <div class="help-page-header">
+            <h1 class="page-title">Advanced Stats Plugin - Help & About</h1>
             <div class="header-buttons">
                 <a href="plugin.php?_menu=status&plugin=fpp-plugin-AdvancedStats&page=advancedstats.php">
                     <i class="fas fa-chart-line"></i> Dashboard
@@ -202,10 +521,10 @@
             </p>
             
             <h2>Key Features</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
-                <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-top: 0; color: #007bff;"><i class="fas fa-chart-line"></i> Real-Time Analytics</h3>
-                    <ul style="margin: 0;">
+            <div class="help-grid">
+                <div class="help-box info">
+                    <h3><i class="fas fa-chart-line"></i> Real-Time Analytics</h3>
+                    <ul>
                         <li>Live event monitoring</li>
                         <li>Time-series graphs with multiple periods</li>
                         <li>Heat map visualizations (day/hour activity)</li>
@@ -213,9 +532,9 @@
                     </ul>
                 </div>
                 
-                <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-top: 0; color: #28a745;"><i class="fas fa-database"></i> Data Tracking</h3>
-                    <ul style="margin: 0;">
+                <div class="help-box success">
+                    <h3><i class="fas fa-database"></i> Data Tracking</h3>
+                    <ul>
                         <li>Sequence playback history</li>
                         <li>Playlist execution logs</li>
                         <li>GPIO button event capture</li>
@@ -223,9 +542,9 @@
                     </ul>
                 </div>
                 
-                <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-top: 0; color: #856404;"><i class="fas fa-search"></i> Search & Filter</h3>
-                    <ul style="margin: 0;">
+                <div class="help-box warning">
+                    <h3><i class="fas fa-search"></i> Search & Filter</h3>
+                    <ul>
                         <li>Search sequences by name</li>
                         <li>Filter GPIO events by pin</li>
                         <li>Paginated results (15 per page)</li>
@@ -233,9 +552,9 @@
                     </ul>
                 </div>
                 
-                <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-top: 0; color: #dc3545;"><i class="fas fa-microchip"></i> GPIO Integration</h3>
-                    <ul style="margin: 0;">
+                <div class="help-box danger">
+                    <h3><i class="fas fa-microchip"></i> GPIO Integration</h3>
+                    <ul>
                         <li>Button press tracking</li>
                         <li>Rising/falling edge detection</li>
                         <li>Custom pin descriptions</li>
@@ -243,9 +562,9 @@
                     </ul>
                 </div>
                 
-                <div style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-top: 0; color: #17a2b8;"><i class="fas fa-code"></i> REST API</h3>
-                    <ul style="margin: 0;">
+                <div class="help-box info">
+                    <h3><i class="fas fa-code"></i> REST API</h3>
+                    <ul>
                         <li>Full programmatic access</li>
                         <li>JSON response format</li>
                         <li>15+ endpoints available</li>
@@ -253,9 +572,9 @@
                     </ul>
                 </div>
                 
-                <div style="background-color: #e2e3e5; border-left: 4px solid #6c757d; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-top: 0; color: #6c757d;"><i class="fas fa-shield-alt"></i> Data Management</h3>
-                    <ul style="margin: 0;">
+                <div class="help-box note">
+                    <h3><i class="fas fa-shield-alt"></i> Data Management</h3>
+                    <ul>
                         <li>Database backup & restore</li>
                         <li>Automatic data archiving</li>
                         <li>Retention policies (up to 10 years)</li>
@@ -263,9 +582,9 @@
                     </ul>
                 </div>
                 
-                <div style="background-color: #e8d5f2; border-left: 4px solid #9c27b0; padding: 15px; border-radius: 4px;">
-                    <h3 style="margin-top: 0; color: #9c27b0;"><i class="fas fa-terminal"></i> Command Tracking</h3>
-                    <ul style="margin: 0;">
+                <div class="help-box purple">
+                    <h3><i class="fas fa-terminal"></i> Command Tracking</h3>
+                    <ul>
                         <li>Individual command execution logs</li>
                         <li>Command preset triggering</li>
                         <li>Trigger source identification (UI/API/Internal)</li>
@@ -296,8 +615,8 @@
             </ul>
             
             <h2>Command Tracking Features</h2>
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #dee2e6;">
-                <h3 style="margin-top: 0;"><i class="fas fa-terminal"></i> Command Execution Tracking</h3>
+            <div class="help-box note">
+                <h3><i class="fas fa-terminal"></i> Command Execution Tracking</h3>
                 <p>The plugin automatically tracks all FPP command executions and identifies how they were triggered:</p>
                 <ul>
                     <li><strong>UI Triggers:</strong> Commands executed through FPP's "Run FPP Command" dialog</li>
@@ -344,7 +663,7 @@
                     </ul>
                 </li>
                 <li><strong>Enable MQTT Broker (REQUIRED):</strong>
-                    <div style="background-color: #fff3cd; padding: 15px; margin: 10px 0; border-left: 4px solid #ffc107; border-radius: 4px;">
+                    <div class="help-box warning">
                         <strong>⚠️ Important:</strong> This plugin requires MQTT to be enabled to collect statistics.
                     </div>
                     <ul>
@@ -365,11 +684,11 @@
                             </ul>
                         </li>
                     </ul>
-                    <div style="background-color: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 4px; border: 1px solid #dee2e6;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr style="border-bottom: 1px solid #dee2e6;">
-                                <td style="padding: 8px; font-weight: bold; width: 200px;">Setting</td>
-                                <td style="padding: 8px; font-weight: bold;">Value</td>
+                    <div class="help-box note">
+                        <table class="help-table">
+                            <tr>
+                                <td class="help-key">Setting</td>
+                                <td class="help-label">Value</td>
                             </tr>
                             <tr>
                                 <td style="padding: 8px;"><strong>MQTT Host:</strong></td>
@@ -428,7 +747,7 @@
             
             <h2>MQTT Topic Structure</h2>
             <p>The plugin automatically listens to the following MQTT topics to collect statistics:</p>
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; border: 1px solid #dee2e6;">
+            <div class="help-box note">
                 <ul style="font-family: monospace; font-size: 14px;">
                     <li><code>falcon/player/#/playlist/name/status</code> - Playlist start/stop events</li>
                     <li><code>falcon/player/#/playlist/sequence/status</code> - Sequence within playlist events</li>
@@ -449,8 +768,8 @@
             </ul>
             
             <h2>Understanding Your Dashboard</h2>
-            <div style="background-color: #e7f3ff; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #007bff;">
-                <h3 style="margin-top: 0;">Quick Stats Cards (Top of Page)</h3>
+            <div class="help-box info">
+                <h3>Quick Stats Cards (Top of Page)</h3>
                 <ul>
                     <li><strong>Total Sequences:</strong> Number of unique sequences played</li>
                     <li><strong>Total Playlists:</strong> Number of playlist start events</li>
@@ -459,8 +778,8 @@
                 </ul>
             </div>
             
-            <div style="background-color: #d4edda; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #28a745;">
-                <h3 style="margin-top: 0;">Time-Series Graphs</h3>
+            <div class="help-box success">
+                <h3>Time-Series Graphs</h3>
                 <p>Three interactive charts showing activity over time:</p>
                 <ul>
                     <li><strong>Sequence Activity:</strong> Track how many sequences played per period</li>
@@ -470,8 +789,8 @@
                 <p>Use the period buttons (Hour/Day/Week/Month) to zoom in or out.</p>
             </div>
             
-            <div style="background-color: #fff3cd; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #ffc107;">
-                <h3 style="margin-top: 0;">Heat Map Visualization</h3>
+            <div class="help-box warning">
+                <h3>Heat Map Visualization</h3>
                 <p>Shows a 7×24 grid (days of week vs. hours of day) with color intensity representing activity level:</p>
                 <ul>
                     <li><strong>Dark blue:</strong> High activity</li>
@@ -485,7 +804,7 @@
             <p>The plugin includes several tools to help you manage your statistics database:</p>
             
             <h3>Backup & Restore</h3>
-            <div style="background-color: #d1ecf1; padding: 15px; margin: 15px 0; border-radius: 4px; border-left: 4px solid #17a2b8;">
+            <div class="help-box info">
                 <p><strong>Location:</strong> Backup and restore functions are located in the <strong>Settings</strong> page under the <strong>Database Information</strong> section.</p>
             </div>
             <ul>
@@ -541,7 +860,7 @@
             </ul>
             <p>Click "Refresh Database Info" to update the statistics.</p>
             
-            <div style="background-color: #f8d7da; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545; border-radius: 4px;">
+            <div class="help-box danger">
                 <strong>⚠️ Warning:</strong> Archived data is permanently deleted and cannot be recovered. Always create a backup before archiving if you might need the historical data later.
             </div>
         </div>
@@ -847,7 +1166,7 @@ curl -X POST http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/archive-ol
         <div id="troubleshooting" class="tab-content">
             <h2>Common Issues & Solutions</h2>
             
-            <div style="background-color: #f8f9fa; border-left: 4px solid #007bff; padding: 15px; margin: 15px 0; border-radius: 4px;">
+            <div class="help-box info">
                 <h3 style="margin-top: 0;"><i class="fas fa-exclamation-triangle"></i> No Statistics Being Collected</h3>
                 <p><strong>Symptoms:</strong> Dashboard shows zero events, no data appearing</p>
                 <p><strong>Causes & Solutions:</strong></p>
@@ -877,7 +1196,7 @@ curl -X POST http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/archive-ol
                 </ol>
             </div>
             
-            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 4px;">
+            <div class="help-box warning">
                 <h3 style="margin-top: 0;"><i class="fas fa-chart-line"></i> Charts Not Loading / Displaying Errors</h3>
                 <p><strong>Symptoms:</strong> Blank chart areas, JavaScript errors in console</p>
                 <p><strong>Solutions:</strong></p>
@@ -889,7 +1208,7 @@ curl -X POST http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/archive-ol
                 </ul>
             </div>
             
-            <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 15px 0; border-radius: 4px;">
+            <div class="help-box success">
                 <h3 style="margin-top: 0;"><i class="fas fa-database"></i> Database Errors</h3>
                 <p><strong>Symptoms:</strong> "Database locked" errors, data not saving</p>
                 <p><strong>Solutions:</strong></p>
@@ -911,7 +1230,7 @@ curl -X POST http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/archive-ol
                 </ul>
             </div>
             
-            <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 4px;">
+            <div class="help-box danger">
                 <h3 style="margin-top: 0;"><i class="fas fa-microchip"></i> GPIO Events Not Being Captured</h3>
                 <p><strong>Symptoms:</strong> Button presses work but don't appear in stats</p>
                 <p><strong>Solutions:</strong></p>
@@ -937,7 +1256,7 @@ curl -X POST http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/archive-ol
                 </ul>
             </div>
             
-            <div style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 15px 0; border-radius: 4px;">
+            <div class="help-box info">
                 <h3 style="margin-top: 0;"><i class="fas fa-sync-alt"></i> Dashboard Not Updating / Stale Data</h3>
                 <p><strong>Solutions:</strong></p>
                 <ul>
@@ -949,7 +1268,7 @@ curl -X POST http://192.168.1.200/api/plugin/fpp-plugin-AdvancedStats/archive-ol
             </div>
             
             <h3>Performance Optimization</h3>
-            <div style="background-color: #e2e3e5; padding: 15px; margin: 15px 0; border-radius: 4px; border: 1px solid #6c757d;">
+            <div class="help-box note">
                 <p><strong>If dashboard is loading slowly:</strong></p>
                 <ul>
                     <li><strong>Archive Old Data:</strong> Large databases slow down queries
@@ -1005,15 +1324,13 @@ curl http://localhost/api/plugin/fpp-plugin-AdvancedStats/status
         <div id="support" class="tab-content">
             <h2><i class="fas fa-life-ring"></i> Support & System Diagnostics</h2>
             
-            <div style="background-color: #d4edda; border: 2px solid #28a745; border-radius: 5px; padding: 15px; margin-bottom: 20px;">
-                <h3 style="margin-top: 0; color: #155724;"><i class="fab fa-github"></i> Report Issues</h3>
-                <p style="margin-bottom: 10px;">
+            <div class="help-box success">
+                <h3><i class="fab fa-github"></i> Report Issues</h3>
+                <p>
                     If you encounter problems or have feature requests, please report them on GitHub:
                 </p>
                 <p style="text-align: center; margin: 15px 0;">
-                    <a href="https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues/new" target="_blank" 
-                       style="display: inline-block; background-color: #28a745; color: white; padding: 12px 24px; 
-                              text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    <a href="https://github.com/OnlineDynamic/Statistics-Fpp-Plugin/issues/new" target="_blank" class="action-btn success">
                         <i class="fab fa-github"></i> Open GitHub Issues
                     </a>
                 </p>
@@ -1027,30 +1344,25 @@ curl http://localhost/api/plugin/fpp-plugin-AdvancedStats/status
             </p>
             
             <div style="margin: 20px 0;">
-                <button onclick="loadSystemConfigAdvStats()" style="padding: 10px 20px; background-color: #007bff; color: white; 
-                        border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+                <button onclick="loadSystemConfigAdvStats()" class="action-btn primary">
                     <i class="fas fa-sync-alt"></i> Refresh System Info
                 </button>
-                <button onclick="copySystemConfigAdvStats()" style="padding: 10px 20px; background-color: #28a745; color: white; 
-                        border: none; border-radius: 5px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+                <button onclick="copySystemConfigAdvStats()" class="action-btn success">
                     <i class="fas fa-copy"></i> Copy to Clipboard
                 </button>
-                <button onclick="createGitHubIssueAdvStats()" style="padding: 10px 20px; background-color: #6c757d; color: white; 
-                        border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                <button onclick="createGitHubIssueAdvStats()" class="action-btn secondary">
                     <i class="fab fa-github"></i> Create GitHub Issue
                 </button>
             </div>
             
-            <div id="systemConfigContainerAdvStats" style="background-color: #f8f9fa; border: 2px solid #dee2e6; 
-                 border-radius: 5px; padding: 15px; margin: 20px 0;">
-                <pre id="systemConfigContentAdvStats" style="margin: 0; white-space: pre-wrap; word-wrap: break-word; 
-                     font-family: 'Courier New', monospace; font-size: 12px; max-height: 600px; overflow-y: auto;">
+            <div id="systemConfigContainerAdvStats" class="system-config-box">
+                <pre id="systemConfigContentAdvStats">
 <i class="fas fa-spinner fa-spin"></i> Click "Refresh System Info" to load configuration data...</pre>
             </div>
             
-            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
-                <h4 style="margin-top: 0; color: #856404;"><i class="fas fa-info-circle"></i> What to Include in Bug Reports</h4>
-                <ul style="margin-bottom: 0;">
+            <div class="help-box warning">
+                <h4><i class="fas fa-info-circle"></i> What to Include in Bug Reports</h4>
+                <ul>
                     <li><strong>System Configuration:</strong> The diagnostic info above (copied via button)</li>
                     <li><strong>Problem Description:</strong> Clear description of the issue</li>
                     <li><strong>Steps to Reproduce:</strong> Exact steps that cause the problem</li>
@@ -1075,12 +1387,12 @@ curl http://localhost/api/plugin/fpp-plugin-AdvancedStats/status
                                 systemConfigDataAdvStats = data.diagnostics;
                                 container.textContent = systemConfigDataAdvStats;
                             } else {
-                                container.innerHTML = '<span style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Error loading system configuration: ' + 
+                                container.innerHTML = '<span class="inline-error"><i class="fas fa-exclamation-triangle"></i> Error loading system configuration: ' + 
                                     (data.message || 'Unknown error') + '</span>';
                             }
                         })
                         .catch(error => {
-                            container.innerHTML = '<span style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Error: ' + 
+                            container.innerHTML = '<span class="inline-error"><i class="fas fa-exclamation-triangle"></i> Error: ' + 
                                 error.message + '</span>';
                         });
                 }
@@ -1157,8 +1469,8 @@ ${systemConfigDataAdvStats}
             
             <div id="changelogContent" style="margin-top: 20px;">
                 <div style="text-align: center; padding: 40px;">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #007bff;"></i>
-                    <p style="margin-top: 15px; color: #6c757d;">Loading commit history...</p>
+                    <i class="fas fa-spinner fa-spin spinner-icon"></i>
+                    <p class="muted-text" style="margin-top: 15px;">Loading commit history...</p>
                 </div>
             </div>
             
@@ -1192,21 +1504,16 @@ ${systemConfigDataAdvStats}
                                     const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
                                     
                                     html += `
-                                        <div style="background-color: ${bgColor}; 
-                                                    border-left: 4px solid #007bff; 
-                                                    padding: 15px 20px; 
-                                                    margin-bottom: 10px; 
-                                                    border-radius: 4px;
-                                                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                        <div class="commit-item">
+                                            <div class="commit-header">
                                                 <div style="flex: 1;">
-                                                    <strong style="color: #212529; font-size: 15px;">${escapedMessage}</strong>
+                                                    <strong style="color: var(--text); font-size: 15px;">${escapedMessage}</strong>
                                                 </div>
                                                 <div style="text-align: right; margin-left: 15px;">
-                                                    <code style="background-color: #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 11px; color: #495057;">${shortHash}</code>
+                                                    <code class="commit-hash">${shortHash}</code>
                                                 </div>
                                             </div>
-                                            <div style="font-size: 13px; color: #6c757d;">
+                                            <div class="commit-meta">
                                                 <i class="fas fa-user" style="margin-right: 5px;"></i>${escapedAuthor}
                                                 <span style="margin: 0 10px;">•</span>
                                                 <i class="fas fa-calendar" style="margin-right: 5px;"></i>${formattedDate}
@@ -1218,18 +1525,18 @@ ${systemConfigDataAdvStats}
                             } else {
                                 const errorMsg = data.message || 'Unable to load commit history. This may be a manual installation or Git is not available.';
                                 container.innerHTML = `
-                                    <div style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 20px; text-align: center;">
-                                        <i class="fas fa-exclamation-triangle" style="font-size: 32px; color: #856404; margin-bottom: 10px;"></i>
-                                        <p style="margin: 0; color: #856404;">${escapeHtml(errorMsg)}</p>
+                                    <div class="commit-error">
+                                        <i class="fas fa-exclamation-triangle commit-error-icon"></i>
+                                        <p class="commit-error-text">${escapeHtml(errorMsg)}</p>
                                     </div>
                                 `;
                             }
                         })
                         .catch(error => {
                             document.getElementById('changelogContent').innerHTML = `
-                                <div style="background-color: #f8d7da; border: 2px solid #f5c6cb; border-radius: 5px; padding: 20px; text-align: center;">
-                                    <i class="fas fa-exclamation-circle" style="font-size: 32px; color: #721c24; margin-bottom: 10px;"></i>
-                                    <p style="margin: 0; color: #721c24;">Error loading commit history: ${escapeHtml(error.message)}</p>
+                                <div class="commit-error-danger">
+                                    <i class="fas fa-exclamation-circle commit-error-danger-icon"></i>
+                                    <p class="commit-error-danger-text">Error loading commit history: ${escapeHtml(error.message)}</p>
                                 </div>
                             `;
                         });
@@ -1298,7 +1605,7 @@ ${systemConfigDataAdvStats}
                         </a></li>
                     </ul>
                     
-                    <p style="margin-top: 20px; font-size: 14px; color: #6c757d;">
+                    <p class="muted-text" style="margin-top: 20px; font-size: 14px;">
                         This plugin enhances Falcon Player (FPP) by adding comprehensive analytics and 
                         monitoring capabilities to help you understand and optimize your light show operations.
                     </p>

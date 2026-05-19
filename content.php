@@ -6,91 +6,150 @@
     <link rel="stylesheet" href="/css/fpp.css" />
     <?php echo getMQTTWarningStyles(); ?>
     <style>
+        :root {
+            --bg: #ffffff;
+            --text: #111111;
+            --muted: #6c757d;
+            --border: #dee2e6;
+            --surface: #f8f9fa;
+            --primary: #007bff;
+            --primary-dark: #0056b3;
+            --secondary: #6c757d;
+            --secondary-dark: #5a6268;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --panel-shadow: rgba(0,0,0,0.1);
+            --input-border: #ced4da;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0d1117;
+                --text: #e6edf3;
+                --muted: #9ba0ab;
+                --border: #272c34;
+                --surface: #161b22;
+                --primary: #58a6ff;
+                --primary-dark: #1f6feb;
+                --secondary: #8b95a2;
+                --secondary-dark: #6e7b8b;
+                --success: #3fb950;
+                --warning: #d29922;
+                --danger: #f85149;
+                --info: #5bc0de;
+                --panel-shadow: rgba(0,0,0,0.4);
+                --input-border: #3c434b;
+            }
+        }
+
+        body.dark, .dark {
+            --bg: #0d1117;
+            --text: #e6edf3;
+            --muted: #9ba0ab;
+            --border: #272c34;
+            --surface: #161b22;
+            --primary: #58a6ff;
+            --primary-dark: #1f6feb;
+            --secondary: #8b95a2;
+            --secondary-dark: #6e7b8b;
+            --panel-shadow: rgba(0,0,0,0.4);
+            --input-border: #3c434b;
+        }
+
+        html, body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
         .settings-container {
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
-        
+
         .settings-header {
             text-align: center;
             margin-bottom: 30px;
             position: relative;
         }
-        
+
         .settings-header h1 {
-            color: #007bff;
+            color: var(--primary);
             margin-bottom: 10px;
         }
-        
+
         .header-buttons {
             position: absolute;
             top: 0;
             right: 0;
         }
-        
+
         .header-buttons a {
             display: inline-block;
             margin-left: 10px;
             padding: 8px 15px;
-            background-color: #6c757d;
+            background-color: var(--secondary);
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s;
         }
-        
+
         .header-buttons a:hover {
-            background-color: #5a6268;
+            background-color: var(--secondary-dark);
         }
-        
+
         .header-buttons a i {
             margin-right: 5px;
         }
-        
+
         .settings-section {
-            background-color: #f8f9fa;
-            border: 2px solid #dee2e6;
+            background-color: var(--surface);
+            border: 2px solid var(--border);
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .settings-section h3 {
             margin-top: 0;
-            color: #495057;
-            border-bottom: 2px solid #007bff;
+            color: var(--text);
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
         }
-        
+
         .form-group {
             margin-bottom: 15px;
         }
-        
+
         .form-group label {
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
-            color: #495057;
+            color: var(--text);
         }
-        
+
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
             padding: 8px;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--input-border);
             border-radius: 4px;
             font-size: 14px;
+            background-color: var(--bg);
+            color: var(--text);
         }
-        
+
         .form-group small {
             display: block;
-            color: #6c757d;
+            color: var(--muted);
             margin-top: 5px;
         }
-        
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -99,30 +158,95 @@
             font-size: 16px;
             font-weight: bold;
         }
-        
+
         .btn-primary {
-            background-color: #007bff;
+            background-color: var(--primary);
             color: white;
         }
-        
+
         .btn-primary:hover {
-            background-color: #0056b3;
+            background-color: var(--primary-dark);
         }
-        
+
+        .stat-card {
+            background-color: var(--surface);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .stat-card-label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: bold;
+        }
+
+        .stat-card-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
         .placeholder-message {
-            background-color: #fff3cd;
-            border: 2px solid #ffc107;
+            background-color: rgba(255, 193, 7, 0.12);
+            border: 2px solid var(--warning);
             border-radius: 8px;
             padding: 20px;
             margin: 20px 0;
             text-align: center;
         }
-        
+
         .placeholder-message i {
             font-size: 48px;
-            color: #856404;
+            color: var(--warning);
             margin-bottom: 15px;
         }
+
+        .db-stat-card {
+            padding: 15px;
+            border-radius: 4px;
+            background-color: var(--surface);
+            border-left: 4px solid var(--primary);
+        }
+
+        .db-stat-card.success { border-left-color: var(--success); }
+        .db-stat-card.warning { border-left-color: var(--warning); }
+        .db-stat-card.danger { border-left-color: var(--danger); }
+        .db-stat-card.info { border-left-color: var(--info); }
+
+        .db-stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: bold;
+        }
+
+        .db-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .db-stat-card.success .db-stat-value { color: var(--success); }
+        .db-stat-card.warning .db-stat-value { color: var(--warning); }
+        .db-stat-card.danger .db-stat-value { color: var(--danger); }
+        .db-stat-card.info .db-stat-value { color: var(--info); }
+
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-info { background-color: var(--info); color: white; }
+        .btn-info:hover { background-color: #138496; }
+        .btn-warning { background-color: var(--warning); color: #212529; }
+        .btn-warning:hover { background-color: #e0a800; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+
+        .warning-box {
+            background-color: rgba(255, 193, 7, 0.12);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .muted-text { color: var(--muted); }
     </style>
 </head>
 <body>
@@ -137,7 +261,7 @@
                 </a>
             </div>
             <h1><i class="fas fa-cog"></i> Advanced Stats Settings</h1>
-            <p style="color: #6c757d; font-size: 16px;">Configure plugin options and preferences</p>
+            <p class="muted-text" style="font-size: 16px;">Configure plugin options and preferences</p>
         </div>
         
         <?php displayMQTTWarning(); ?>
@@ -167,45 +291,45 @@
                 <h3><i class="fas fa-database"></i> Database Information</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                    <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; border-radius: 4px;">
-                        <div style="font-size: 12px; color: #495057; font-weight: bold;">DATABASE SIZE</div>
-                        <div style="font-size: 24px; color: #007bff; font-weight: bold;" id="dbSize">-</div>
+                    <div class="db-stat-card">
+                        <div class="db-stat-label">DATABASE SIZE</div>
+                        <div class="db-stat-value" id="dbSize">-</div>
                     </div>
-                    
-                    <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 15px; border-radius: 4px;">
-                        <div style="font-size: 12px; color: #495057; font-weight: bold;">SEQUENCE RECORDS</div>
-                        <div style="font-size: 24px; color: #007bff; font-weight: bold;" id="sequenceCount">-</div>
+
+                    <div class="db-stat-card">
+                        <div class="db-stat-label">SEQUENCE RECORDS</div>
+                        <div class="db-stat-value" id="sequenceCount">-</div>
                     </div>
-                    
-                    <div style="background-color: #e7f3ff; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px;">
-                        <div style="font-size: 12px; color: #495057; font-weight: bold;">PLAYLIST RECORDS</div>
-                        <div style="font-size: 24px; color: #28a745; font-weight: bold;" id="playlistCount">-</div>
+
+                    <div class="db-stat-card success">
+                        <div class="db-stat-label">PLAYLIST RECORDS</div>
+                        <div class="db-stat-value" id="playlistCount">-</div>
                     </div>
-                    
-                    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px;">
-                        <div style="font-size: 12px; color: #495057; font-weight: bold;">GPIO RECORDS</div>
-                        <div style="font-size: 24px; color: #856404; font-weight: bold;" id="gpioCount">-</div>
+
+                    <div class="db-stat-card warning">
+                        <div class="db-stat-label">GPIO RECORDS</div>
+                        <div class="db-stat-value" id="gpioCount">-</div>
                     </div>
-                    
-                    <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px;">
-                        <div style="font-size: 12px; color: #495057; font-weight: bold;">DAILY STATS</div>
-                        <div style="font-size: 24px; color: #dc3545; font-weight: bold;" id="dailyStatsCount">-</div>
+
+                    <div class="db-stat-card danger">
+                        <div class="db-stat-label">DAILY STATS</div>
+                        <div class="db-stat-value" id="dailyStatsCount">-</div>
                     </div>
-                    
-                    <div style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; border-radius: 4px;">
-                        <div style="font-size: 12px; color: #495057; font-weight: bold;">TOTAL RECORDS</div>
-                        <div style="font-size: 24px; color: #17a2b8; font-weight: bold;" id="totalRecords">-</div>
+
+                    <div class="db-stat-card info">
+                        <div class="db-stat-label">TOTAL RECORDS</div>
+                        <div class="db-stat-value" id="totalRecords">-</div>
                     </div>
                 </div>
-                
+
                 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                    <button type="button" class="btn" style="background-color: #17a2b8; color: white;" onclick="loadDatabaseInfo()">
+                    <button type="button" class="btn btn-info" onclick="loadDatabaseInfo()">
                         <i class="fas fa-sync-alt"></i> Refresh Database Info
                     </button>
-                    <button type="button" class="btn" style="background-color: #28a745; color: white;" onclick="backupDatabase()">
+                    <button type="button" class="btn btn-success" onclick="backupDatabase()">
                         <i class="fas fa-download"></i> Backup Database
                     </button>
-                    <button type="button" class="btn" style="background-color: #ffc107; color: #212529;" onclick="document.getElementById('restoreFileInput').click()">
+                    <button type="button" class="btn btn-warning" onclick="document.getElementById('restoreFileInput').click()">
                         <i class="fas fa-upload"></i> Restore Database
                     </button>
                 </div>
@@ -241,17 +365,17 @@
                     <small>Records older than this will be automatically deleted (if auto-archive is enabled)</small>
                 </div>
                 
-                <div class="form-group" style="background-color: #fff3cd; padding: 15px; border-radius: 4px; border-left: 4px solid #ffc107;">
+                <div class="form-group warning-box">
                     <strong>⚠️ Warning:</strong> When auto-archive is enabled, old data will be permanently deleted.
                     Always create a backup before archiving if you might need the historical data later.
                 </div>
-                
+
                 <div class="form-group" style="text-align: center; margin-top: 20px;">
-                    <button type="button" class="btn" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="showArchiveDialog()">
+                    <button type="button" class="btn btn-danger" onclick="showArchiveDialog()">
                         <i class="fas fa-archive"></i> Archive Old Data Now
                     </button>
                     <br>
-                    <small style="color: #6c757d; margin-top: 5px; display: block;">Manually delete old records with preview before deletion</small>
+                    <small class="muted-text" style="margin-top: 5px; display: block;">Manually delete old records with preview before deletion</small>
                 </div>
             </div>
             
