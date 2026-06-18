@@ -12,17 +12,51 @@ import os
 from stats_db import StatsDatabase
 
 # MQTT Configuration
-MQTT_HOST = "localhost"
-MQTT_PORT = 1883
 MQTT_CLIENT_ID = "fpp-plugin-advancedstats"
 
 # FPP Configuration Paths
+FPP_SETTINGS_FILE = "/home/fpp/media/settings"
 GPIO_CONFIG_FILE = "/home/fpp/media/config/gpio.json"
 
-# FPP MQTT Topics
-# FPP publishes status under falcon/player/{hostname}/...
-# Subscribe to all subtopics to capture everything
-TOPIC_ALL = "falcon/player/+/#"
+
+def load_fpp_settings():
+    """Parse FPP settings file (key = "value" format)"""
+    settings = {}
+    try:
+        with open(FPP_SETTINGS_FILE, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if '=' in line:
+                    key, _, value = line.partition('=')
+                    settings[key.strip()] = value.strip().strip('"')
+    except Exception:
+        pass
+    return settings
+
+
+def get_mqtt_config():
+    """Return (host, port, username, password, topic_base) from FPP settings.
+
+    FPP builds its base topic as: {prefix}/{prefix}/falcon/player/{hostname}
+    where prefix = MQTTPrefix with a trailing '/' appended when non-empty.
+    With the default MQTTPrefix='/' that produces '//falcon/player/{hostname}'.
+    """
+    s = load_fpp_settings()
+    host = s.get('MQTTHost', 'localhost')
+    port = int(s.get('MQTTPort', 1883))
+    username = s.get('MQTTUsername', 'fpp')
+    password = s.get('MQTTPassword', '')
+    prefix = s.get('MQTTPrefix', '')
+    if prefix:
+        prefix += '/'
+    topic_base = prefix + 'falcon/player'
+    return host, port, username, password, topic_base
+
+
+MQTT_HOST, MQTT_PORT, _MQTT_USER, _MQTT_PASS, _TOPIC_BASE = get_mqtt_config()
+
+# Subscribe to all FPP player topics for any hostname
+TOPIC_ALL = _TOPIC_BASE + "/+/#"
 
 # Database connection
 db = None
@@ -106,20 +140,15 @@ def on_message(client, userdata, msg):
         except:
             data = {'raw': payload}
         
-        # FPP topic structure: falcon/player/{hostname}/{subtopic}/...
-        # Example: falcon/player/Dev-Pi4/playlist/name/status
-        # Example: falcon/player/Dev-Pi4/current_sequence
-        
-        parts = topic.split('/')
-        if len(parts) < 4:
+        # Strip the base prefix (e.g. "//falcon/player") to get "hostname/subtopic/..."
+        base_prefix = _TOPIC_BASE + '/'
+        if not topic.startswith(base_prefix):
             return
-            
-        # parts[0] = falcon
-        # parts[1] = player  
-        # parts[2] = hostname
-        # parts[3+] = subtopic path
-        
-        subtopic = '/'.join(parts[3:])  # Everything after hostname
+        remainder = topic[len(base_prefix):]  # "FPP-Dev-Pi4/command/run"
+        slash_pos = remainder.find('/')
+        if slash_pos == -1:
+            return
+        subtopic = remainder[slash_pos + 1:]  # Everything after hostname
         
         # Check most specific patterns first to avoid mis-routing
         # Handle sequence-related topics (check before playlist since sequences are under playlist path)
@@ -374,9 +403,7 @@ def main():
     client.on_disconnect = on_disconnect
     client.on_message = on_message
     
-    # Set username and password (FPP uses 'fpp' user credentials)
-    # FPP's local MQTT broker uses the same credentials as the FPP user
-    client.username_pw_set("fpp", "falcon")
+    client.username_pw_set(_MQTT_USER, _MQTT_PASS)
     
     # Connect to MQTT broker
     try:
