@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Live Event Monitor</title>
+    <?php include_once('/opt/fpp/www/common/htmlMeta.inc'); ?>
     <link rel="stylesheet" href="/css/fpp.css" />
     <?php echo getMQTTWarningStyles(); ?>
     <style>
@@ -21,32 +22,19 @@
             --play-bg: #4CAF50;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root{
-                --bg: #0b0b0b;
-                --text: #eaeaea;
-                --muted: #888888;
-                --accent: #4CAF50;
-                --btn-bg: #6c757d;
-                --btn-bg-hover: #5a6268;
-                --panel-bg: #1a1a1a;
-                --stream-bg: #000000;
-                --stream-border: #333333;
-                --stats-bg: #2a2a2a;
-                --pause-bg: #FFC107;
-                --play-bg: #4CAF50;
-            }
-        }
-
-        /* Allow FPP to toggle a 'dark' class on body as well */
-        body.dark, .dark {
+        [data-bs-theme="dark"] {
             --bg: #0b0b0b;
             --text: #eaeaea;
             --muted: #888888;
+            --accent: #4CAF50;
+            --btn-bg: #6c757d;
+            --btn-bg-hover: #5a6268;
             --panel-bg: #1a1a1a;
             --stream-bg: #000000;
             --stream-border: #333333;
             --stats-bg: #2a2a2a;
+            --pause-bg: #FFC107;
+            --play-bg: #4CAF50;
         }
 
         html, body { background: var(--bg); color: var(--text); }
@@ -78,16 +66,18 @@
             display: inline-block;
             margin-left: 10px;
             padding: 8px 15px;
-            background-color: var(--btn-bg);
-            color: white;
+            background-color: var(--panel-bg);
+            color: var(--text);
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s;
+            border: 1px solid var(--stream-border);
         }
 
         .header-buttons a:hover {
-            background-color: var(--btn-bg-hover);
+            background-color: var(--btn-bg);
+            color: #fff;
         }
 
         .header-buttons a i { margin-right: 5px; }

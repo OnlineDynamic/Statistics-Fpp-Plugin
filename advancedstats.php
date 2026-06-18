@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Advanced Stats Dashboard</title>
+    <?php include_once('/opt/fpp/www/common/htmlMeta.inc'); ?>
     <link rel="stylesheet" href="/css/fpp.css" />
     <?php echo getMQTTWarningStyles(); ?>
     <style>
@@ -28,39 +29,23 @@
             --empty-bg: #f5f5f5;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0d1117;
-                --text: #e6edf3;
-                --muted: #9ba0ab;
-                --border: #272c34;
-                --surface: #161b22;
-                --surface-strong: #0e1218;
-                --primary: #58a6ff;
-                --primary-dark: #1f6feb;
-                --secondary: #8b95a2;
-                --secondary-dark: #6e7b8b;
-                --success: #3fb950;
-                --success-dark: #2ea043;
-                --warning: #d29922;
-                --danger: #f85149;
-                --info: #5bc0de;
-                --info-dark: #3aa0c8;
-                --panel-shadow: rgba(0,0,0,0.4);
-                --code-bg: #0b1220;
-                --empty-bg: #11171f;
-            }
-        }
-
-        body.dark, .dark {
+        [data-bs-theme="dark"] {
             --bg: #0d1117;
             --text: #e6edf3;
             --muted: #9ba0ab;
             --border: #272c34;
             --surface: #161b22;
             --surface-strong: #0e1218;
+            --primary: #58a6ff;
+            --primary-dark: #1f6feb;
             --secondary: #8b95a2;
             --secondary-dark: #6e7b8b;
+            --success: #3fb950;
+            --success-dark: #2ea043;
+            --warning: #d29922;
+            --danger: #f85149;
+            --info: #5bc0de;
+            --info-dark: #3aa0c8;
             --panel-shadow: rgba(0,0,0,0.4);
             --code-bg: #0b1220;
             --empty-bg: #11171f;
@@ -105,7 +90,6 @@
             display: inline-block;
             margin-left: 10px;
             padding: 10px 20px;
-            color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
@@ -113,6 +97,18 @@
             cursor: pointer;
             border: none;
             font-weight: 500;
+        }
+
+        .header-buttons a {
+            color: var(--text);
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .header-buttons a:hover {
+            background-color: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
         }
 
         .btn-primary { background-color: var(--primary); }

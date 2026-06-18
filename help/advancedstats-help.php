@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Advanced Stats Plugin - Help & About</title>
+    <?php include_once('/opt/fpp/www/common/htmlMeta.inc'); ?>
     <link rel="stylesheet" href="/css/fpp.css" />
     <link rel="stylesheet" href="/css/fontawesome.all.min.css" />
     <?php include_once(__DIR__ . '/../logo_base64.php'); ?>
@@ -23,43 +24,29 @@
             --danger: #dc3545;
             --info: #17a2b8;
             --purple: #9c27b0;
-            --code-bg: #2d2d2d;
+            --code-bg: #f6f8fa;
+            --code-text: #111111;
             --panel-shadow: rgba(0,0,0,0.1);
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0d1117;
-                --text: #e6edf3;
-                --muted: #9ba0ab;
-                --border: #272c34;
-                --surface: #161b22;
-                --surface-strong: #0e1218;
-                --primary: #58a6ff;
-                --secondary: #8b95a2;
-                --secondary-dark: #6e7b8b;
-                --success: #3fb950;
-                --warning: #d29922;
-                --danger: #f85149;
-                --info: #5bc0de;
-                --purple: #b17ee3;
-                --code-bg: #0b1220;
-                --panel-shadow: rgba(0,0,0,0.4);
-            }
-        }
-
-        body.dark, .dark {
+        [data-bs-theme="dark"] {
             --bg: #0d1117;
             --text: #e6edf3;
             --muted: #9ba0ab;
             --border: #272c34;
             --surface: #161b22;
             --surface-strong: #0e1218;
+            --primary: #58a6ff;
             --secondary: #8b95a2;
             --secondary-dark: #6e7b8b;
+            --success: #3fb950;
+            --warning: #d29922;
+            --danger: #f85149;
+            --info: #5bc0de;
             --purple: #b17ee3;
-            --panel-shadow: rgba(0,0,0,0.4);
             --code-bg: #0b1220;
+            --code-text: #f8f8f2;
+            --panel-shadow: rgba(0,0,0,0.4);
         }
 
         html, body {
@@ -199,29 +186,33 @@
 
         .code-block {
             background-color: var(--code-bg);
-            color: #f8f8f2;
+            color: var(--code-text);
             padding: 15px;
             border-radius: 4px;
             overflow-x: auto;
             font-family: 'Courier New', monospace;
             font-size: 13px;
             margin: 10px 0;
+            border: 1px solid var(--border);
         }
 
         .header-buttons a {
             display: inline-block;
             margin-left: 10px;
             padding: 8px 15px;
-            background-color: var(--secondary);
-            color: white;
+            background-color: var(--surface);
+            color: var(--text);
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s;
+            border: 1px solid var(--border);
         }
 
         .header-buttons a:hover {
-            background-color: var(--secondary-dark);
+            background-color: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
         }
 
         .header-buttons a i {

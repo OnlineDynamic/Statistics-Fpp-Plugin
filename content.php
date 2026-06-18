@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Advanced Stats Settings</title>
+    <?php include_once('/opt/fpp/www/common/htmlMeta.inc'); ?>
     <link rel="stylesheet" href="/css/fpp.css" />
     <?php echo getMQTTWarningStyles(); ?>
     <style>
@@ -24,27 +25,7 @@
             --input-border: #ced4da;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0d1117;
-                --text: #e6edf3;
-                --muted: #9ba0ab;
-                --border: #272c34;
-                --surface: #161b22;
-                --primary: #58a6ff;
-                --primary-dark: #1f6feb;
-                --secondary: #8b95a2;
-                --secondary-dark: #6e7b8b;
-                --success: #3fb950;
-                --warning: #d29922;
-                --danger: #f85149;
-                --info: #5bc0de;
-                --panel-shadow: rgba(0,0,0,0.4);
-                --input-border: #3c434b;
-            }
-        }
-
-        body.dark, .dark {
+        [data-bs-theme="dark"] {
             --bg: #0d1117;
             --text: #e6edf3;
             --muted: #9ba0ab;
@@ -54,6 +35,10 @@
             --primary-dark: #1f6feb;
             --secondary: #8b95a2;
             --secondary-dark: #6e7b8b;
+            --success: #3fb950;
+            --warning: #d29922;
+            --danger: #f85149;
+            --info: #5bc0de;
             --panel-shadow: rgba(0,0,0,0.4);
             --input-border: #3c434b;
         }
@@ -90,16 +75,19 @@
             display: inline-block;
             margin-left: 10px;
             padding: 8px 15px;
-            background-color: var(--secondary);
-            color: white;
+            background-color: var(--surface);
+            color: var(--text);
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             transition: background-color 0.3s;
+            border: 1px solid var(--border);
         }
 
         .header-buttons a:hover {
-            background-color: var(--secondary-dark);
+            background-color: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
         }
 
         .header-buttons a i {
