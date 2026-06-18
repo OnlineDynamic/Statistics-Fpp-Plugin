@@ -320,6 +320,9 @@
                     <button type="button" class="btn btn-warning" onclick="document.getElementById('restoreFileInput').click()">
                         <i class="fas fa-upload"></i> Restore Database
                     </button>
+                    <button type="button" class="btn btn-danger" onclick="emptyDatabase()">
+                        <i class="fas fa-trash"></i> Empty Database
+                    </button>
                 </div>
                 <input type="file" id="restoreFileInput" accept=".db" style="display:none;" onchange="restoreDatabase(this.files[0])" />
             </div>
@@ -402,6 +405,33 @@
         // Backup database
         function backupDatabase() {
             window.location.href = '/api/plugin/fpp-plugin-AdvancedStats/backup-database';
+        }
+        
+        // Empty database
+        function emptyDatabase() {
+            if (!confirm('Are you sure you want to empty the database? This will delete ALL records and cannot be undone. A backup will be created automatically.')) {
+                return;
+            }
+            
+            if (!confirm('This is your last chance to cancel. Are you absolutely certain?')) {
+                return;
+            }
+            
+            fetch('/api/plugin/fpp-plugin-AdvancedStats/empty-database', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Database emptied successfully! Reloading info...');
+                    loadDatabaseInfo();
+                } else {
+                    alert('Empty database failed: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Empty database error: ' + error.message);
+            });
         }
         
         // Restore database

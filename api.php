@@ -83,6 +83,12 @@ function getEndpointsfpppluginAdvancedStats() {
     array_push($result, $ep);
     
     $ep = array(
+        'method' => 'POST',
+        'endpoint' => 'empty-database',
+        'callback' => 'advancedStatsEmptyDatabase');
+    array_push($result, $ep);
+    
+    $ep = array(
         'method' => 'GET',
         'endpoint' => 'export-data',
         'callback' => 'advancedStatsExportData');
@@ -733,6 +739,51 @@ function advancedStatsRestoreDatabase() {
         return json(array(
             'success' => false,
             'message' => 'Failed to restore database'
+        ));
+    }
+}
+
+/**
+ * Empty database - delete all records from all tables
+ */
+function advancedStatsEmptyDatabase() {
+    $dbPath = '/home/fpp/media/config/plugin.fpp-plugin-AdvancedStats.db';
+    
+    if (!file_exists($dbPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Database not found'
+        ));
+    }
+    
+    // Backup current database before emptying
+    $backupPath = $dbPath . '.backup-' . date('YmdHis');
+    if (!copy($dbPath, $backupPath)) {
+        return json(array(
+            'success' => false,
+            'message' => 'Failed to create safety backup before emptying'
+        ));
+    }
+    
+    try {
+        $db = new SQLite3($dbPath);
+        $db->exec('DELETE FROM sequence_history');
+        $db->exec('DELETE FROM playlist_history');
+        $db->exec('DELETE FROM gpio_events');
+        $db->exec('DELETE FROM daily_stats');
+        $db->exec('DELETE FROM command_history');
+        $db->exec('DELETE FROM command_preset_history');
+        $db->close();
+        
+        return json(array(
+            'success' => true,
+            'message' => 'Database emptied successfully',
+            'backup_location' => $backupPath
+        ));
+    } catch (Exception $e) {
+        return json(array(
+            'success' => false,
+            'message' => 'Error emptying database: ' . $e->getMessage()
         ));
     }
 }
